@@ -146,7 +146,7 @@ int Buffer::charAt(int i) const
 	if (i < 0) {
 		i = this->len + i;
 	}
-	if (i >= (signed) this->len) {
+	if (i >= (signed) this->len || i < 0) {
 		return -1;
 	}
 	return this->buf[i];
@@ -189,8 +189,8 @@ void Buffer::lstrip() {
 	}
 }
 
-void Buffer::rstrip() {
-	while (charAt(0) == ' ') {
+Buffer& Buffer::rstrip() {
+	while (charAt(-1) == ' ') {
 		cut(-1);
 	}
 }
