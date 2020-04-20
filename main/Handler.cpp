@@ -5,6 +5,9 @@
 #include "Handler.h"
 #include "Network.h"
 
+// Only packets whose FINAL and ONLY destination is us, and should get
+// an automatic response, are handled here. (Dest. addr. can be QL.)
+
 Ptr<Packet> Ping::handle(const Packet &pkt, Network& net)
 {
 	if ((!pkt.to().isQ() || pkt.to().is_localhost()) && pkt.params().has("PING")) {

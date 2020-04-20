@@ -4,6 +4,8 @@
 #include <string.h>
 #include "Modifier.h"
 
+// Only handles packets that are going to be forwarded.
+
 Ptr<Packet> Rreqi::modify(const Packet &pkt, const Callsign &me)
 {
 	if (! pkt.to().isQ()) {

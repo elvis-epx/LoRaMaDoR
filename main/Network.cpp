@@ -120,6 +120,7 @@ unsigned int Network::get_last_pkt_id() const
 	return last_pkt_id;
 }
 
+// Called from application layer to send a packet
 void Network::send(const Callsign &to, Params params, const Buffer& msg)
 {
 	params.set_ident(get_next_pkt_id());
@@ -127,15 +128,19 @@ void Network::send(const Callsign &to, Params params, const Buffer& msg)
 	sendmsg(pkt);
 }
 
+// schedule radio transmission
 void Network::sendmsg(const Ptr<Packet> pkt)
 {
 	Task *fwd_task = new PacketFwd(pkt, true, TASK_ID_FWD, this);
 	task_mgr.schedule(Ptr<Task>(fwd_task));
 }
 
+// Receive packet targeted to this station
 void Network::recv(Ptr<Packet> pkt)
 {
 	logs("Received pkt", pkt->encode_l3().cold());
+
+	// check if packet can be handled automatically
 	for (unsigned int i = 0; i < handlers.size(); ++i) {
 		Ptr<Packet> response = handlers[i]->handle(*pkt, *this);
 		if (response) {
@@ -143,15 +148,19 @@ void Network::recv(Ptr<Packet> pkt)
 			return;
 		}
 	}
+
+	// if not handled automatically, deliver to application layer
 	app_recv(pkt);
 }
 
+// Called by LoRa layer
 void radio_recv_trampoline(const char *recv_area, unsigned int plen, int rssi)
 {
 	// ugly, but...
 	trampoline_target->radio_recv(recv_area, plen, rssi);
 }
 
+// Handle packet from radio, schedule processing
 void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 {
 	Ptr<Packet> pkt = Packet::decode_l2(recv_area, plen, rssi);
@@ -164,6 +173,7 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 	task_mgr.schedule(Ptr<Task>(fwd_task));
 }
 
+// Send automatic beacon pkt
 unsigned long int Network::beacon(unsigned long int, Task*)
 {
 	send(Callsign("QB"), Params(), Buffer(BEACON_MSG));
@@ -172,6 +182,7 @@ unsigned long int Network::beacon(unsigned long int, Task*)
 	return next;
 }
 
+// purge old packet IDs from recv log
 unsigned long int Network::clean_recv_log(unsigned long int now, Task*)
 {
 	Vector<Buffer> remove_list;
@@ -193,6 +204,7 @@ unsigned long int Network::clean_recv_log(unsigned long int now, Task*)
 	return RECV_LOG_CLEAN;
 }
 
+// purge neighbours that have been silent for a while
 unsigned long int Network::clean_neighbours(unsigned long int now, Task*)
 {
 	Vector<Buffer> remove_list;
@@ -214,6 +226,7 @@ unsigned long int Network::clean_neighbours(unsigned long int now, Task*)
 	return NEIGH_CLEAN;
 }
 
+// execute packet transmission
 unsigned long int Network::tx(unsigned long int now, Task* task)
 {
 	const PacketTx* packet_task = static_cast<PacketTx*>(task);
@@ -223,6 +236,7 @@ unsigned long int Network::tx(unsigned long int now, Task* task)
 	return 0;
 }
 
+// handle packet received from radio or from application layer
 unsigned long int Network::forward(unsigned long int now, Task* task)
 {
 	const PacketFwd* fwd_task = static_cast<PacketFwd*>(task);
@@ -231,7 +245,6 @@ unsigned long int Network::forward(unsigned long int now, Task* task)
 	bool we_are_origin = fwd_task->we_are_origin;
 
 	if (we_are_origin) {
-		// Loopback handling
 		if (me().equal(pkt->to()) || pkt->to().is_localhost()) {
 			recv(pkt);
 			return 0;
