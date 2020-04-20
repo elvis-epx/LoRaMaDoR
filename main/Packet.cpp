@@ -34,12 +34,6 @@ static bool decode_preamble(const char* data, unsigned int len,
 	} else if (d1 >= d2)  {
 		decode_error = 101;
 		return false;
-	} else if ((d2 - data) >= len) {
-		decode_error = 102;
-		return false;
-	} else if (d1 == data) {
-		decode_error = 103;
-		return false;
 	}
 
 	to = Callsign(Buffer(data, d1 - data));
@@ -71,7 +65,7 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 
 Packet::Packet(Packet &&model): _to(model._to), _from(model._from),
 		_params(model._params),
-		_msg(model._msg)
+		_msg(model._msg), _rssi(model._rssi)
 {
 }
 
