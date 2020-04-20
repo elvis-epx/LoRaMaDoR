@@ -64,7 +64,7 @@ void TaskManager::schedule(Ptr<Task> task)
 Ptr<Task> TaskManager::next_task() const
 {
 	Ptr<Task> ret(0);
-	unsigned long int task_time = 999999999999;
+	unsigned long int task_time = 0x7fffffff;
 	for (unsigned int i = 0 ; i < tasks.size(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (! t->cancelled()) {
