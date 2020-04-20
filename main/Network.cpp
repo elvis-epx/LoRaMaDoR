@@ -14,10 +14,11 @@ static const unsigned int RECV_LOG_CLEAN = 60 * 1000; /* 1 minute */
 
 #ifndef UNDER_TEST
 static const unsigned int AVG_BEACON_TIME = 600 * 1000; /* 10 minutes */
+static const unsigned int AVG_FIRST_BEACON_TIME = 30 * 1000; /* 30 seconds */
 #else
 static const unsigned int AVG_BEACON_TIME = 10 * 1000; /* 10 seconds */
+static const unsigned int AVG_FIRST_BEACON_TIME = 1 * 1000; /* 3 seconds */
 #endif
-static const unsigned int AVG_FIRST_BEACON_TIME = 10 * 1000; /* 30 seconds */
 static const char* BEACON_MSG = "LoRaMaDoR 73";
 
 static unsigned long int fudge(unsigned long int avg, double fudge)
