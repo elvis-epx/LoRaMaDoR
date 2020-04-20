@@ -4,8 +4,6 @@
 #include "ArduinoBridge.h"
 #include "CLI.h"
 
-const long int AVG_BEACON_TIME = 30000;
-
 Ptr<Network> Net;
 
 void setup()

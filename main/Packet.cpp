@@ -195,13 +195,6 @@ bool Packet::is_dup(const Packet& other) const
 	return strcmp(this->signature(), other.signature()) == 0;
 }
 
-Buffer Packet::repr() const
-{
-	return Buffer::sprintf("pkt %s < %s : %s msg %s",
-				_to.buf().cold(), _from.buf().cold(),
-				_params.serialized().cold(), _msg.cold());
-}
-
 Callsign Packet::to() const
 {
 	return _to;

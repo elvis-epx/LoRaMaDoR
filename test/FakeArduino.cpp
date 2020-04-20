@@ -16,6 +16,8 @@
 
 static struct timeval tm_first;
 static bool virgin = true;
+unsigned int nvram_id = 73;
+Callsign nvram_cs("FIXMEE-1");
 
 unsigned long int arduino_millis()
 {
@@ -38,23 +40,6 @@ long int arduino_random(long int min, long int max)
 		srandom(tm_first.tv_sec + tm_first.tv_usec);
 	}
 	return min + random() % (max - min);
-}
-
-// Logging
-
-void logs(const char* s1, const char* s2)
-{
-	printf("%s %s\n", s1, s2);
-}
-
-void logi(const char* s1, long int s2)
-{
-	printf("%s %ld\n", s1, s2);
-}
-
-void app_recv(Ptr<Packet> pkt)
-{
-	printf("### app level Received packet\n");
 }
 
 // Emulation of LoRa APIs, network and radio
@@ -169,9 +154,39 @@ void lora_emu_rx()
 
 unsigned int arduino_nvram_id_load()
 {
-	return 73;
+	return nvram_id;
 }
 
-void arduino_nvram_id_save(unsigned int)
+void arduino_nvram_id_save(unsigned int id)
+{
+	nvram_id = id;
+}
+
+void serial_print(const char *msg) {
+	printf("%s", msg);
+}
+
+void serial_print(char msg) {
+	printf("%c", msg);
+}
+
+void serial_println(const char *msg) {
+	printf("%s\n", msg);
+}
+
+void serial_println() {
+	printf("\n");
+}
+
+void arduino_restart() {
+	exit(0);
+}
+
+void arduino_nvram_callsign_save(const Callsign &cs)
+{
+	nvram_cs = cs;
+}
+
+void oled_show(const char *, const char *, const char *, const char*)
 {
 }

@@ -1,4 +1,6 @@
+#ifndef UNDER_TEST
 #include <Arduino.h>
+#endif
 #include "Buffer.h"
 #include "ArduinoBridge.h"
 #include "Display.h"
@@ -35,28 +37,28 @@ void app_recv(Ptr<Packet> pkt)
 void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
-		Serial.print("Callsign is ");
-		Serial.println(Net->me().buf().cold());
+		serial_print("Callsign is ");
+		serial_println(Net->me().buf().cold());
 		return;
 	}
 	
 	if (candidate.charAt(0) == 'Q') {
-		Serial.print("Invalid Q callsign: ");
-		Serial.println(candidate.cold());
+		serial_print("Invalid Q callsign: ");
+		serial_println(candidate.cold());
 		return;
 	}
 
 	Callsign callsign(candidate);
 
 	if (! callsign.is_valid()) {
-		Serial.print("Invalid callsign: ");
-		Serial.println(candidate.cold());
+		serial_print("Invalid callsign: ");
+		serial_println(candidate.cold());
 		return;
 	}
 	
 	arduino_nvram_callsign_save(callsign);
-	Serial.println("Callsign saved, restarting...");
-	ESP.restart();
+	serial_println("Callsign saved, restarting...");
+	arduino_restart();
 }
 
 void cli_parse_meta(Buffer cmd)
@@ -66,16 +68,16 @@ void cli_parse_meta(Buffer cmd)
 		cmd.cut(9);
 		cli_parse_callsign(cmd);
 	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
-		Serial.println("Debug on.");
+		serial_println("Debug on.");
 		debug = true;
 	} else if (cmd.strncmp("nodebug", 7) == 0 && cmd.length() == 7) {
-		Serial.println("Debug off.");
+		serial_println("Debug off.");
 		debug = false;
 	} else if (cmd.strncmp("callsign", 8) == 0 && cmd.length() == 8) {
 		cli_parse_callsign("");
 	} else {
-		Serial.print("Unknown cmd: ");
-		Serial.println(cmd.cold());
+		serial_print("Unknown cmd: ");
+		serial_println(cmd.cold());
 	}
 }
 
@@ -104,16 +106,15 @@ void cli_parse_packet(Buffer cmd)
 	Callsign dest(cdest);
 
 	if (! dest.is_valid()) {
-		Serial.print("Invalid destination: ");
-		Serial.println(cdest.cold());
+		serial_print("Invalid destination: ");
+		serial_println(cdest.cold());
 		return;
 	}
 
-	unsigned long int dummy;
 	Params params(sparams);
 	if (! params.is_valid_without_ident()) {
-		Serial.print("Invalid params: ");
-		Serial.println(sparams.cold());
+		serial_print("Invalid params: ");
+		serial_println(sparams.cold());
 		return;
 	}
 
@@ -134,12 +135,12 @@ void cli_parse(Buffer cmd)
 Buffer cli_buf;
 
 void cli_enter() {
-	Serial.println();
+	serial_println();
 	if (cli_buf.empty()) {
 		return;
 	}
-	// Serial.print("Typed: ");
-	// Serial.println(cli_buffer);
+	// serial_print("Typed: ");
+	// serial_println(cli_buffer);
 	cli_parse(cli_buf);
 	cli_buf = "";
 }
@@ -150,21 +151,21 @@ void cli_type(char c) {
 	} else if (c == 8 || c == 127) {
 		if (! cli_buf.empty()) {
 			cli_buf.cut(-1);
-			Serial.print((char) 8);
-			Serial.print(' ');
-			Serial.print((char) 8);
+			serial_print((char) 8);
+			serial_print(' ');
+			serial_print((char) 8);
 		}
 	} else if (cli_buf.length() > 500) {
 		return;
 	} else {
 		cli_buf.append(c);
-		Serial.print(c);
+		serial_print(c);
 	}
 }
 
 void cli_print(const Buffer &msg)
 {
-	Serial.println();
-	Serial.println(msg.cold());
-	Serial.print(cli_buf.cold());
+	serial_println();
+	serial_println(msg.cold());
+	serial_print(cli_buf.cold());
 }

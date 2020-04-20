@@ -38,7 +38,6 @@ struct Packet {
 	Buffer encode_l3() const;
 
 	bool is_dup(const Packet& other) const;
-	Buffer repr() const;
 	const char *signature() const;
 	Callsign to() const;
 	Callsign from() const;

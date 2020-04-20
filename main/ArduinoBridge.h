@@ -15,5 +15,10 @@ unsigned int arduino_nvram_id_load();
 void arduino_nvram_id_save(unsigned int);
 Callsign arduino_nvram_callsign_load();
 void arduino_nvram_callsign_save(const Callsign&);
+void serial_print(const char *);
+void serial_print(char);
+void serial_println(const char *);
+void serial_println();
+void arduino_restart();
 
 #endif

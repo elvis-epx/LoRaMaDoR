@@ -65,3 +65,23 @@ void arduino_nvram_callsign_save(const Callsign &new_callsign)
 	prefs.putString("callsign", new_callsign.buf().cold());
 	prefs.end();
 }
+
+void serial_print(const char *msg) {
+	Serial.print(msg);
+}
+
+void serial_print(char msg) {
+	Serial.print(msg);
+}
+
+void serial_println(const char *msg) {
+	Serial.println(msg);
+}
+
+void serial_println() {
+	Serial.println();
+}
+
+void arduino_restart() {
+	ESP.restart();
+}

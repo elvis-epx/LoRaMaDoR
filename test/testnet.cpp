@@ -15,6 +15,8 @@
 int lora_emu_socket();
 void lora_emu_rx();
 
+Ptr<Network> Net(0);
+
 int main(int argc, char* argv[])
 {
 	if (argc < 2) {
@@ -27,7 +29,7 @@ int main(int argc, char* argv[])
 		printf("Callsign invalid.\n");
 		return 2;
 	}
-	Ptr<Network> the_net(new Network(cs));
+	Net = Ptr<Network>(new Network(cs));
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
@@ -35,7 +37,7 @@ int main(int argc, char* argv[])
 
 	int x = 5000;
 	while (x-- > 0) {
-		Ptr<Task> tsk = the_net->task_mgr.next_task();
+		Ptr<Task> tsk = Net->task_mgr.next_task();
 
 		fd_set set;
 		FD_ZERO(&set);
@@ -69,7 +71,7 @@ int main(int argc, char* argv[])
 		if (FD_ISSET(s, &set)) {
 			lora_emu_rx();
 		} else {
-			the_net->run_tasks(arduino_millis());
+			Net->run_tasks(arduino_millis());
 		}
 	}
 }
