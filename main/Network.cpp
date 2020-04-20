@@ -4,20 +4,23 @@
 #include "Network.h"
 #include "ArduinoBridge.h"
 
-static const unsigned int TX_BUSY_RETRY_TIME = 1000;        /* 1 second */
+#define SECONDS 1000
+#define MINUTES 60000
 
-static const unsigned int NEIGH_PERSIST = 3600 * 1000; /* 60 minutes */
-static const unsigned int NEIGH_CLEAN = 600 * 1000; /* 10 minutes */
+static const unsigned int TX_BUSY_RETRY_TIME = 1 * SECONDS;
 
-static const unsigned int RECV_LOG_PERSIST = 600 * 1000; /* 10 minutes */
-static const unsigned int RECV_LOG_CLEAN = 60 * 1000; /* 1 minute */
+static const unsigned int NEIGH_PERSIST = 60 * MINUTES;
+static const unsigned int NEIGH_CLEAN = 1 * MINUTES;
+
+static const unsigned int RECV_LOG_PERSIST = 10 * MINUTES;
+static const unsigned int RECV_LOG_CLEAN = 1 * MINUTES;
 
 #ifndef UNDER_TEST
-static const unsigned int AVG_BEACON_TIME = 600 * 1000; /* 10 minutes */
-static const unsigned int AVG_FIRST_BEACON_TIME = 30 * 1000; /* 30 seconds */
+static const unsigned int AVG_BEACON_TIME = 10 * MINUTES;
+static const unsigned int AVG_FIRST_BEACON_TIME = 30 * SECONDS;
 #else
-static const unsigned int AVG_BEACON_TIME = 10 * 1000; /* 10 seconds */
-static const unsigned int AVG_FIRST_BEACON_TIME = 1 * 1000; /* 3 seconds */
+static const unsigned int AVG_BEACON_TIME = 10 * SECONDS;
+static const unsigned int AVG_FIRST_BEACON_TIME = 1 * SECONDS;
 #endif
 static const char* BEACON_MSG = "LoRaMaDoR 73";
 
@@ -35,7 +38,7 @@ static const int TASK_ID_BEACON = 3;
 static const int TASK_ID_NEIGH = 4;
 static const int TASK_ID_RECV_LOG = 6;
 
-// Task who calls back Network::tx_task() 
+// Task who calls back Network::tx_task()
 
 class PacketTx: public Task {
 public:
@@ -48,7 +51,7 @@ public:
 	const Buffer encoded_packet; // read by callback tx(), who downcasts Task to PacketTx
 };
 
-// Task who calls back Network::forward() 
+// Task who calls back Network::forward()
 
 class PacketFwd: public Task {
 public:
@@ -271,7 +274,7 @@ unsigned long int Network::forward(unsigned long int now, Task* task)
 		logs("pkt dup", pkt->signature());
 		return 0;
 	}
-	recv_log.put(pkt->signature(), RecvLogItem(rssi, now)); 
+	recv_log.put(pkt->signature(), RecvLogItem(rssi, now));
 
 	if (me().equal(pkt->to())) {
 		// We are the final destination
@@ -305,13 +308,13 @@ unsigned long int Network::forward(unsigned long int now, Task* task)
 
 	Buffer encoded_pkt = pkt->encode_l2();
 
-	// TX delay in bits: packet size x stations nearby
+	// TX delay in bits: packet size x stations nearby x 2
 	unsigned long int bit_delay = encoded_pkt.length() * 8;
 	bit_delay *= 2 * (1 + neighbours.count());
 
 	// convert delay in bits to milisseconds
 	// e.g. 900 bits @ 600 bps = 1500 ms
-	unsigned long int delay = bit_delay * 1000 / lora_speed_bps();
+	unsigned long int delay = bit_delay * SECONDS / lora_speed_bps();
 
 	logi("relaying w/ delay", delay);
 
