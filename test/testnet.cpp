@@ -74,7 +74,10 @@ int main(int argc, char* argv[])
 	cli_simtype("!callsj\bign\r");
 	cli_simtype("!callsign 5\r");
 	cli_simtype("!callsign ABCD\r");
+	cli_simtype("!nodebug\r");
 	cli_simtype("!debug\r");
+	cli_simtype("A b\r");
+	cli_simtype("A $=d\r\r\r");
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();

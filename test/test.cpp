@@ -144,7 +144,7 @@ void test5()
 	assert(a.indexOf("G") == 4);
 	assert(a.indexOf("Z") == 5);
 
-	a.remove("E");
+	a.remove(Buffer("E"));
 	a.remove("A");
 	assert(a.indexOf("Z") == 4);
 }
