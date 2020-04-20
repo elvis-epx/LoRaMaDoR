@@ -20,19 +20,17 @@ char rs_decoded[MSGSIZE_LONG];
 RS::ReedSolomon<MSGSIZE_LONG, REDUNDANCY> rs_long;
 RS::ReedSolomon<MSGSIZE_SHORT, REDUNDANCY> rs_short;
 
-static int decode_error;
-
 static bool decode_preamble(const char* data, unsigned int len,
-		Callsign &to, Callsign &from, Params& params)
+		Callsign &to, Callsign &from, Params& params, int& error)
 {
 	const char *d1 = (const char*) memchr(data, '<', len);
 	const char *d2 = (const char*) memchr(data, ':', len);
 
 	if (d1 == 0 || d2 == 0) {
-		decode_error = 100;
+		error = 100;
 		return false;
 	} else if (d1 >= d2)  {
-		decode_error = 101;
+		error = 101;
 		return false;
 	}
 
@@ -40,7 +38,7 @@ static bool decode_preamble(const char* data, unsigned int len,
 	from = Callsign(Buffer(d1 + 1, d2 - d1 - 1));
 
 	if (!to.is_valid() || !from.is_valid()) {
-		decode_error = 104;
+		error = 104;
 		return false;
 	}
 
@@ -49,7 +47,7 @@ static bool decode_preamble(const char* data, unsigned int len,
 	params = Params(Buffer(sparams, sparams_len));
 
 	if (! params.is_valid_with_ident()) {
-		decode_error = 105;
+		error = 105;
 		return false;
 	}
 
@@ -63,21 +61,15 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 	_signature = Buffer::sprintf("%s:%ld", _from.buf().cold(), params.ident());
 }
 
-Packet::Packet(Packet &&model): _to(model._to), _from(model._from),
-		_params(model._params),
-		_msg(model._msg), _rssi(model._rssi)
-{
-}
-
 Packet::~Packet()
 {
 }
 
-Ptr<Packet> Packet::decode_l2(const char *data, unsigned int len, int rssi)
+Ptr<Packet> Packet::decode_l2(const char *data, unsigned int len, int rssi, int& error)
 {
-	decode_error = 0;
+	error = 0;
 	if (len <= REDUNDANCY || len > (MSGSIZE_LONG + REDUNDANCY)) {
-		decode_error = 999;
+		error = 999;
 		return Ptr<Packet>(0);
 	}
 
@@ -86,28 +78,28 @@ Ptr<Packet> Packet::decode_l2(const char *data, unsigned int len, int rssi)
 		memcpy(rs_encoded, data, len - REDUNDANCY);
 		memcpy(rs_encoded + MSGSIZE_SHORT, data + len - REDUNDANCY, REDUNDANCY);
 		if (rs_short.Decode(rs_encoded, rs_decoded)) {
-			decode_error = 998;
+			error = 998;
 			return Ptr<Packet>(0);
 		}
-		return decode_l3(rs_decoded, len - REDUNDANCY, rssi);
+		return decode_l3(rs_decoded, len - REDUNDANCY, rssi, error);
 	} else {
 		memcpy(rs_encoded, data, len - REDUNDANCY);
 		memcpy(rs_encoded + MSGSIZE_LONG, data + len - REDUNDANCY, REDUNDANCY);
 		if (rs_long.Decode(rs_encoded, rs_decoded)) {
-			decode_error = 997;
+			error = 997;
 			return Ptr<Packet>(0);
 		}
-		return decode_l3(rs_decoded, len - REDUNDANCY, rssi);
+		return decode_l3(rs_decoded, len - REDUNDANCY, rssi, error);
 	}
 }
 
 // just for testing
-Ptr<Packet> Packet::decode_l3(const char* data)
+Ptr<Packet> Packet::decode_l3(const char* data, int& error)
 {
-	return decode_l3(data, strlen(data), -50);
+	return decode_l3(data, strlen(data), -50, error);
 }
 
-Ptr<Packet> Packet::decode_l3(const char* data, unsigned int len, int rssi)
+Ptr<Packet> Packet::decode_l3(const char* data, unsigned int len, int rssi, int &error)
 {
 	const char *preamble = 0;
 	const char *msg = 0;
@@ -131,7 +123,7 @@ Ptr<Packet> Packet::decode_l3(const char* data, unsigned int len, int rssi)
 	Callsign from;
 	Params params;
 
-	if (! decode_preamble(preamble, preamble_len, to, from, params)) {
+	if (! decode_preamble(preamble, preamble_len, to, from, params, error)) {
 		return Ptr<Packet>(0);
 	}
 
@@ -218,9 +210,3 @@ int Packet::rssi() const
 {
 	return _rssi;
 }
-
-int Packet::get_decode_error()
-{
-	return decode_error;
-}
-

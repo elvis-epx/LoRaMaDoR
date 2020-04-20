@@ -17,15 +17,13 @@ struct Packet {
 		const Params& params, const Buffer& msg, int rssi=0);
 	~Packet();
 
-	static Ptr<Packet> decode_l2(const char* data, unsigned int len, int rssi);
-	static int get_decode_error();
-
+	static Ptr<Packet> decode_l2(const char* data, unsigned int len, int rssi, int& error);
 	/* public for unit testing */
-	static Ptr<Packet> decode_l3(const char* data, unsigned int len, int rssi);
-	static Ptr<Packet> decode_l3(const char *data);
+	static Ptr<Packet> decode_l3(const char* data, unsigned int len, int rssi, int& error);
+	static Ptr<Packet> decode_l3(const char *data, int& error);
 
 	Packet(const Packet &) = delete;
-	Packet(Packet &&);
+	Packet(Packet &&) = delete;
 	Packet() = delete;
 	Packet& operator=(const Packet &) = delete;
 	bool operator==(const Packet &) = delete;

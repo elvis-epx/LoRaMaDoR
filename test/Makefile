@@ -22,4 +22,4 @@ coverage:
 	gcov testnet.cpp
 	lcov -c --directory . --output-file main_coverage.info
 	genhtml main_coverage.info --output-directory out
-	open out/index.html
+	xdg-open out/index.html

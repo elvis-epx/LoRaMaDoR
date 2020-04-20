@@ -4,30 +4,31 @@
 #include "Packet.h"
 
 void test2() {
+	int error;
 	printf("---\n");
-	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133");
+	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133", error);
 	assert (!!p);
 	assert (p->msg().length() == 0);
 
-	p = Packet::decode_l3("AAAA-12<BBBB:133 ee");
+	p = Packet::decode_l3("AAAA-12<BBBB:133 ee", error);
 	assert (!!p);
 	assert (strcmp("ee", p->msg().cold()) == 0);
 	assert (p->msg().str_equal("ee"));
 	assert (strcmp(p->to().buf().cold(), "AAAA-12") == 0);
 	
-	assert (!Packet::decode_l3("A<BBBB:133"));
-	assert (!Packet::decode_l3("AAAA<B:133"));
-	assert (!Packet::decode_l3("AAAA:BBBB<133"));
-	assert (!Packet::decode_l3("AAAA BBBB<133"));
-	assert (!Packet::decode_l3("<BBBB:133"));
-	p = Packet::decode_l3("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla");
+	assert (!Packet::decode_l3("A<BBBB:133", error));
+	assert (!Packet::decode_l3("AAAA<B:133", error));
+	assert (!Packet::decode_l3("AAAA:BBBB<133", error));
+	assert (!Packet::decode_l3("AAAA BBBB<133", error));
+	assert (!Packet::decode_l3("<BBBB:133", error));
+	p = Packet::decode_l3("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla", error);
 	assert (!!p);
 
-	assert (!Packet::decode_l3("AAAA<BBBB:133,aaa,,ddd=eee,fff bla"));
-	assert (!Packet::decode_l3("AAAA<BBBB:01 bla"));
-	assert (!Packet::decode_l3("AAAA<BBBB:aa bla"));
+	assert (!Packet::decode_l3("AAAA<BBBB:133,aaa,,ddd=eee,fff bla", error));
+	assert (!Packet::decode_l3("AAAA<BBBB:01 bla", error));
+	assert (!Packet::decode_l3("AAAA<BBBB:aa bla", error));
 
-	p = Packet::decode_l3("AAAA<BBBB:133,A,B=C bla");
+	p = Packet::decode_l3("AAAA<BBBB:133,A,B=C bla", error);
 	assert (!!p);
 	Ptr<Packet> q = p->change_msg("bla ble");
 	Params d = q->params();
@@ -182,14 +183,15 @@ int main()
 	d.put_naked("x");
 	d.put("y", "456");
 	d.set_ident(123);
-	Packet p = Packet(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
+	Packet p(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
 	Buffer spl3 = p.encode_l3();
 	Buffer spl2 = p.encode_l2();
 
 	printf("spl3 '%s'\n", spl3.cold());
 	assert (strcmp(spl3.cold(), "AAAA<BBBB:123,X,Y=456 bla ble") == 0);
 	printf("---\n");
-	Ptr<Packet> q = Packet::decode_l2(spl2.cold(), spl2.length(), -50);
+	int error;
+	Ptr<Packet> q = Packet::decode_l2(spl2.cold(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt some chars */
@@ -201,7 +203,7 @@ int main()
 	spl2.hot()[15] = 66;
 	spl2.hot()[33] = 66;
 	spl2.hot()[40] = 66;
-	q = Packet::decode_l2(spl2.cold(), spl2.length(), -50);
+	q = Packet::decode_l2(spl2.cold(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt too many chars */
@@ -213,7 +215,7 @@ int main()
 	spl2.hot()[11] = 66;
 	spl2.hot()[13] = 66;
 	spl2.hot()[39] = 66;
-	assert(! Packet::decode_l2(spl2.cold(), spl2.length(), -50));
+	assert(! Packet::decode_l2(spl2.cold(), spl2.length(), -50, error));
 
 	assert (p.is_dup(*q));
 	assert (q->is_dup(p));
@@ -226,19 +228,19 @@ int main()
 	assert (strcmp(q->params().get("Y").cold(), "456") == 0);
 	assert (q->params().is_key_naked("X"));
 
-	Packet plong = Packet(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
+	Packet plong(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer plong2 = plong.encode_l2();
 	assert(plong2.length() > 100);
-	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50));
+	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
 	
 	Buffer pshort("bla");
-	assert(!Packet::decode_l2(pshort.cold(), pshort.length(), -50));
+	assert(!Packet::decode_l2(pshort.cold(), pshort.length(), -50, error));
 
 	test2();
 	test4();
 	test5();
 
-	Packet plong3 = Packet(Callsign(Buffer("AAAAAAA-11")), Callsign(Buffer("BBBBBB-22")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
+	Packet plong3(Callsign(Buffer("AAAAAAA-11")), Callsign(Buffer("BBBBBB-22")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer b3 = plong3.encode_l3();
 	assert(b3.length() == 180);
 

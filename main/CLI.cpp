@@ -162,7 +162,7 @@ void cli_type(char c) {
 			serial_print(' ');
 			serial_print((char) 8);
 		}
-	} else if (cli_buf.length() > 500) {
+	} else if (cli_buf.length() > 200) {
 		return;
 	} else {
 		cli_buf.append(c);

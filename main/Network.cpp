@@ -163,9 +163,10 @@ void radio_recv_trampoline(const char *recv_area, unsigned int plen, int rssi)
 // Handle packet from radio, schedule processing
 void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 {
-	Ptr<Packet> pkt = Packet::decode_l2(recv_area, plen, rssi);
+	int error;
+	Ptr<Packet> pkt = Packet::decode_l2(recv_area, plen, rssi, error);
 	if (!pkt) {
-		logi("rx invalid pkt, error =", Packet::get_decode_error());
+		logi("rx invalid pkt err", error);
 		return;
 	}
 	logi("rx good packet, RSSI =", rssi);
