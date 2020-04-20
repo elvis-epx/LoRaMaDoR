@@ -235,26 +235,25 @@ int Buffer::strncmp(const char *cmp, unsigned int len) const
 
 Buffer Buffer::sprintf(const char *mask, ...)
 {
-	int sz = strlen(mask) * 2;
-	Buffer tgt = Buffer(sz);
 	va_list args;
 	va_start(args, mask);
-	while (1) {
-		int written = vsnprintf(tgt.hot(), tgt.length(), mask, args);
-		if (written <= 0) {
-			tgt = "fail";
-			break;
-		} else if (written >= (signed) tgt.length()) {
-			sz *= 2;
-			tgt = Buffer(sz);
-		} else {
-			break;
-		}
-	}
-	va_end(args);
 
-	// makes sure result has length = strlen()
-	return Buffer(tgt.cold(), strlen(tgt.cold()));
+	va_list tmpargs;
+	va_copy(tmpargs, args);
+
+	int size = vsnprintf(NULL, 0, mask, tmpargs);
+	va_end(tmpargs);
+
+	Buffer ret;
+	if (size < 0) {
+		ret = "fail";
+	} else {
+		ret = Buffer(size);
+		vsprintf(ret.hot(), mask, args);
+	}
+
+	va_end(args);
+	return ret;
 }
 
 
