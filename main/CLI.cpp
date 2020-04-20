@@ -145,6 +145,13 @@ void cli_enter() {
 	cli_buf = "";
 }
 
+void cli_simtype(const char *c)
+{
+	while (*c) {
+		cli_type(*c++);
+	}
+}
+
 void cli_type(char c) {
 	if (c == 13) {
 		cli_enter();

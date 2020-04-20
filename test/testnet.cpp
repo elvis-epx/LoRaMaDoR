@@ -10,12 +10,32 @@
 #include <netinet/in.h>
 #include "Network.h"
 #include "ArduinoBridge.h"
+#include "CLI.h"
 
 // Radio emulation hooks in FakeArduino.cpp
 int lora_emu_socket();
 void lora_emu_rx();
 
 Ptr<Network> Net(0);
+
+void ping()
+{
+	printf("$$$$$ CLI PING\n");
+	unsigned int n = Net->neighbours.count();
+	if (!n) {
+		return;
+	}
+	const char *scs = Net->neighbours.keys()[random() % n].cold();
+	Callsign cs(scs);
+	if (!cs.is_valid()) {
+		printf("Neigh callsign invalid %s\n", scs);
+		exit(2);
+	}
+	char *cmd;
+	asprintf(&cmd, "%s:PING payload\r", scs);
+	cli_simtype(cmd);
+	free(cmd);
+}
 
 int main(int argc, char* argv[])
 {
@@ -31,12 +51,20 @@ int main(int argc, char* argv[])
 	}
 
 	Net = Ptr<Network>(new Network(cs));
+	cli_simtype("!debug\r");
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
 
 	int x = 5000;
 	while (x-- > 0) {
+		if (random() % 100 == 0) {
+			ping();
+		}
+		if (random() % 100 == 0) {
+			// rreq();
+		}
+
 		Ptr<Task> tsk = Net->task_mgr.next_task();
 
 		fd_set set;
