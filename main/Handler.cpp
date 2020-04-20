@@ -10,6 +10,8 @@
 
 Ptr<Packet> Ping::handle(const Packet &pkt, Network& net)
 {
+	// We don't allow broadcast PING to QC or QB because many stations would
+	// transmit at the same time, corrupting each other's messages.
 	if ((!pkt.to().isQ() || pkt.to().is_localhost()) && pkt.params().has("PING")) {
 		Params pong = Params();
 		pong.set_ident(net.get_next_pkt_id());

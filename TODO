@@ -1,1 +1,3 @@
-Allow PING QC (broadcast)? Do not retransmit?
+Add !neigh command to list neighbours
+Add !lastid command to get the last packet ID.
+
