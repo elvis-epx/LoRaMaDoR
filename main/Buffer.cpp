@@ -66,15 +66,15 @@ Buffer& Buffer::operator=(const Buffer& model)
 }
 
 // Appends Buffer as string (stopping at \0, not at length)
-void Buffer::append_str(const Buffer &b)
+Buffer& Buffer::append_str(const Buffer &b)
 {
-	append(b.cold(), strlen(b.cold()));
+	return append(b.cold(), strlen(b.cold()));
 }
 
-void Buffer::append(const char *s, unsigned int add_length)
+Buffer& Buffer::append(const char *s, unsigned int add_length)
 {
 	if (!s) {
-		return;
+		return *this;
 	}
 
 	char *oldbuf = this->buf;
@@ -85,9 +85,11 @@ void Buffer::append(const char *s, unsigned int add_length)
 	memcpy(this->buf + this->len, s, add_length);
 	this->buf[this->len + add_length] = 0;
 	this->len += add_length;
+
+	return *this;
 }
 
-void Buffer::append(const char c)
+Buffer& Buffer::append(const char c)
 {
 	char *oldbuf = this->buf;
 	this->buf = new char[this->len + 2];
@@ -97,6 +99,8 @@ void Buffer::append(const char c)
 	this->buf[this->len] = c;
 	this->buf[this->len + 1] = 0;
 	this->len += 1;
+
+	return *this;
 }
 
 Buffer::~Buffer()
@@ -163,7 +167,7 @@ int Buffer::indexOf(char c) const
 	return -1;
 }
 
-void Buffer::cut(int i)
+Buffer& Buffer::cut(int i)
 {
 	unsigned int ai = abs(i);
 	if (ai > this->len) {
@@ -181,36 +185,42 @@ void Buffer::cut(int i)
 
 	this->len -= ai;
 	this->buf[this->len] = 0;
+
+	return *this;
 }
 
-void Buffer::lstrip() {
+Buffer& Buffer::lstrip() {
 	while (charAt(0) == ' ') {
 		cut(1);
 	}
+	return *this;
 }
 
 Buffer& Buffer::rstrip() {
 	while (charAt(-1) == ' ') {
 		cut(-1);
 	}
+	return *this;
 }
 
-void Buffer::strip() {
+Buffer& Buffer::strip() {
 	lstrip();
 	rstrip();
+	return *this;
 }
 
 bool Buffer::empty() const {
 	return this->len == 0;
 }
 
-void Buffer::uppercase()
+Buffer& Buffer::uppercase()
 {
 	for (unsigned int i = 0; i < len; ++i) {
 		if (buf[i] >= 'a' && buf[i] <= 'z') {
 			buf[i] += 'A' - 'a';
 		}
 	}
+	return *this;
 }
 
 bool Buffer::str_equal(const char *cmp) const

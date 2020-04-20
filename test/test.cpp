@@ -111,6 +111,20 @@ void test3()
 
 void test4()
 {
+	Buffer x = "a";
+	x.append(NULL, 0);
+	x.append('b');
+	x.append('c');
+	assert(x.charAt(-2) == 'b');
+	assert(x.charAt(-4) == -1);
+	assert(Buffer("aaa").cut(4).length() == 0);
+	assert(Buffer("aaa").cut(-4).length() == 0);
+	assert(Buffer("  aaa  ").lstrip().str_equal("aaa  "));
+	assert(Buffer("  aaa  ").rstrip().str_equal("  aaa"));
+	assert(Buffer("  aaa  ").strip().str_equal("aaa"));
+	assert(Buffer("aaa").substr(5, 1).length() == 0);
+	assert(Buffer("aaa").substr(2, 20).length() == 1);
+
 	Vector<Buffer> a;
 	a.push_back(Buffer("B"));
 	a.push_back(Buffer("C"));
