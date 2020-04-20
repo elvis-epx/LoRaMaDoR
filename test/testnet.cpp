@@ -37,6 +37,25 @@ void ping()
 	free(cmd);
 }
 
+void rreq()
+{
+	printf("$$$$$ CLI RREQ\n");
+	unsigned int n = Net->neighbours.count();
+	if (!n) {
+		return;
+	}
+	const char *scs = Net->neighbours.keys()[arduino_random(0, n)].cold();
+	Callsign cs(scs);
+	if (!cs.is_valid()) {
+		printf("Neigh callsign invalid %s\n", scs);
+		exit(2);
+	}
+	char *cmd;
+	asprintf(&cmd, "%s:RREQ\r", scs);
+	cli_simtype(cmd);
+	free(cmd);
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc < 2) {
@@ -62,7 +81,7 @@ int main(int argc, char* argv[])
 			ping();
 		}
 		if (arduino_random(0, 100) == 0) {
-			// rreq();
+			rreq();
 		}
 
 		Ptr<Task> tsk = Net->task_mgr.next_task();
