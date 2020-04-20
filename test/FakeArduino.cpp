@@ -19,13 +19,16 @@ static unsigned int nvram_id = 0;
 static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
 
+static void init_things()
+{
+	virgin = false;
+	gettimeofday(&tm_first, 0);
+	srandom(tm_first.tv_sec + tm_first.tv_usec);
+}
+
 unsigned long int arduino_millis()
 {
-	if (virgin) {
-		gettimeofday(&tm_first, 0);
-		virgin = false;
-		srandom(tm_first.tv_sec + tm_first.tv_usec);
-	}
+	if (virgin) init_things();
 	struct timeval tm;
 	gettimeofday(&tm, 0);
 	return ((tm.tv_sec * 1000000 + tm.tv_usec)
@@ -34,11 +37,7 @@ unsigned long int arduino_millis()
 
 long int arduino_random(long int min, long int max)
 {
-	if (virgin) {
-		gettimeofday(&tm_first, 0);
-		virgin = false;
-		srandom(tm_first.tv_sec + tm_first.tv_usec);
-	}
+	if (virgin) init_things();
 	return min + random() % (max - min);
 }
 
