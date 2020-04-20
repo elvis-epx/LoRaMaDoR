@@ -70,12 +70,16 @@ int main(int argc, char* argv[])
 	}
 
 	Net = Ptr<Network>(new Network(cs));
+	cli_simtype("!callsi\bgn\r");
+	cli_simtype("!callsj\bign\r");
+	cli_simtype("!callsign 5\r");
+	cli_simtype("!callsign ABCD\r");
 	cli_simtype("!debug\r");
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
 
-	int x = 5000;
+	int x = 1000;
 	while (x-- > 0) {
 		if (arduino_random(0, 100) == 0) {
 			ping();

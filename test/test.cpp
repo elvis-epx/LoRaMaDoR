@@ -3,8 +3,7 @@
 #include <string.h>
 #include "Packet.h"
 
-void test2()
-{
+void test2() {
 	printf("---\n");
 	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133");
 	assert (!!p);
@@ -16,7 +15,11 @@ void test2()
 	assert (p->msg().str_equal("ee"));
 	assert (strcmp(p->to().buf().cold(), "AAAA-12") == 0);
 	
+	assert (!Packet::decode_l3("A<BBBB:133"));
+	assert (!Packet::decode_l3("AAAA<B:133"));
 	assert (!Packet::decode_l3("AAAA:BBBB<133"));
+	assert (!Packet::decode_l3("AAAA BBBB<133"));
+	assert (!Packet::decode_l3("<BBBB:133"));
 	p = Packet::decode_l3("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla");
 	assert (!!p);
 
@@ -28,6 +31,7 @@ void test2()
 	assert (!!p);
 	Ptr<Packet> q = p->change_msg("bla ble");
 	Params d = q->params();
+	d.put_naked("E");
 	d.put_naked("E");
 	d.put("F", "G");
 	Ptr<Packet> r = p->change_params(d);
@@ -98,6 +102,10 @@ void test3()
 	assert (Params("ac=d,e,f=").is_valid_without_ident());
 	assert (Params("3,ac=d,e,f=").is_valid_without_ident());
 	assert (!Params("3,ac=d,e, f=").is_valid_without_ident());
+	assert (!Params("ac$c=d").is_valid_without_ident());
+	assert (!Params("AC$c=d").is_valid_without_ident());
+	assert (Params("999999,ac=d").is_valid_with_ident());
+	assert (!Params("9999999,ac=d").is_valid_with_ident());
 }
 
 void test4()
@@ -145,6 +153,11 @@ int main()
 {
 	assert (!Callsign("Q").is_valid());
 	assert (Callsign("QB").is_valid());
+	assert (Callsign("QB").isQ());
+	assert (!Callsign("QB").is_localhost());
+	assert (Callsign("QL").is_localhost());
+	assert (Callsign("QL").equal(Callsign("ql")));
+	assert (Callsign("QL").equal(Buffer("ql")));
 	assert (Callsign("QC").is_valid());
 	assert (!Callsign("Q1").is_valid());
 	assert (!Callsign("Q-").is_valid());
@@ -212,6 +225,14 @@ int main()
 	assert (! q->params().has("Z"));
 	assert (strcmp(q->params().get("Y").cold(), "456") == 0);
 	assert (q->params().is_key_naked("X"));
+
+	Packet plong = Packet(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
+	Buffer plong2 = plong.encode_l2();
+	assert(plong2.length() > 100);
+	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50));
+	
+	Buffer pshort("bla");
+	assert(!Packet::decode_l2(pshort.cold(), pshort.length(), -50));
 
 	test2();
 	test4();

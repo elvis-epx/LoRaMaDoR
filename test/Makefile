@@ -9,10 +9,13 @@ clean:
 	gcc $(CFLAGS) -c $<
 
 test: test.cpp Packet.o Buffer.o Callsign.o Params.o *.h
-	gcc $(CFLAGS) -o test test.cpp *.o -lstdc++
+	gcc $(CFLAGS) -o test test.cpp Packet.o Buffer.o Callsign.o Params.o -lstdc++
 
 testnet: testnet.cpp Handler.o Modifier.o Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o *.h
 	gcc $(CFLAGS) -o testnet testnet.cpp *.o -lstdc++
+
+recov:
+	rm *.gcda
 
 coverage:
 	gcov test.cpp
