@@ -12,9 +12,13 @@ static const unsigned int ADJ_STATIONS_CLEAN = 600 * 1000; /* 10 minutes */
 static const unsigned int RECV_LOG_PERSIST = 600 * 1000; /* 10 minutes */
 static const unsigned int RECV_LOG_CLEAN = 60 * 1000; /* 1 minute */
 
+#ifndef UNDER_TEST
 static const unsigned int AVG_BEACON_TIME = 600 * 1000; /* 10 minutes */
+#else
+static const unsigned int AVG_BEACON_TIME = 10 * 1000; /* 10 seconds */
+#endif
 static const unsigned int AVG_FIRST_BEACON_TIME = 10 * 1000; /* 30 seconds */
-static const char* BEACON_MSG = "73";
+static const char* BEACON_MSG = "LoRaMaDoR 73";
 
 static unsigned long int fudge(unsigned long int avg, double fudge)
 {
@@ -162,11 +166,7 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 unsigned long int Network::beacon(unsigned long int, Task*)
 {
 	send(Callsign("QB"), Params(), Buffer(BEACON_MSG));
-#ifdef UNDER_TEST
-	unsigned long int next = fudge(10000, 0.5);
-#else
 	unsigned long int next = fudge(AVG_BEACON_TIME, 0.5);
-#endif
 	logi("Next beacon in ", next);
 	return next;
 }
