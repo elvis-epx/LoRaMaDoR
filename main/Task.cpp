@@ -43,10 +43,12 @@ bool Task::run(unsigned long int now)
 	return this->offset > 0;
 }
 
+/*
 const char* Task::get_name() const
 {
 	return name;
 }
+*/
 
 TaskManager::TaskManager() {}
 
@@ -76,6 +78,7 @@ Ptr<Task> TaskManager::next_task() const
 	return ret;
 }
 
+/*
 void TaskManager::cancel(const Task* task)
 {
 	for (unsigned int i = 0 ; i < tasks.size(); ++i) {
@@ -85,6 +88,7 @@ void TaskManager::cancel(const Task* task)
 		}
 	}
 }
+*/
 
 void TaskManager::run(unsigned long int now)
 {

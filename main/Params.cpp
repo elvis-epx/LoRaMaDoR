@@ -7,10 +7,6 @@ static const char *naked = " n@ ";
 
 static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, Buffer& value)
 {
-	if (! len) {
-		return false;
-	}
-
 	unsigned int skey_len = 0;
 	unsigned int svalue_len = 0;
 
@@ -83,10 +79,6 @@ static bool parse_ident_param(const char* s, unsigned int len, unsigned long int
 static bool parse_param(const char* data, unsigned int len,
 		unsigned long int &ident, Buffer &key, Buffer &value)
 {
-	if (! len) {
-		return false;
-	}
-
 	char c = data[0];
 
 	if (c >= '0' && c <= '9') {

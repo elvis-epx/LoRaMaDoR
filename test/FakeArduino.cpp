@@ -182,7 +182,7 @@ void serial_println() {
 }
 
 void arduino_restart() {
-	exit(0);
+	// exit(0);
 }
 
 void arduino_nvram_callsign_save(const Callsign &cs)
