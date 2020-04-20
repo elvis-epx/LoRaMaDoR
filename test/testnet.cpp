@@ -29,11 +29,11 @@ int main(int argc, char* argv[])
 		printf("Callsign invalid.\n");
 		return 2;
 	}
+
 	Net = Ptr<Network>(new Network(cs));
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
-	printf("Socket %d\n", s);
 
 	int x = 5000;
 	while (x-- > 0) {
@@ -56,9 +56,10 @@ int main(int argc, char* argv[])
 			timeout.tv_usec = (to % 1000) * 1000;
 			ptimeout = &timeout;
 		} else {
-			printf("No timeout (bug?)\n");
-			timeout.tv_sec = 1;
-			timeout.tv_usec = 0;
+			printf("No timeout = bug\n");
+			return 2;
+			// timeout.tv_sec = 1;
+			// timeout.tv_usec = 0;
 		}
 		ptimeout = &timeout;
 
