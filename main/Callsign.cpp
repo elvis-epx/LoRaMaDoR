@@ -18,14 +18,14 @@ Callsign::Callsign(Buffer c)
 	valid = true;
 }
 
-bool Callsign::equal(const Buffer& other) const
+bool Callsign::equal(Buffer other) const
 {
+	other.uppercase();
 	return valid && buffer.str_equal(other);
 }
 
 bool Callsign::equal(const Callsign& other) const
 {
-	
 	return valid && other.valid && buffer.str_equal(other.buffer);
 }
 
