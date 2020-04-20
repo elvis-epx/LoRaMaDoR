@@ -25,7 +25,7 @@ void ping()
 	if (!n) {
 		return;
 	}
-	const char *scs = Net->neighbours.keys()[random() % n].cold();
+	const char *scs = Net->neighbours.keys()[arduino_random(0, n)].cold();
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs);
@@ -58,10 +58,10 @@ int main(int argc, char* argv[])
 
 	int x = 5000;
 	while (x-- > 0) {
-		if (random() % 100 == 0) {
+		if (arduino_random(0, 100) == 0) {
 			ping();
 		}
-		if (random() % 100 == 0) {
+		if (arduino_random(0, 100) == 0) {
 			// rreq();
 		}
 
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 		if (tsk) {
 			long int now = arduino_millis();
 			long int to = tsk->next_run() - now;
-			printf("Timeout: %s %ld\n", tsk->get_name(), to);
+			// printf("Timeout: %s %ld\n", tsk->get_name(), to);
 			if (to < 0) {
 				to = 0;
 			}

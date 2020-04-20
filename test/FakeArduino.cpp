@@ -15,9 +15,9 @@
 // Emulation of millis() and random()
 
 static struct timeval tm_first;
+static unsigned int nvram_id = 0;
+static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
-unsigned int nvram_id = 73;
-Callsign nvram_cs("FIXMEE-1");
 
 unsigned long int arduino_millis()
 {
@@ -109,7 +109,7 @@ unsigned long int lora_speed_bps()
 
 bool lora_tx(const Buffer& b)
 {
-	if ((random() % 10) == 0) {
+	if (arduino_random(0, 10) == 0) {
 		printf("Simulate send pkt fail\n");
 		return false;
 	}
@@ -154,6 +154,9 @@ void lora_emu_rx()
 
 unsigned int arduino_nvram_id_load()
 {
+	if (nvram_id == 0) {
+		nvram_id = arduino_random(1, 9999);
+	}
 	return nvram_id;
 }
 
