@@ -159,6 +159,11 @@ Buffer Packet::encode_l3() const
 	b.append(' ');
 	b.append_str(_msg);
 
+	if (b.length() > MSGSIZE_LONG) {
+		// TODO return error or warning
+		b = b.substr(0, MSGSIZE_LONG);
+	}
+
 	return b;
 }
 
