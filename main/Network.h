@@ -12,10 +12,10 @@
 #include "Radio.h"
 #include "Task.h"
 
-struct AdjacentStation {
-	AdjacentStation(int rssi, unsigned long int timestamp):
+struct Neighbour {
+	Neighbour(int rssi, unsigned long int timestamp):
 		rssi(rssi), timestamp(timestamp) {}
-	AdjacentStation() {}
+	Neighbour() {}
 	int rssi;
 	unsigned long int timestamp;
 };
@@ -34,6 +34,7 @@ public:
 	Network(const Callsign &callsign);
 	virtual ~Network();
 
+	Callsign me() const;
 	void send(const Callsign &to, Params params, const Buffer& msg);
 	void run_tasks(unsigned long int);
 
@@ -42,27 +43,25 @@ public:
 	virtual unsigned long int task_callback(int, unsigned long int, Task*);
 	unsigned int get_last_pkt_id() const;
 	unsigned int get_next_pkt_id();
-	Callsign me() const;
 
 	// publicised for testing purposes
 	TaskManager task_mgr;
+	Dict<Neighbour> neighbours;
 
 private:
 	void recv(Ptr<Packet> pkt);
 	void sendmsg(const Ptr<Packet> pkt);
 	unsigned long int forward(unsigned long int, Task*);
 	unsigned long int clean_recv_log(unsigned long int, Task*);
-	unsigned long int clean_adjacent_stations(unsigned long int, Task*);
+	unsigned long int clean_neighbours(unsigned long int, Task*);
 	unsigned long int beacon(unsigned long int, Task*);
 	unsigned long int tx(unsigned long int, Task*);
 
 	Callsign my_callsign;
 	Dict<RecvLogItem> recv_log;
-	Dict<AdjacentStation> adjacent_stations;
 	unsigned int last_pkt_id;
 	Vector< Ptr<Modifier> > modifiers;
 	Vector< Ptr<Handler> > handlers;
-
 };
 
 #endif
