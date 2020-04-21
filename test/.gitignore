@@ -3,3 +3,8 @@ test
 test.DSYM
 testnet
 testnet.DSYM
+out/
+*.gc*
+*.log
+*.info
+*.val
