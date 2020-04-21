@@ -196,12 +196,12 @@ Callsign Packet::from() const
 	return _from;
 }
 
-const Params& Packet::params() const
+const Params Packet::params() const
 {
 	return _params;
 }
 
-const Buffer& Packet::msg() const
+const Buffer Packet::msg() const
 {
 	return _msg;
 }

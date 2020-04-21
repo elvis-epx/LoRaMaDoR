@@ -37,6 +37,7 @@ public:
 	Callsign me() const;
 	void send(const Callsign &to, Params params, const Buffer& msg);
 	void run_tasks(unsigned long int);
+	Dict<Neighbour> neigh() const;
 
 	// publicised to bridge with uncoupled code
 	void radio_recv(const char *recv_area, unsigned int plen, int rssi);
@@ -46,7 +47,6 @@ public:
 
 	// publicised for testing purposes
 	TaskManager task_mgr;
-	Dict<Neighbour> neighbours;
 
 private:
 	void recv(Ptr<Packet> pkt);
@@ -58,6 +58,7 @@ private:
 	unsigned long int tx(unsigned long int, Task*);
 
 	Callsign my_callsign;
+	Dict<Neighbour> neighbours;
 	Dict<RecvLogItem> recv_log;
 	unsigned int last_pkt_id;
 	Vector< Ptr<Modifier> > modifiers;

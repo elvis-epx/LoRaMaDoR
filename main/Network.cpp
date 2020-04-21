@@ -194,8 +194,7 @@ unsigned long int Network::clean_recv_log(unsigned long int now, Task*)
 
 	const Vector<Buffer>& keys = recv_log.keys();
 	for (unsigned int i = 0; i < keys.size(); ++i) {
-		const RecvLogItem& v = recv_log[keys[i]];
-		if ((long int) v.timestamp < cutoff) {
+		if ((long int) recv_log[keys[i]].timestamp < cutoff) {
 			remove_list.push_back(keys[i]);
 		}
 	}
@@ -216,8 +215,7 @@ unsigned long int Network::clean_neighbours(unsigned long int now, Task*)
 
 	const Vector<Buffer>& keys = neighbours.keys();
 	for (unsigned int i = 0; i < keys.size(); ++i) {
-		const Neighbour& v = neighbours[keys[i]];
-		if ((long int) v.timestamp < cutoff) {
+		if ((long int) neighbours[keys[i]].timestamp < cutoff) {
 			remove_list.push_back(keys[i]);
 		}
 	}
@@ -351,4 +349,9 @@ void Network::run_tasks(unsigned long int millis)
 
 Callsign Network::me() const {
 	return my_callsign;
+}
+
+Dict<Neighbour> Network::neigh() const
+{
+	return neighbours;
 }

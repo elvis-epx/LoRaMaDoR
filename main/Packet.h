@@ -39,8 +39,8 @@ struct Packet {
 	const char *signature() const;
 	Callsign to() const;
 	Callsign from() const;
-	const Params& params() const;
-	const Buffer& msg() const;
+	const Params params() const;
+	const Buffer msg() const;
 	int rssi() const;
 
 private:

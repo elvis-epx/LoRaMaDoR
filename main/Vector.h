@@ -15,7 +15,6 @@ class Vector {
 	unsigned int sz;
 	T** elem;
 	unsigned int space;
-	Vector(const Vector&);
 
 public:
 	Vector() : sz(0), elem(0), space(0) {}
@@ -25,7 +24,8 @@ public:
 	
 	Vector& operator=(const Vector&);
 	Vector& operator=(Vector&&);
-	Vector(const Vector&&);
+	Vector(const Vector&);
+	Vector(Vector&&);
 	
 	~Vector() { 
 		clear();
@@ -60,6 +60,30 @@ Vector<T>& Vector<T>::operator=(const Vector& a) {
 	}
 
 	return *this;
+}
+
+template<class T> 
+Vector<T>::Vector(const Vector& a) {
+	if (this==&a) return;
+
+	elem = new T*[a.size()];
+	space = sz = a.size();
+
+	// copy elements
+	for(unsigned int i=0; i < sz; ++i) {
+		elem[i] = new T(a[i]);
+	}
+}
+
+template<class T> 
+Vector<T>::Vector(Vector&& a) {
+	elem = a.elem;
+	space = a.space;
+	sz = a.sz;
+
+	a.elem = 0;
+	a.space = 0;
+	a.sz = 0;
 }
 
 template<class T> 
