@@ -246,6 +246,12 @@ int main()
 	Buffer plong2 = plong.encode_l2();
 	assert(plong2.length() > 100);
 	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
+	// corrupt a little
+	plong2.hot()[13] = 66;
+	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
+	// corrupt a lot
+	memset(plong2.hot() + 14, 66, 30);
+	assert(!Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
 	
 	Buffer pshort("bla");
 	assert(!Packet::decode_l2(pshort.cold(), pshort.length(), -50, error));

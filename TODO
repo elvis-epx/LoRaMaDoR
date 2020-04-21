@@ -6,5 +6,3 @@ Coverage
                clean up neighbours list
                clean up recv log
                corrupted packet (l2_encode ret error)
-       Packet
-               RS error in big packet
