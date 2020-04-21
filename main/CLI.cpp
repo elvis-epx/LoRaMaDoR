@@ -34,7 +34,7 @@ void app_recv(Ptr<Packet> pkt)
 	oled_show(msga.cold(), pkt->msg().cold(), msgb.cold(), msgc.cold());
 }
 
-void cli_parse_callsign(const Buffer &candidate)
+static void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
 		serial_print("Callsign is ");
@@ -61,7 +61,27 @@ void cli_parse_callsign(const Buffer &candidate)
 	arduino_restart();
 }
 
-void cli_parse_meta(Buffer cmd)
+static void cli_lastid()
+{
+	auto b = Buffer::sprintf("Last packet ID #%ld", Net->get_last_pkt_id());
+	serial_println(b.cold());
+}
+
+static void cli_neigh()
+{
+	serial_println("---------------------------");
+	serial_println("Neighbourhood:");
+	auto neigh = Net->neigh();
+	for (auto i = 0; i < neigh.count(); ++i) {
+		Buffer cs = neigh.keys()[i];
+		int rssi = neigh[cs].rssi;
+		auto b = Buffer::sprintf("    %s rssi %d", cs.cold(), rssi);
+		serial_println(b.cold());
+	}
+	serial_println("---------------------------");
+}
+
+static void cli_parse_meta(Buffer cmd)
 {
 	cmd.strip();
 	if (cmd.strncmp("callsign ", 9) == 0) {
@@ -73,6 +93,10 @@ void cli_parse_meta(Buffer cmd)
 	} else if (cmd.strncmp("nodebug", 7) == 0 && cmd.length() == 7) {
 		serial_println("Debug off.");
 		debug = false;
+	} else if (cmd.strncmp("neigh", 5) == 0 && cmd.length() == 5) {
+		cli_neigh();
+	} else if (cmd.strncmp("lastid", 6) == 0 && cmd.length() == 6) {
+		cli_lastid();
 	} else if (cmd.strncmp("callsign", 8) == 0 && cmd.length() == 8) {
 		cli_parse_callsign("");
 	} else {
@@ -81,7 +105,7 @@ void cli_parse_meta(Buffer cmd)
 	}
 }
 
-void cli_parse_packet(Buffer cmd)
+static void cli_parse_packet(Buffer cmd)
 {
 	Buffer preamble;
 	Buffer payload = "";
@@ -121,7 +145,7 @@ void cli_parse_packet(Buffer cmd)
 	Net->send(dest, params, payload);
 }
 
-void cli_parse(Buffer cmd)
+static void cli_parse(Buffer cmd)
 {
 	cmd.lstrip();
 	if (cmd.charAt(0) == '!') {
@@ -134,7 +158,7 @@ void cli_parse(Buffer cmd)
 
 Buffer cli_buf;
 
-void cli_enter() {
+static void cli_enter() {
 	serial_println();
 	if (cli_buf.empty()) {
 		return;
