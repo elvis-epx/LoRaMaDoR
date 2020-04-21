@@ -21,18 +21,21 @@ Ptr<Network> Net(0);
 void ping()
 {
 	printf("$$$$$ CLI PING\n");
-	unsigned int n = Net->neighbours.count();
+	const Dict<Neighbour> neigh = Net->neigh();
+	const Vector<Buffer> neigh_cs = Net->neigh().keys();
+	auto n = neigh.count();
 	if (!n) {
 		return;
 	}
-	const char *scs = Net->neighbours.keys()[arduino_random(0, n)].cold();
+
+	Buffer scs = neigh_cs[arduino_random(0, n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
-		printf("Neigh callsign invalid %s\n", scs);
+		printf("Neigh callsign invalid %s\n", scs.cold());
 		exit(2);
 	}
 	char *cmd;
-	asprintf(&cmd, "%s:PING payload\r", scs);
+	asprintf(&cmd, "%s:PING payload\r", scs.cold());
 	cli_simtype(cmd);
 	free(cmd);
 }
@@ -40,18 +43,20 @@ void ping()
 void rreq()
 {
 	printf("$$$$$ CLI RREQ\n");
-	unsigned int n = Net->neighbours.count();
+	const Dict<Neighbour> neigh = Net->neigh();
+	const Vector<Buffer> neigh_cs = Net->neigh().keys();
+	unsigned int n = neigh.count();
 	if (!n) {
 		return;
 	}
-	const char *scs = Net->neighbours.keys()[arduino_random(0, n)].cold();
+	Buffer scs = neigh_cs[arduino_random(0, n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
-		printf("Neigh callsign invalid %s\n", scs);
+		printf("Neigh callsign invalid %s\n", scs.cold());
 		exit(2);
 	}
 	char *cmd;
-	asprintf(&cmd, "%s:RREQ\r", scs);
+	asprintf(&cmd, "%s:RREQ\r", scs.cold());
 	cli_simtype(cmd);
 	free(cmd);
 }
@@ -69,15 +74,20 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
+	Net = Ptr<Network>(new Network(Callsign("INV")));
 	Net = Ptr<Network>(new Network(cs));
 	cli_simtype("!callsi\bgn\r");
 	cli_simtype("!callsj\bign\r");
 	cli_simtype("!callsign 5\r");
 	cli_simtype("!callsign ABCD\r");
+	cli_simtype("!callsign QC\r");
 	cli_simtype("!nodebug\r");
 	cli_simtype("!debug\r");
 	cli_simtype("A b\r");
 	cli_simtype("A $=d\r\r\r");
+	cli_simtype("AAAAA:$=d\r");
+	cli_simtype("AAAAA xsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r");
+	cli_simtype("!lastid\r");
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
@@ -89,6 +99,9 @@ int main(int argc, char* argv[])
 		}
 		if (arduino_random(0, 100) == 0) {
 			rreq();
+		}
+		if (arduino_random(0, 100) == 0) {
+			cli_simtype("!neigh\r");
 		}
 
 		Ptr<Task> tsk = Net->task_mgr.next_task();

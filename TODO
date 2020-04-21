@@ -1,24 +1,12 @@
-Add !neigh command to list neighbours
-Add !lastid command to get the last packet ID.
 Add !version command
 Add !help command
 
 Coverage
-	!neigh
-	!lastid
-	Buffer
-		move constructor
-		sprintf fail
-	CLI
-		> 200 chars typed
-		Invalid params
-		!callsign Q*
 	RetransMark return null
 	RecvLogItem default constructor
 	Network
-		invalid cs on constructor
-		clean up neighbours list
-		clean up recv log
+		* clean up neighbours list
+		* clean up recv log
 		corrupted packet (l2_encode ret error)
 	Packet
 		RS error in big packet
