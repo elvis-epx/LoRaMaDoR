@@ -70,7 +70,7 @@ static void cli_lastid()
 static void cli_neigh()
 {
 	serial_println("---------------------------");
-	serial_println("Neighbourhood:");
+	serial_println(Buffer::sprintf("Neighbourhood of %s:", Net->me().buf().cold()).cold());
 	auto neigh = Net->neigh();
 	for (auto i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
