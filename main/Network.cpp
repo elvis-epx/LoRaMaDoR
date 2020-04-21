@@ -253,7 +253,7 @@ unsigned long int Network::forward(unsigned long int now, Task* task)
 		}
 
 		// Annotate to detect duplicates
-		recv_log.put(pkt->signature(), RecvLogItem(rssi, now));
+		recv_log[pkt->signature()] = RecvLogItem(rssi, now);
 		// Transmit
 		Task *tx_task = new PacketTx(pkt->encode_l2(), 50, this);
 		task_mgr.schedule(Ptr<Task>(tx_task));
@@ -272,7 +272,7 @@ unsigned long int Network::forward(unsigned long int now, Task* task)
 		logs("pkt dup", pkt->signature());
 		return 0;
 	}
-	recv_log.put(pkt->signature(), RecvLogItem(rssi, now));
+	recv_log[pkt->signature()] = RecvLogItem(rssi, now);
 
 	if (me().equal(pkt->to())) {
 		// We are the final destination
