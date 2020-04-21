@@ -2,11 +2,9 @@ Add !version command
 Add !help command
 
 Coverage
-	RetransMark return null
-	RecvLogItem default constructor
-	Network
-		* clean up neighbours list
-		* clean up recv log
-		corrupted packet (l2_encode ret error)
-	Packet
-		RS error in big packet
+       Network
+               clean up neighbours list
+               clean up recv log
+               corrupted packet (l2_encode ret error)
+       Packet
+               RS error in big packet
