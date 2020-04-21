@@ -18,6 +18,16 @@ void lora_emu_rx();
 
 Ptr<Network> Net(0);
 
+void ping_self()
+{
+	printf("$$$$$ CLI PING SELF\n");
+	cli_simtype("QL:PING payload\r");
+	char *cmd;
+	asprintf(&cmd, "%s:PING payload\r", Net->me().buf().cold());
+	cli_simtype(cmd);
+	free(cmd);
+}
+
 void ping()
 {
 	printf("$$$$$ CLI PING\n");
@@ -96,11 +106,11 @@ int main(int argc, char* argv[])
 	while (x-- > 0) {
 		if (arduino_random(0, 100) == 0) {
 			ping();
-		}
-		if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random(0, 100) == 0) {
+			ping_self();
+		} else if (arduino_random(0, 100) == 0) {
 			rreq();
-		}
-		if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random(0, 100) == 0) {
 			cli_simtype("!neigh\r");
 		}
 

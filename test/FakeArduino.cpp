@@ -154,7 +154,7 @@ void lora_emu_rx()
 unsigned int arduino_nvram_id_load()
 {
 	if (nvram_id == 0) {
-		nvram_id = arduino_random(1, 9999);
+		nvram_id = arduino_random(9900, 10000);
 	}
 	return nvram_id;
 }
