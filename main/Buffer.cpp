@@ -23,14 +23,6 @@ Buffer::Buffer(int len)
 	memset(this->buf, 0, len + 1);
 }
 
-Buffer::Buffer(Buffer&& moved)
-{
-	this->len = moved.len;
-	this->buf = moved.buf;
-	moved.len = 0;
-	moved.buf = 0;
-}
-
 Buffer::Buffer(const Buffer& model)
 {
 	this->len = model.len;

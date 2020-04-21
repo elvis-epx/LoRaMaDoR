@@ -13,7 +13,6 @@ public:
 	Buffer(const char *, int len);
 	Buffer(const char *);
 	Buffer(const Buffer&);
-	Buffer(Buffer&&);
 	Buffer& operator=(const Buffer&);
 	Buffer& operator=(Buffer&&);
 	~Buffer();
