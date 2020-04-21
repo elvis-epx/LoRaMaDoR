@@ -90,8 +90,8 @@ Network::Network(const Callsign &callsign)
 	last_pkt_id = arduino_nvram_id_load();
 
 	Ptr<Task> beacon(new Task(TASK_ID_BEACON, "beacon", fudge(AVG_FIRST_BEACON_TIME, 0.5), this));
-	Ptr<Task> clean_recv(new Task(TASK_ID_RECV_LOG, "recv_log", RECV_LOG_PERSIST, this));
-	Ptr<Task> clean_adj(new Task(TASK_ID_NEIGH, "adj_list", NEIGH_PERSIST, this));
+	Ptr<Task> clean_recv(new Task(TASK_ID_RECV_LOG, "recv_log", RECV_LOG_CLEAN, this));
+	Ptr<Task> clean_adj(new Task(TASK_ID_NEIGH, "adj_list", NEIGH_CLEAN, this));
 
 	task_mgr.schedule(beacon);
 	task_mgr.schedule(clean_recv);
