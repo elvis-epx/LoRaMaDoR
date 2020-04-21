@@ -147,7 +147,20 @@ void lora_emu_rx()
 		perror("recvfrom");
 		exit(1);
 	}
-	printf("Received packet\n");
+	if (arduino_random(0, 3) == 0) {
+		printf("Received packet, corrupt it a little\n");
+		for (int i = 0; i < 3; ++i) {
+			message[arduino_random(0, rec)] = arduino_random(0, 256);
+		}
+	} else if (arduino_random(0, 100) == 0) {
+		printf("Received packet, corrupt it a lot\n");
+		for (int i = 0; i < 30; ++i) {
+			message[arduino_random(0, rec)] = arduino_random(0, 256);
+		}
+	} else {
+		printf("Received packet, not corrupting\n");
+	}
+
 	rx_callback(message, rec, -50);
 }
 
