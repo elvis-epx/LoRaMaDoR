@@ -17,7 +17,7 @@ struct Neighbour {
 		rssi(rssi), timestamp(timestamp) {}
 	Neighbour() {}
 	int rssi;
-	unsigned long int timestamp;
+	long int timestamp;
 };
 
 struct RecvLogItem {
@@ -25,7 +25,7 @@ struct RecvLogItem {
 		rssi(rssi), timestamp(timestamp) {}
 	RecvLogItem() {}
 	int rssi;
-	unsigned long int timestamp;
+	long int timestamp;
 };
 
 class Network {
@@ -51,13 +51,16 @@ public:
 	unsigned long int beacon();
 
 	// publicised for testing purposes
-	TaskManager task_mgr;
+	TaskManager& _task_mgr();
+	Dict<Neighbour>& _neighbours();
+	Dict<RecvLogItem>& _recv_log();
 
 private:
 	void recv(Ptr<Packet> pkt);
 	void sendmsg(const Ptr<Packet> pkt);
 
 	Callsign my_callsign;
+	TaskManager task_mgr;
 	Dict<Neighbour> neighbours;
 	Dict<RecvLogItem> recv_log;
 	unsigned int last_pkt_id;

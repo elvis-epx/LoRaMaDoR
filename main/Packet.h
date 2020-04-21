@@ -31,10 +31,7 @@ struct Packet {
 	Ptr<Packet> change_msg(const Buffer&) const;
 	Ptr<Packet> change_params(const Params&) const;
 	Buffer encode_l2() const;
-
-	/* public for unit testing */
-	Buffer encode_l3() const;
-
+	Buffer encode_l3() const; /* publicised for unit testing */
 	bool is_dup(const Packet& other) const;
 	const char *signature() const;
 	Callsign to() const;

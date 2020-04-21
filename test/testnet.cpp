@@ -99,10 +99,14 @@ int main(int argc, char* argv[])
 	cli_simtype("AAAAA xsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r");
 	cli_simtype("!lastid\r");
 
+	// Add a couple of old data to exercise cleanup run paths
+	Net->_recv_log()["UNKNOWN:1234"] = RecvLogItem(-50, -90 * 60 * 1000);
+	Net->_neighbours()["UNKNOWN"] = Neighbour(-50, -90 * 60 * 1000);
+
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
 
-	int x = 1000;
+	int x = 2000;
 	while (x-- > 0) {
 		if (arduino_random(0, 100) == 0) {
 			ping();
@@ -114,7 +118,7 @@ int main(int argc, char* argv[])
 			cli_simtype("!neigh\r");
 		}
 
-		Ptr<Task> tsk = Net->task_mgr.next_task();
+		Ptr<Task> tsk = Net->_task_mgr().next_task();
 
 		fd_set set;
 		FD_ZERO(&set);
