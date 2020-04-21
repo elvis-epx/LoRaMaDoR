@@ -7,39 +7,30 @@
 #include "Pointer.h"
 #include "Dict.h"
 
-class Task;
-
-class TaskCallable {
-public:
-	virtual ~TaskCallable() {};
-	virtual unsigned long int task_callback(int, unsigned long int, Task*) = 0;
-};
-
 class TaskManager;
-
-// callback_target must outlive the Task.
+class Network;
 
 class Task {
 public:
-	Task(int id, const char *name, unsigned long int offset, TaskCallable* callback_target);
+	Task(Network* net, const char *name, unsigned long int offset);
 	virtual ~Task();
 	unsigned long int next_run() const;
 	const char *get_name() const;
 
 protected:
-	virtual bool run(unsigned long int now);
+	// overridden by concrete task subclasses
+	virtual unsigned long int run2(unsigned long int now) = 0;
+	Network* net;
 
 private:
-	friend class TaskManager;
+	bool run(unsigned long int now);
 	void set_timebase(unsigned long int timebase);
 	bool should_run(unsigned long int now) const;
 	bool cancelled() const;
 
-	int id;
 	const char *name;
 	unsigned long int offset;
 	unsigned long int timebase;
-	TaskCallable *callback_target;
 
 	// Tasks must be manipulated through (smart) pointers,
 	// the pointer is the ID, no copies allowed
@@ -48,6 +39,8 @@ private:
 	Task(const Task&&) = delete;
 	Task& operator=(const Task&) = delete;
 	Task& operator=(Task&&) = delete;
+
+	friend class TaskManager;
 };
 
 class TaskManager {

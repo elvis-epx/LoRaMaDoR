@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 		if (tsk) {
 			long int now = arduino_millis();
 			long int to = tsk->next_run() - now;
-			// printf("Timeout: %s %ld\n", tsk->get_name(), to);
+			printf("Timeout: %s %ld\n", tsk->get_name(), to);
 			if (to < 0) {
 				to = 0;
 			}

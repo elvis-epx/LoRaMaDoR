@@ -28,8 +28,7 @@ struct RecvLogItem {
 	unsigned long int timestamp;
 };
 
-class Network: public TaskCallable
-{
+class Network {
 public:
 	Network(const Callsign &callsign);
 	virtual ~Network();
@@ -41,9 +40,15 @@ public:
 
 	// publicised to bridge with uncoupled code
 	void radio_recv(const char *recv_area, unsigned int plen, int rssi);
-	virtual unsigned long int task_callback(int, unsigned long int, Task*);
 	unsigned int get_last_pkt_id() const;
 	unsigned int get_next_pkt_id();
+
+	// publicised to be called by Tasks
+	unsigned long int tx(const Buffer&);
+	void forward(Ptr<Packet>, bool, unsigned long int);
+	unsigned long int clean_recv_log(unsigned long int);
+	unsigned long int clean_neigh(unsigned long int);
+	unsigned long int beacon();
 
 	// publicised for testing purposes
 	TaskManager task_mgr;
@@ -51,11 +56,6 @@ public:
 private:
 	void recv(Ptr<Packet> pkt);
 	void sendmsg(const Ptr<Packet> pkt);
-	unsigned long int forward(unsigned long int, Task*);
-	unsigned long int clean_recv_log(unsigned long int, Task*);
-	unsigned long int clean_neighbours(unsigned long int, Task*);
-	unsigned long int beacon(unsigned long int, Task*);
-	unsigned long int tx(unsigned long int, Task*);
 
 	Callsign my_callsign;
 	Dict<Neighbour> neighbours;

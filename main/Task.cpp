@@ -1,14 +1,14 @@
 #include "Task.h"
 #include "ArduinoBridge.h"
 
-Task::Task(int id, const char *name, unsigned long int offset, TaskCallable* callback_target):
-	id(id), name(name), offset(offset), timebase(0), callback_target(callback_target)
+Task::Task(Network *net, const char *name, unsigned long int offset):
+	net(net), name(name), offset(offset), timebase(0)
 {
 }
 
 Task::~Task()
 {
-	this->callback_target = 0;
+	this->net = 0;
 	this->timebase = 0;
 }
 
@@ -36,19 +36,17 @@ bool Task::should_run(unsigned long int now) const
 
 bool Task::run(unsigned long int now)
 {
-	// callback returns new timeout (which could be random)
-	this->offset = callback_target->task_callback(id, now, this);
+	// concrete routine returns new timeout (which could be random)
+	this->offset = this->run2(now);
 	// task cancelled by default, rescheduled by task mgr
 	this->timebase = 0;
 	return this->offset > 0;
 }
 
-/*
 const char* Task::get_name() const
 {
 	return name;
 }
-*/
 
 TaskManager::TaskManager() {}
 

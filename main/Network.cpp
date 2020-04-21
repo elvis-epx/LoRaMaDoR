@@ -30,48 +30,81 @@ static unsigned long int fudge(unsigned long int avg, double fudge)
 }
 
 
-// Task IDs
-
-static const int TASK_ID_TX = 1;
-static const int TASK_ID_FWD = 2;
-static const int TASK_ID_BEACON = 3;
-static const int TASK_ID_NEIGH = 4;
-static const int TASK_ID_RECV_LOG = 6;
-
-// Task who calls back Network::tx_task()
-
 class PacketTx: public Task {
 public:
-	PacketTx(const Buffer& encoded_packet,
-		unsigned long int offset,
-		TaskCallable* callback_target):
-			Task(TASK_ID_TX, "tx", offset, callback_target),
-			encoded_packet(encoded_packet) {}
-	virtual ~PacketTx() {}
-	const Buffer encoded_packet; // read by callback tx(), who downcasts Task to PacketTx
+	PacketTx(Network* net, const Buffer& encoded_packet, unsigned long int offset): 
+			Task(net, "tx", offset), encoded_packet(encoded_packet)
+	{
+	}
+protected:
+	virtual unsigned long int run2(unsigned long int now) {
+		return net->tx(encoded_packet);
+	}
+private:
+	const Buffer encoded_packet;
 };
 
-// Task who calls back Network::forward()
 
 class PacketFwd: public Task {
 public:
-	PacketFwd(const Ptr<Packet> packet,
-		bool we_are_origin,
-		unsigned long int offset,
-		TaskCallable* callback_target):
-			Task(TASK_ID_FWD, "fwd", offset, callback_target),
-			packet(packet),
-			we_are_origin(we_are_origin) {}
-	virtual ~PacketFwd() {}
-	virtual bool run(unsigned long int now) {
-		Task::run(now);
-		// forces this task to be one-off
-		return false;
+	PacketFwd(Network* net, const Ptr<Packet> packet, bool we_are_origin):
+		Task(net, "fwd", 0), packet(packet), we_are_origin(we_are_origin)
+	{
 	}
-	// read by callback forward(), who downcasts Task to PacketFwd
+protected:
+	virtual unsigned long int run2(unsigned long int now)
+	{
+		net->forward(packet, we_are_origin, now);
+		// forces this task to be one-off
+		return 0;
+	}
+private:
 	const Ptr<Packet> packet;
 	const bool we_are_origin;
 };
+
+
+class BeaconTask: public Task {
+public:
+	BeaconTask(Network* net, unsigned long int offset):
+		Task(net, "beacon", offset)
+	{
+	}
+protected:
+	virtual unsigned long int run2(unsigned long int now)
+	{
+		return net->beacon();
+	}
+};
+
+
+class CleanNeighTask: public Task {
+public:
+	CleanNeighTask(Network* net, unsigned long int offset):
+		Task(net, "neigh", offset)
+	{
+	}
+protected:
+	virtual unsigned long int run2(unsigned long int now)
+	{
+		return net->clean_neigh(now);
+	}
+};
+
+
+class CleanRecvLogTask: public Task {
+public:
+	CleanRecvLogTask(Network* net, unsigned long int offset):
+		Task(net, "recvlog", offset)
+	{
+	}
+protected:
+	virtual unsigned long int run2(unsigned long int now)
+	{
+		return net->clean_recv_log(now);
+	}
+};
+
 
 // bridges C-style callback from LoRa/Radio module to network object
 void radio_recv_trampoline(const char *recv_area, unsigned int plen, int rssi);
@@ -89,13 +122,13 @@ Network::Network(const Callsign &callsign)
 	my_callsign = callsign;
 	last_pkt_id = arduino_nvram_id_load();
 
-	Ptr<Task> beacon(new Task(TASK_ID_BEACON, "beacon", fudge(AVG_FIRST_BEACON_TIME, 0.5), this));
-	Ptr<Task> clean_recv(new Task(TASK_ID_RECV_LOG, "recv_log", RECV_LOG_CLEAN, this));
-	Ptr<Task> clean_adj(new Task(TASK_ID_NEIGH, "adj_list", NEIGH_CLEAN, this));
+	Ptr<Task> beacon(new BeaconTask(this, fudge(AVG_FIRST_BEACON_TIME, 0.5)));
+	Ptr<Task> clean_recv(new CleanRecvLogTask(this, RECV_LOG_CLEAN));
+	Ptr<Task> clean_neigh(new CleanNeighTask(this, NEIGH_CLEAN));
 
 	task_mgr.schedule(beacon);
 	task_mgr.schedule(clean_recv);
-	task_mgr.schedule(clean_adj);
+	task_mgr.schedule(clean_neigh);
 
 	modifiers.push_back(Ptr<Modifier>(new Rreqi()));
 	modifiers.push_back(Ptr<Modifier>(new RetransMark()));
@@ -134,7 +167,7 @@ void Network::send(const Callsign &to, Params params, const Buffer& msg)
 // schedule radio transmission
 void Network::sendmsg(const Ptr<Packet> pkt)
 {
-	Task *fwd_task = new PacketFwd(pkt, true, TASK_ID_FWD, this);
+	Task *fwd_task = new PacketFwd(this, pkt, true);
 	task_mgr.schedule(Ptr<Task>(fwd_task));
 }
 
@@ -173,21 +206,21 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 		return;
 	}
 	logi("rx good packet, RSSI =", rssi);
-	Task *fwd_task = new PacketFwd(pkt, false, TASK_ID_FWD, this);
+	Task *fwd_task = new PacketFwd(this, pkt, false);
 	task_mgr.schedule(Ptr<Task>(fwd_task));
 }
 
 // Send automatic beacon pkt
-unsigned long int Network::beacon(unsigned long int, Task*)
+unsigned long int Network::beacon()
 {
 	send(Callsign("QB"), Params(), Buffer(BEACON_MSG));
 	unsigned long int next = fudge(AVG_BEACON_TIME, 0.5);
-	logi("Next beacon in ", next);
+	// logi("Next beacon in ", next);
 	return next;
 }
 
 // purge old packet IDs from recv log
-unsigned long int Network::clean_recv_log(unsigned long int now, Task*)
+unsigned long int Network::clean_recv_log(unsigned long int now)
 {
 	Vector<Buffer> remove_list;
 	long int cutoff = now - RECV_LOG_PERSIST;
@@ -208,7 +241,7 @@ unsigned long int Network::clean_recv_log(unsigned long int now, Task*)
 }
 
 // purge neighbours that have been silent for a while
-unsigned long int Network::clean_neighbours(unsigned long int now, Task*)
+unsigned long int Network::clean_neigh(unsigned long int now)
 {
 	Vector<Buffer> remove_list;
 	long int cutoff = now - NEIGH_PERSIST;
@@ -229,55 +262,51 @@ unsigned long int Network::clean_neighbours(unsigned long int now, Task*)
 }
 
 // execute packet transmission
-unsigned long int Network::tx(unsigned long int now, Task* task)
+unsigned long int Network::tx(const Buffer& encoded_packet)
 {
-	const PacketTx* packet_task = static_cast<PacketTx*>(task);
-	if (! lora_tx(packet_task->encoded_packet)) {
+	if (! lora_tx(encoded_packet)) {
 		return TX_BUSY_RETRY_TIME;
 	}
 	return 0;
 }
 
 // handle packet received from radio or from application layer
-unsigned long int Network::forward(unsigned long int now, Task* task)
+void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now)
 {
-	const PacketFwd* fwd_task = static_cast<PacketFwd*>(task);
-	Ptr<Packet> pkt = fwd_task->packet;
 	int rssi = pkt->rssi();
-	bool we_are_origin = fwd_task->we_are_origin;
 
 	if (we_are_origin) {
 		if (me().equal(pkt->to()) || pkt->to().is_localhost()) {
 			recv(pkt);
-			return 0;
+			return;
 		}
 
 		// Annotate to detect duplicates
 		recv_log[pkt->signature()] = RecvLogItem(rssi, now);
 		// Transmit
-		Task *tx_task = new PacketTx(pkt->encode_l2(), 50, this);
+		Task *tx_task = new PacketTx(this, pkt->encode_l2(), 50);
 		task_mgr.schedule(Ptr<Task>(tx_task));
 		logs("tx ", pkt->encode_l3().cold());
-		return 0;
+		return;
 	}
 
 	// Packet originated from us but received via radio = loop
 	if (me().equal(pkt->from())) {
 		logs("pkt loop", pkt->signature());
-		return 0;
+		return;
 	}
 
 	// Discard received duplicates
 	if (recv_log.has(pkt->signature())) {
 		logs("pkt dup", pkt->signature());
-		return 0;
+		return;
 	}
 	recv_log[pkt->signature()] = RecvLogItem(rssi, now);
 
 	if (me().equal(pkt->to())) {
 		// We are the final destination
 		recv(pkt);
-		return 0;
+		return;
 	}
 
 	if (pkt->to().equal("QB") || pkt->to().equal("QC")) {
@@ -316,30 +345,9 @@ unsigned long int Network::forward(unsigned long int now, Task* task)
 
 	logi("relaying w/ delay", delay);
 
-	Task *tx_task = new PacketTx(encoded_pkt, delay, this);
+	Task *tx_task = new PacketTx(this, encoded_pkt, delay);
 	logs("relay ", pkt->encode_l3().cold());
 	task_mgr.schedule(Ptr<Task>(tx_task));
-
-	return 0;
-}
-
-unsigned long int Network::task_callback(int id, unsigned long int now, Task* task)
-{
-	switch (id) {
-		case TASK_ID_BEACON:
-			return beacon(now, task);
-		case TASK_ID_TX:
-			return tx(now, task);
-		case TASK_ID_FWD:
-			return forward(now, task);
-		case TASK_ID_NEIGH:
-			return clean_neighbours(now, task);
-		case TASK_ID_RECV_LOG:
-			return clean_recv_log(now, task);
-		default:
-			logi("invalid task id ", id);
-	}
-	return 0;
 }
 
 void Network::run_tasks(unsigned long int millis)
