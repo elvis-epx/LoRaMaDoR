@@ -1,0 +1,26 @@
+#!/bin/bash
+
+make clean
+make -j 4
+valgrind --leak-check=full --error-exitcode=1 ./test || exit 1
+./test || exit 1
+PIDS=""
+valgrind --leak-check=full --error-exitcode=1 --log-file=AAAA ./testnet AAAA > AAAA.log &
+PIDS+=" $!"
+valgrind --leak-check=full --error-exitcode=1 --log-file=BBBB ./testnet BBBB > BBBB.log &
+PIDS+=" $!"
+valgrind --leak-check=full --error-exitcode=1 --log-file=CCCC ./testnet CCCC > CCCC.log &
+PIDS+=" $!"
+ERR=0
+for P in $PIDS; do
+	if ! wait $P; then
+		ERR=1
+	fi
+done
+if [ "$ERR" != 0 ]; then
+	echo
+	echo Checar logs Valgrind!
+	echo
+else
+	make coverage
+fi
