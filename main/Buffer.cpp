@@ -25,8 +25,6 @@ Buffer::Buffer(int len)
 
 Buffer::Buffer(Buffer&& moved)
 {
-	delete [] this->buf;
-
 	this->len = moved.len;
 	this->buf = moved.buf;
 	moved.len = 0;
