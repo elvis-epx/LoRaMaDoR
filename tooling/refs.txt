@@ -1,0 +1,12 @@
+https://www.youtube.com/watch?v=WHl2oC8fqZU
+
+https://github.com/osresearch/esp32-ttgo
+
+https://github.com/fcgdam/TTGO_LoRa32
+
+https://github.com/BSFrance/BSFrance-avr
+
+http://iotbyskovholm.dk/?q=content/lora32u4-ii-v12-development-board
+
+https://primalcortex.files.wordpress.com/2017/11/lora32u4ii-pinout-diagram.pdf
+

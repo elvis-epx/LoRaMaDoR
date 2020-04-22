@@ -1,8 +1,6 @@
+Add TCP/IP (Telnet server) for non-serial access
+
+Possibility of remote, NAT-piercing access
+
 Add !version command
 Add !help command
-
-Coverage
-       Network
-               clean up neighbours list
-               clean up recv log
-               corrupted packet (l2_encode ret error)
