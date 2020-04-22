@@ -1,6 +1,20 @@
 Add TCP/IP (Telnet server) for non-serial access
+mDNS (Bounjour) using callsign
+Commands !ssid, !password x NVRAM
+
+Add example of application (try some sensor)
+	- Handler
+	- accepting remote commands
+	- generating traffic
+	- Tasks, timeouts
 
 Possibility of remote, NAT-piercing access
 
 Add !version command
 Add !help command
+
+Add uptime and sw version to beacon (QB) message
+
+NTP client? QB message with time instead of uptime?
+
+Gateway via Internet, IP router
