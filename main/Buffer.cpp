@@ -13,7 +13,8 @@
 Buffer::Buffer()
 {
 	this->len = 0;
-	this->buf = new char[0];
+	this->buf = new char[1];
+	this->buf[0] = 0;
 }
 
 Buffer::Buffer(int len)
