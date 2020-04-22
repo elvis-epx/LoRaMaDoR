@@ -10,26 +10,35 @@
 #include <stdarg.h>
 #include "Buffer.h"
 
+class BufferImpl {
+	friend class Buffer;
+
+	static void init(Buffer* b, const char *s, unsigned int len)
+	{
+		b->len = len;
+		b->buf = new char[len + 1];
+		if (s) {
+			memcpy(b->buf, s, len);
+		} else {
+			memset(b->buf, 0, len);
+		}
+		b->buf[len] = 0;
+	}
+};
+
 Buffer::Buffer()
 {
-	this->len = 0;
-	this->buf = new char[1];
-	this->buf[0] = 0;
+	BufferImpl::init(this, 0, 0);
 }
 
 Buffer::Buffer(int len)
 {
-	this->len = len;
-	this->buf = new char[len + 1];
-	memset(this->buf, 0, len + 1);
+	BufferImpl::init(this, 0, len);
 }
 
 Buffer::Buffer(const Buffer& model)
 {
-	this->len = model.len;
-	this->buf = new char[this->len + 1];
-	memcpy(this->buf, model.buf, this->len);
-	this->buf[len] = 0;
+	BufferImpl::init(this, model.buf, model.len);
 }
 
 Buffer& Buffer::operator=(Buffer&& moved)
@@ -47,12 +56,7 @@ Buffer& Buffer::operator=(Buffer&& moved)
 Buffer& Buffer::operator=(const Buffer& model)
 {
 	delete [] buf;
-
-	len = model.len;
-	buf = new char[len + 1];
-	memcpy(buf, model.buf, len);
-	buf[len] = 0;
-
+	BufferImpl::init(this, model.buf, model.len);
 	return *this;
 }
 
@@ -103,22 +107,14 @@ Buffer::~Buffer()
 	this->len = 0;
 }
 
-Buffer::Buffer(const char *buf, int len)
+Buffer::Buffer(const char *s, int len)
 {
-	this->len = len;
-	this->buf = new char[len + 1];
-	if (buf) {
-		memcpy(this->buf, buf, len);
-	}
-	this->buf[len] = 0;
+	BufferImpl::init(this, s, len);
 }
 
 Buffer::Buffer(const char *s)
 {
-	len = strlen(s);
-	buf = new char[len + 1];
-	memcpy(buf, s, len);
-	buf[len] = 0;
+	BufferImpl::init(this, s, strlen(s));
 }
 
 const char* Buffer::cold() const

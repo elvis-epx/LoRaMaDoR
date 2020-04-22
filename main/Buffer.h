@@ -40,6 +40,7 @@ public:
 	int indexOf(const char) const;
 	int charAt(int) const;
 
+	friend class BufferImpl;
 private:
 	char *buf;
 	unsigned int len;
