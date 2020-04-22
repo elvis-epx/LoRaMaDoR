@@ -176,8 +176,33 @@ void cli_simtype(const char *c)
 	}
 }
 
+static bool telnet_mode = false;
+static int telnet_iac = 0;
+
+void cli_telnetmode(bool mode)
+{
+	telnet_mode = mode;
+	telnet_iac = 0;
+}
+
 void cli_type(char c) {
-	if (c == 13) {
+	if (telnet_mode && telnet_iac == 2) {
+		// inside IAC sequence
+		if (c == 255) {
+			// 0xff 0xff = 0xff
+			cli_buf.append(c);
+			telnet_iac = 0;
+		} else {
+			// continued IAC sequence
+			telnet_iac = 1;
+		}
+	} else if (telnet_mode && telnet_iac == 1) {
+		// end of IAC sequence
+		telnet_iac = 0;
+	} else if (telnet_mode && c == 255) {
+		// enter IAC mode
+		telnet_iac = 2;
+	} else if (c == 13) {
 		cli_enter();
 	} else if (c == 8 || c == 127) {
 		if (! cli_buf.empty()) {
@@ -186,6 +211,8 @@ void cli_type(char c) {
 			console_print(' ');
 			console_print((char) 8);
 		}
+	} else if (c < 32) {
+		// ignore non-handled control chars
 	} else if (cli_buf.length() > 200) {
 		return;
 	} else {
