@@ -4,6 +4,8 @@
 #include "Buffer.h"
 #include "Callsign.h"
 
+extern void platform_print(const char*);
+
 Preferences prefs;
 
 unsigned long int arduino_millis()
@@ -66,20 +68,22 @@ void arduino_nvram_callsign_save(const Callsign &new_callsign)
 	prefs.end();
 }
 
-void serial_print(const char *msg) {
-	Serial.print(msg);
+void console_print(const char *msg) {
+	platform_print(msg);
 }
 
-void serial_print(char msg) {
-	Serial.print(msg);
+void console_print(char c) {
+	char msg[] = {c, 0};
+	platform_print(msg);
 }
 
-void serial_println(const char *msg) {
-	Serial.println(msg);
+void console_println(const char *msg) {
+	platform_print(msg);
+	platform_print("\r\n");
 }
 
-void serial_println() {
-	Serial.println();
+void console_println() {
+	platform_print("\r\n");
 }
 
 void arduino_restart() {

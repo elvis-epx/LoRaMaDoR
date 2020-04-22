@@ -177,19 +177,19 @@ void arduino_nvram_id_save(unsigned int id)
 	nvram_id = id;
 }
 
-void serial_print(const char *msg) {
+void console_print(const char *msg) {
 	printf("%s", msg);
 }
 
-void serial_print(char msg) {
+void console_print(char msg) {
 	printf("%c", msg);
 }
 
-void serial_println(const char *msg) {
+void console_println(const char *msg) {
 	printf("%s\n", msg);
 }
 
-void serial_println() {
+void console_println() {
 	printf("\n");
 }
 

@@ -37,48 +37,48 @@ void app_recv(Ptr<Packet> pkt)
 static void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
-		serial_print("Callsign is ");
-		serial_println(Net->me().buf().cold());
+		console_print("Callsign is ");
+		console_println(Net->me().buf().cold());
 		return;
 	}
 	
 	if (candidate.charAt(0) == 'Q') {
-		serial_print("Invalid Q callsign: ");
-		serial_println(candidate.cold());
+		console_print("Invalid Q callsign: ");
+		console_println(candidate.cold());
 		return;
 	}
 
 	Callsign callsign(candidate);
 
 	if (! callsign.is_valid()) {
-		serial_print("Invalid callsign: ");
-		serial_println(candidate.cold());
+		console_print("Invalid callsign: ");
+		console_println(candidate.cold());
 		return;
 	}
 	
 	arduino_nvram_callsign_save(callsign);
-	serial_println("Callsign saved, restarting...");
+	console_println("Callsign saved, restarting...");
 	arduino_restart();
 }
 
 static void cli_lastid()
 {
 	auto b = Buffer::sprintf("Last packet ID #%ld", Net->get_last_pkt_id());
-	serial_println(b.cold());
+	console_println(b.cold());
 }
 
 static void cli_neigh()
 {
-	serial_println("---------------------------");
-	serial_println(Buffer::sprintf("Neighbourhood of %s:", Net->me().buf().cold()).cold());
+	console_println("---------------------------");
+	console_println(Buffer::sprintf("Neighbourhood of %s:", Net->me().buf().cold()).cold());
 	auto neigh = Net->neigh();
 	for (auto i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
 		int rssi = neigh[cs].rssi;
 		auto b = Buffer::sprintf("    %s rssi %d", cs.cold(), rssi);
-		serial_println(b.cold());
+		console_println(b.cold());
 	}
-	serial_println("---------------------------");
+	console_println("---------------------------");
 }
 
 static void cli_parse_meta(Buffer cmd)
@@ -88,10 +88,10 @@ static void cli_parse_meta(Buffer cmd)
 		cmd.cut(9);
 		cli_parse_callsign(cmd);
 	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
-		serial_println("Debug on.");
+		console_println("Debug on.");
 		debug = true;
 	} else if (cmd.strncmp("nodebug", 7) == 0 && cmd.length() == 7) {
-		serial_println("Debug off.");
+		console_println("Debug off.");
 		debug = false;
 	} else if (cmd.strncmp("neigh", 5) == 0 && cmd.length() == 5) {
 		cli_neigh();
@@ -100,8 +100,8 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd.strncmp("callsign", 8) == 0 && cmd.length() == 8) {
 		cli_parse_callsign("");
 	} else {
-		serial_print("Unknown cmd: ");
-		serial_println(cmd.cold());
+		console_print("Unknown cmd: ");
+		console_println(cmd.cold());
 	}
 }
 
@@ -130,15 +130,15 @@ static void cli_parse_packet(Buffer cmd)
 	Callsign dest(cdest);
 
 	if (! dest.is_valid()) {
-		serial_print("Invalid destination: ");
-		serial_println(cdest.cold());
+		console_print("Invalid destination: ");
+		console_println(cdest.cold());
 		return;
 	}
 
 	Params params(sparams);
 	if (! params.is_valid_without_ident()) {
-		serial_print("Invalid params: ");
-		serial_println(sparams.cold());
+		console_print("Invalid params: ");
+		console_println(sparams.cold());
 		return;
 	}
 
@@ -159,12 +159,12 @@ static void cli_parse(Buffer cmd)
 Buffer cli_buf;
 
 static void cli_enter() {
-	serial_println();
+	console_println();
 	if (cli_buf.empty()) {
 		return;
 	}
-	// serial_print("Typed: ");
-	// serial_println(cli_buffer);
+	// console_print("Typed: ");
+	// console_println(cli_buffer);
 	cli_parse(cli_buf);
 	cli_buf = "";
 }
@@ -182,21 +182,21 @@ void cli_type(char c) {
 	} else if (c == 8 || c == 127) {
 		if (! cli_buf.empty()) {
 			cli_buf.cut(-1);
-			serial_print((char) 8);
-			serial_print(' ');
-			serial_print((char) 8);
+			console_print((char) 8);
+			console_print(' ');
+			console_print((char) 8);
 		}
 	} else if (cli_buf.length() > 200) {
 		return;
 	} else {
 		cli_buf.append(c);
-		serial_print(c);
+		console_print(c);
 	}
 }
 
 void cli_print(const Buffer &msg)
 {
-	serial_println();
-	serial_println(msg.cold());
-	serial_print(cli_buf.cold());
+	console_println();
+	console_println(msg.cold());
+	console_print(cli_buf.cold());
 }
