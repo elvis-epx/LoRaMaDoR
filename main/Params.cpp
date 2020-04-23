@@ -130,7 +130,8 @@ static bool parse_params(const char *data, unsigned int len,
 			ident = tident;
 		} else {
 			// parameter is key=value or naked key
-			params.put(key, value); // uppers key case for us
+			key.uppercase();
+			params.put(key, value);
 		}
 
 		data += advance_len;
@@ -192,27 +193,37 @@ unsigned int Params::count() const
 
 Buffer Params::get(const char *key) const
 {
-	return items.get(key);
+	Buffer ukey(key);
+	ukey.uppercase();
+	return items.get(ukey);
 }
 
 bool Params::has(const char *key) const
 {
-	return items.has(key);
+	Buffer ukey(key);
+	ukey.uppercase();
+	return items.has(ukey);
 }
 
 void Params::put(const char *key, const Buffer& value)
 {
-	items.put(key, value);
+	Buffer ukey(key);
+	ukey.uppercase();
+	items.put(ukey, value);
 }
 
 void Params::put_naked(const char *key)
 {
-	items.put(key, naked);
+	Buffer ukey(key);
+	ukey.uppercase();
+	items.put(ukey, naked);
 }
 
 bool Params::is_key_naked(const char* key) const
 {
-	return items.has(key) && items.get(key).str_equal(naked);
+	Buffer ukey(key);
+	ukey.uppercase();
+	return items.has(ukey) && items.get(ukey).str_equal(naked);
 }
 
 void Params::set_ident(unsigned long int new_ident)

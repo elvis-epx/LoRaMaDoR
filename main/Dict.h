@@ -83,15 +83,12 @@ public:
 		return put(akey.cold(), value);
 	}
 
-	bool put(const char *akey, const T& value) {
-		Buffer key = Buffer(akey);
-		key.uppercase();
-
-		int pos = indexOf(key.cold());
+	bool put(const char *key, const T& value) {
+		int pos = indexOf(key);
 		bool new_key = pos <= -1;
 
 		if (new_key) {
-			int insertion_pos = indexOf(key.cold(), 0, _keys.size(), false);
+			int insertion_pos = indexOf(key, 0, _keys.size(), false);
 			_keys.insert(insertion_pos, key);
 			_values.insert(insertion_pos, value);
 		} else {
