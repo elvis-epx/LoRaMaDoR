@@ -222,17 +222,10 @@ void cli_simtype(const char *c)
 	}
 }
 
-static bool telnet_mode = false;
 static int telnet_iac = 0;
 
-void cli_telnetmode(bool mode)
-{
-	telnet_mode = mode;
-	telnet_iac = 0;
-}
-
 void cli_type(char c) {
-	if (telnet_mode && telnet_iac == 2) {
+	if (telnet_iac == 2) {
 		// inside IAC sequence
 		if (c == '\xff') {
 			// 0xff 0xff = 0xff
@@ -242,10 +235,10 @@ void cli_type(char c) {
 			// continued IAC sequence
 			telnet_iac = 1;
 		}
-	} else if (telnet_mode && telnet_iac == 1) {
+	} else if (telnet_iac == 1) {
 		// end of IAC sequence
 		telnet_iac = 0;
-	} else if (telnet_mode && c == '\xff') {
+	} else if (c == '\xff') {
 		// enter IAC mode
 		telnet_iac = 2;
 	} else if (c == 13) {

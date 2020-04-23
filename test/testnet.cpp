@@ -104,7 +104,6 @@ int main(int argc, char* argv[])
 	cli_simtype("AAAAA:$=d\r");
 	cli_simtype("AAAAA xsxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r");
 	cli_simtype("!lastid\r");
-	cli_telnetmode(true);
 	cli_simtype("\xff\xff\xff\xf0\x01");
 
 	// Add a couple of old data to exercise cleanup run paths
