@@ -21,8 +21,8 @@ void wifi_setup(Ptr<Network> net)
 	ssid = arduino_nvram_load("ssid");
 	password = arduino_nvram_load("password");
 
-	Serial.print("Wi-Fi SSID ");
-	Serial.println(ssid.cold());
+	serial_print("Wi-Fi SSID ");
+	serial_println(ssid.cold());
 
 	if (!ssid.str_equal("None")) {
 		wifi_status = 1;
@@ -66,35 +66,35 @@ void wifi_handle()
 			} else {
 				WiFi.begin(ssid.cold(), password.cold());
 			}
-			Serial.println("Connecting to WiFi...");
+			serial_println("Connecting to WiFi...");
 			wifi_status = 2;
 			wifi_timeout = millis() + 20000;
 		}
 	} else if (wifi_status == 2) {
 		int ws = WiFi.status();
 		if (ws == WL_CONNECTED) {
-			Serial.println("Connected to WiFi");
+			serial_println("Connected to WiFi");
 			ip = Buffer(WiFi.localIP().toString().c_str());
-			Serial.println(ip.cold());
+			serial_println(ip.cold());
 			wifiServer.begin();
 			if (!MDNS.begin(Net->me().buf().cold())) {
-				Serial.println("mDNS not ok, use IP to connect.");
+				serial_println("mDNS not ok, use IP to connect.");
 				mdns = false;
 			} else {
-				Serial.print("Local net name: ");
-				Serial.print(Net->me().buf().cold());
-				Serial.println(".local");
+				serial_print("Local net name: ");
+				serial_print(Net->me().buf().cold());
+				serial_println(".local");
 				mdns = true;
 			}
 			wifi_status = 3;
 		} else if (millis() > wifi_timeout) {
-			Serial.println("Failed to connect to WiFi");
+			serial_println("Failed to connect to WiFi");
 			wifi_status = 1;
 			wifi_timeout = millis() + 1000;
 		}
 	} else if (wifi_status == 3) {
 		if (WiFi.status() != WL_CONNECTED) {
-			Serial.println("Disconnected from WiFi.");
+			serial_println("Disconnected from WiFi.");
 			wifi_status = 1;
 			wifi_timeout = millis() + 1000;
 			telnet_client.stop();
@@ -105,14 +105,14 @@ void wifi_handle()
 
 	if (is_telnet && !telnet_client) {
 		is_telnet = false;
-		Serial.println("Telnet client disconnected");
+		serial_println("Telnet client disconnected");
 		cons_telnet_disable();
 		output_buffer = "";
 	}
 
 	if (!is_telnet && wifi_status == 3 && (telnet_client = wifiServer.available())) {
 		is_telnet = true;
-		Serial.println("Telnet client connected");
+		serial_println("Telnet client connected");
 		cons_telnet_enable();
 		output_buffer = "";
 	}

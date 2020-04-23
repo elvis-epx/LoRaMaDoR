@@ -6,6 +6,7 @@
 
 static Ptr<Network> Net;
 static bool is_telnet = false;
+static Buffer output_buffer;
 
 void cons_setup(Ptr<Network> net)
 {
@@ -20,6 +21,14 @@ void cons_handle()
 	if (Serial.available() > 0) {
 		int c = Serial.read();
 		if (!is_telnet) cli_type(c);
+	}
+
+	int a = Serial.availableForWrite();
+	int b = output_buffer.length();
+	int c = (a < b ? a : b);
+	if (c > 0) {
+		Serial.write((const uint8_t*) output_buffer.cold(), c);
+		output_buffer.cut(c);
 	}
 }
 
@@ -38,10 +47,21 @@ void cons_telnet_type(char c)
 	if (is_telnet) cli_type(c);
 }
 
+void serial_print(const char *msg)
+{
+	output_buffer.append_str(msg);
+}
+
+void serial_println(const char *msg)
+{
+	output_buffer.append_str(msg);
+	output_buffer.append_str("\r\n");
+}
+
 void platform_print(const char *msg)
 {
 	if (!is_telnet) {
-		Serial.print(msg);
+		serial_print(msg);
 	} else {
 		telnet_print(msg);
 	}
