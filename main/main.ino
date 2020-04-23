@@ -9,7 +9,9 @@
 const char* ssid = "EPX";
 const char* password = "abracadabra";
 WiFiServer wifiServer(23);
+int wifi_status = 0;
 WiFiClient telnet_client;
+bool is_telnet = false;
 
 Ptr<Network> Net;
 
@@ -26,45 +28,50 @@ void setup()
 	Serial.println(" ready");
 	Serial.println();
 
-  delay(1000);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-
-  Serial.println("Connected to the WiFi network");
-  Serial.println(WiFi.localIP());
-
-  wifiServer.begin();
+  // should be dependent on configured SSID and password
+  wifi_status = 1;  
 }
 
 void loop()
 {
-  if (!telnet_client) {
-	   while (Serial.available() > 0) {
-		   cli_type(Serial.read());
-	   }
-     telnet_client = wifiServer.available();
-     if (telnet_client) {
-        Serial.println("Telnet client connected");
-        cli_telnetmode(true);
-     }
-  } else {
-     if (telnet_client.connected()) {
-        while (telnet_client.connected() && telnet_client.available() > 0) {
-           int c = telnet_client.read();
-           Serial.print("Received char via telnet ");
-           Serial.println(c);
-           cli_type(c);
-        }
-     } else {
-        telnet_client = WiFiClient();
-        Serial.println("Telnet client disconnected");
-        cli_telnetmode(false);
-     }
+  if (wifi_status == 1 && millis() > 1000) {
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+    Serial.println("Connecting to WiFi...");
+    wifi_status = 2;
+  }
+
+  // FIXME handle transition to disconnected
+  if (wifi_status == 2) {
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("Connected to the WiFi network");
+      Serial.println(WiFi.localIP());
+      wifiServer.begin();
+      wifi_status = 3;
+    }
+  }
+
+  if (is_telnet && !telnet_client) {
+    is_telnet = false;
+    Serial.println("Telnet client disconnected");
+    cli_telnetmode(false);
+  }
+
+  if (!is_telnet && wifi_status == 3 && (telnet_client = wifiServer.available())) {
+    is_telnet = true;
+    Serial.println("Telnet client connected");
+    cli_telnetmode(true);
+  }
+
+	while (Serial.available() > 0) {
+    int c = Serial.read();
+    if (!is_telnet) cli_type(c);
+	}
+  
+  if (is_telnet) {
+    while (telnet_client && telnet_client.available() > 0) {
+       cli_type(telnet_client.read());
+    }
   }
 
 	Net->run_tasks(millis());
@@ -72,7 +79,7 @@ void loop()
 
 void platform_print(const char *msg)
 {
-  if (!telnet_client) {
+  if (!is_telnet) {
     Serial.print(msg);
   } else {
     telnet_client.print(msg);
