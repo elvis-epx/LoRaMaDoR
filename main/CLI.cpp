@@ -65,8 +65,9 @@ static void cli_parse_ssid(Buffer candidate)
 {
 	candidate.strip();
 	if (candidate.empty()) {
-		console_print("SSID is ");
-		console_println(arduino_nvram_load("ssid").cold());
+		console_print("SSID is '");
+		console_print(arduino_nvram_load("ssid").cold());
+		console_println("'");
 		console_println("Set SSID to None to disable Wi-Fi.");
 		return;
 	}
@@ -79,8 +80,9 @@ static void cli_parse_password(Buffer candidate)
 {
 	candidate.strip();
 	if (candidate.empty()) {
-		console_print("Wi-Fi password is ");
-		console_println(arduino_nvram_load("password").cold());
+		console_print("Wi-Fi password is '");
+		console_print(arduino_nvram_load("password").cold());
+		console_println("'");
 		console_println("Set password to None for Wi-Fi network without password.");
 		return;
 	}
