@@ -17,7 +17,7 @@ void cons_setup(Ptr<Network> net)
 
 void cons_handle()
 {
-	while (Serial.available() > 0) {
+	if (Serial.available() > 0) {
 		int c = Serial.read();
 		if (!is_telnet) cli_type(c);
 	}

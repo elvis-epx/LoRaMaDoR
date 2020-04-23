@@ -10,6 +10,7 @@ static WiFiServer wifiServer(23);
 static int wifi_status = 0;
 static unsigned long int wifi_timeout = 0;
 static WiFiClient telnet_client;
+static Buffer output_buffer;
 static bool is_telnet = false;
 Buffer ip = "(none)";
 bool mdns = false;
@@ -106,22 +107,31 @@ void wifi_handle()
 		is_telnet = false;
 		Serial.println("Telnet client disconnected");
 		cons_telnet_disable();
+		output_buffer = "";
 	}
 
 	if (!is_telnet && wifi_status == 3 && (telnet_client = wifiServer.available())) {
 		is_telnet = true;
 		Serial.println("Telnet client connected");
 		cons_telnet_enable();
+		output_buffer = "";
 	}
 
 	if (is_telnet) {
-		while (telnet_client && telnet_client.available() > 0) {
+		if (telnet_client && telnet_client.available() > 0) {
 			cons_telnet_type(telnet_client.read());
+		}
+		if (telnet_client && output_buffer.length() > 0) {
+			int written = telnet_client.write(output_buffer.cold(),
+					output_buffer.length());
+			if (written >= 0) {
+				output_buffer.cut(written);
+			}
 		}
 	}
 }
 
 void telnet_print(const char* c)
 {
-	telnet_client.print(c);
+	if (is_telnet) output_buffer.append_str(c);
 }
