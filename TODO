@@ -1,6 +1,4 @@
-Add TCP/IP (Telnet server) for non-serial access
-	mDNS (Bounjour) using callsign
-	Commands !ip, !wifistatus, others
+Commands !ip, !wifistatus, others
 
 Add example of application (try some sensor)
 	- Create framework with Handler/Modifier/Task

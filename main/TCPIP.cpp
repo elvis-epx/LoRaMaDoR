@@ -1,9 +1,11 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <ESPmDNS.h>
 
 #include "ArduinoBridge.h"
 #include "Console.h"
 
+static Ptr<Network> Net;
 static Buffer ssid;
 static Buffer password;
 static WiFiServer wifiServer(23);
@@ -12,8 +14,9 @@ static unsigned long int wifi_timeout = 0;
 static WiFiClient telnet_client;
 static bool is_telnet = false;
 
-void wifi_setup()
+void wifi_setup(Ptr<Network> net)
 {
+	Net = net;
 	ssid = arduino_nvram_load("ssid");
 	password = arduino_nvram_load("password");
 
@@ -46,6 +49,13 @@ void wifi_handle()
 			Serial.println("Connected to WiFi");
 			Serial.println(WiFi.localIP().toString().c_str());
 			wifiServer.begin();
+			if (!MDNS.begin(Net->me().buf().cold())) {
+				Serial.println("mDNS not ok, use IP to connect.");
+			} else {
+				Serial.print("Local net name: ");
+				Serial.print(Net->me().buf().cold());
+				Serial.println(".local");
+			}
 			wifi_status = 3;
 		} else if (millis() > wifi_timeout) {
 			Serial.println("Failed to connect to WiFi");
