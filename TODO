@@ -3,6 +3,8 @@ Add TCP/IP (Telnet server) for non-serial access
 	Commands !ip, !wifistatus, others
 
 Add example of application (try some sensor)
+	- Create framework with Handler/Modifier/Task
+		- Move PING, RREQ, beacon into it
 	- Handler
 	- accepting remote commands
 	- generating traffic

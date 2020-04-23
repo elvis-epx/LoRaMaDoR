@@ -22,7 +22,6 @@ static const unsigned int AVG_FIRST_BEACON_TIME = 30 * SECONDS;
 static const unsigned int AVG_BEACON_TIME = 10 * SECONDS;
 static const unsigned int AVG_FIRST_BEACON_TIME = 1 * SECONDS;
 #endif
-static const char* BEACON_MSG = "LoRaMaDoR 73";
 
 static unsigned long int fudge(unsigned long int avg, double fudge)
 {
@@ -63,7 +62,7 @@ private:
 	const bool we_are_origin;
 };
 
-
+// FIXME put outside this source so it can be an example for app layer
 class BeaconTask: public Task {
 public:
 	BeaconTask(Network* net, unsigned long int offset):
@@ -211,9 +210,11 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 }
 
 // Send automatic beacon pkt
+// FIXME put outside this source so it can be an example for app layer
 unsigned long int Network::beacon()
 {
-	send(Callsign("QB"), Params(), Buffer(BEACON_MSG));
+	Buffer msg = Buffer::sprintf("LoRaMaDoR %ld 73", arduino_millis() / 1000);
+	send(Callsign("QB"), Params(), msg);
 	unsigned long int next = fudge(AVG_BEACON_TIME, 0.5);
 	// logi("Next beacon in ", next);
 	return next;
