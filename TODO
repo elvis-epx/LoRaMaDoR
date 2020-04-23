@@ -2,7 +2,6 @@ Add TCP/IP (Telnet server) for non-serial access
 	Optional Wi-Fi start
 	mDNS (Bounjour) using callsign
 	Commands !ssid, !password x NVRAM, !ip, !wifistatus, others
-	Wi-Fi robustness: disconnect, reconnect, etc.
 
 Add example of application (try some sensor)
 	- Handler

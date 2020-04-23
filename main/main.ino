@@ -10,6 +10,7 @@ const char* ssid = "EPX";
 const char* password = "abracadabra";
 WiFiServer wifiServer(23);
 int wifi_status = 0;
+unsigned long int wifi_timeout = 0;
 WiFiClient telnet_client;
 bool is_telnet = false;
 
@@ -24,30 +25,42 @@ void setup()
 	Callsign cs = arduino_nvram_callsign_load();
 	Net = Ptr<Network>(new Network(cs));
 	oled_show("Net configured", cs.buf().cold(), "", "");
-	Serial.print(cs.buf().cold());
+  Serial.print(cs.buf().cold());
 	Serial.println(" ready");
-	Serial.println();
 
   // should be dependent on configured SSID and password
-  wifi_status = 1;  
+  wifi_status = 1;
+  wifi_timeout = millis() + 1000; 
 }
 
 void loop()
 {
-  if (wifi_status == 1 && millis() > 1000) {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-    Serial.println("Connecting to WiFi...");
-    wifi_status = 2;
-  }
-
-  // FIXME handle transition to disconnected
-  if (wifi_status == 2) {
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.println("Connected to the WiFi network");
-      Serial.println(WiFi.localIP());
+  if (wifi_status == 1) {
+    if (millis() > wifi_timeout) {
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(ssid, password);
+      Serial.println("Connecting to WiFi...");
+      wifi_status = 2;
+      wifi_timeout = millis() + 20000;
+    }
+  } else if (wifi_status == 2) {
+    int ws = WiFi.status();
+    if (ws == WL_CONNECTED) {
+      Serial.println("Connected to WiFi");
+      Serial.println(WiFi.localIP().toString().c_str());
       wifiServer.begin();
       wifi_status = 3;
+    } else if (millis() > wifi_timeout) {
+      Serial.println("Failed to connect to WiFi");
+      wifi_status = 1;
+      wifi_timeout = millis() + 1000;
+    }
+  } else if (wifi_status == 3) {
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("Disconnected from WiFi.");
+      wifi_status = 1;
+      wifi_timeout = millis() + 1000;
+      telnet_client.stop();
     }
   }
 
