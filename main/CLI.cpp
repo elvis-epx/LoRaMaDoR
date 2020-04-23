@@ -61,6 +61,34 @@ static void cli_parse_callsign(const Buffer &candidate)
 	arduino_restart();
 }
 
+static void cli_parse_ssid(Buffer candidate)
+{
+	candidate.strip();
+	if (candidate.empty()) {
+		console_print("SSID is ");
+		console_println(arduino_nvram_load("ssid").cold());
+		console_println("Set SSID to None to disable Wi-Fi.");
+		return;
+	}
+	
+	arduino_nvram_save("ssid", candidate);
+	console_println("SSDI saved, call !restart to apply");
+}
+
+static void cli_parse_password(Buffer candidate)
+{
+	candidate.strip();
+	if (candidate.empty()) {
+		console_print("Wi-Fi password is ");
+		console_println(arduino_nvram_load("password").cold());
+		console_println("Set password to None for Wi-Fi network without password.");
+		return;
+	}
+	
+	arduino_nvram_save("password", candidate);
+	console_println("Wi-Fi password saved, call !restart to apply");
+}
+
 static void cli_lastid()
 {
 	auto b = Buffer::sprintf("Last packet ID #%ld", Net->get_last_pkt_id());
@@ -87,9 +115,27 @@ static void cli_parse_meta(Buffer cmd)
 	if (cmd.strncmp("callsign ", 9) == 0) {
 		cmd.cut(9);
 		cli_parse_callsign(cmd);
+	} else if (cmd.strncmp("callsign", 8) == 0 && cmd.length() == 8) {
+		cli_parse_callsign("");
+	} else if (cmd.strncmp("ssid ", 5) == 0) {
+		cmd.cut(5);
+		cli_parse_ssid(cmd);
+	} else if (cmd.strncmp("ssid", 4) == 0 && cmd.length() == 4) {
+		cli_parse_ssid("");
+	} else if (cmd.strncmp("password ", 9) == 0) {
+		cmd.cut(9);
+		cli_parse_password(cmd);
+	} else if (cmd.strncmp("password", 8) == 0 && cmd.length() == 8) {
+		cli_parse_password("");
 	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
 		console_println("Debug on.");
 		debug = true;
+	} else if (cmd.strncmp("restart", 7) == 0 && cmd.length() == 7) {
+		console_println("Restarting...");
+		arduino_restart();
+	} else if (cmd.strncmp("reset", 5) == 0 && cmd.length() == 5) {
+		console_println("Restarting...");
+		arduino_restart();
 	} else if (cmd.strncmp("nodebug", 7) == 0 && cmd.length() == 7) {
 		console_println("Debug off.");
 		debug = false;
@@ -97,8 +143,6 @@ static void cli_parse_meta(Buffer cmd)
 		cli_neigh();
 	} else if (cmd.strncmp("lastid", 6) == 0 && cmd.length() == 6) {
 		cli_lastid();
-	} else if (cmd.strncmp("callsign", 8) == 0 && cmd.length() == 8) {
-		cli_parse_callsign("");
 	} else {
 		console_print("Unknown cmd: ");
 		console_println(cmd.cold());

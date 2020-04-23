@@ -6,8 +6,8 @@
 #include "ArduinoBridge.h"
 #include "CLI.h"
 
-const char* ssid = "EPX";
-const char* password = "abracadabra";
+Buffer ssid;
+Buffer password;
 WiFiServer wifiServer(23);
 int wifi_status = 0;
 unsigned long int wifi_timeout = 0;
@@ -25,12 +25,19 @@ void setup()
 	Callsign cs = arduino_nvram_callsign_load();
 	Net = Ptr<Network>(new Network(cs));
 	oled_show("Net configured", cs.buf().cold(), "", "");
-  Serial.print(cs.buf().cold());
+	Serial.print(cs.buf().cold());
 	Serial.println(" ready");
 
-  // should be dependent on configured SSID and password
-  wifi_status = 1;
-  wifi_timeout = millis() + 1000; 
+	ssid = arduino_nvram_load("ssid");
+	password = arduino_nvram_load("password");
+
+	Serial.print("Wi-Fi SSID ");
+	Serial.println(ssid.cold());
+
+	if (!ssid.str_equal("None")) {
+		wifi_status = 1;
+		wifi_timeout = millis() + 1000; 
+	}
 }
 
 void loop()
@@ -38,7 +45,11 @@ void loop()
   if (wifi_status == 1) {
     if (millis() > wifi_timeout) {
       WiFi.mode(WIFI_STA);
-      WiFi.begin(ssid, password);
+      if (password.str_equal("None")) {
+          WiFi.begin(ssid.cold());
+      } else {
+          WiFi.begin(ssid.cold(), password.cold());
+      }
       Serial.println("Connecting to WiFi...");
       wifi_status = 2;
       wifi_timeout = millis() + 20000;

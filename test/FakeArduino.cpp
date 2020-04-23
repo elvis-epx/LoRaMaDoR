@@ -18,6 +18,7 @@ static struct timeval tm_first;
 static unsigned int nvram_id = 0;
 static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
+static Dict<Buffer> nvram;
 
 static void init_things()
 {
@@ -204,4 +205,18 @@ void arduino_nvram_callsign_save(const Callsign &cs)
 
 void oled_show(const char *, const char *, const char *, const char*)
 {
+}
+
+void arduino_nvram_save(const char *key, const Buffer& value)
+{
+	printf("key %s value %s\n", key, value.cold());
+	nvram[key] = value;
+}
+
+Buffer arduino_nvram_load(const char *key)
+{
+	if (!nvram.has(key)) {
+		nvram[key] = "None";
+	}
+	return nvram[key];
 }

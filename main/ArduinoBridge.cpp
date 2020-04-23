@@ -68,6 +68,21 @@ void arduino_nvram_callsign_save(const Callsign &new_callsign)
 	prefs.end();
 }
 
+void arduino_nvram_save(const char *key, const Buffer& value)
+{
+	prefs.begin("LoRaMaDoR", false);
+	prefs.putString(key, value.cold());
+	prefs.end();
+}
+
+Buffer arduino_nvram_load(const char *key)
+{
+  prefs.begin("LoRaMaDoR", false);
+	String svalue = prefs.getString(key, String("None"));
+  prefs.end();
+	return Buffer(svalue.c_str());
+}
+
 void console_print(const char *msg) {
 	platform_print(msg);
 }
