@@ -234,7 +234,7 @@ void cli_telnetmode(bool mode)
 void cli_type(char c) {
 	if (telnet_mode && telnet_iac == 2) {
 		// inside IAC sequence
-		if (c == 255) {
+		if (c == '\xff') {
 			// 0xff 0xff = 0xff
 			cli_buf.append(c);
 			telnet_iac = 0;
@@ -245,7 +245,7 @@ void cli_type(char c) {
 	} else if (telnet_mode && telnet_iac == 1) {
 		// end of IAC sequence
 		telnet_iac = 0;
-	} else if (telnet_mode && c == 255) {
+	} else if (telnet_mode && c == '\xff') {
 		// enter IAC mode
 		telnet_iac = 2;
 	} else if (c == 13) {
