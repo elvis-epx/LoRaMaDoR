@@ -123,7 +123,7 @@ void wifi_handle()
 		}
 		if (telnet_client && output_buffer.length() > 0) {
 			int written = telnet_client.write(output_buffer.cold(),
-					output_buffer.length());
+							output_buffer.length());
 			if (written >= 0) {
 				output_buffer.cut(written);
 			}
