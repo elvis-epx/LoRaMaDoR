@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
-
-#include "ArduinoBridge.h"
 #include "Console.h"
 
 static Ptr<Network> Net;
@@ -13,6 +11,8 @@ static int wifi_status = 0;
 static unsigned long int wifi_timeout = 0;
 static WiFiClient telnet_client;
 static bool is_telnet = false;
+Buffer ip = "(none)";
+bool mdns = false;
 
 void wifi_setup(Ptr<Network> net)
 {
@@ -27,6 +27,32 @@ void wifi_setup(Ptr<Network> net)
 		wifi_status = 1;
 		wifi_timeout = millis() + 1000; 
 	}
+}
+
+Buffer get_wifi_status()
+{
+	if (wifi_status == 0) {
+		return "Wi-Fi disabled.";
+	}
+
+	Buffer status = "Wi-Fi SSID ";
+	status.append_str(ssid);
+	if (wifi_status == 1) {
+		status.append_str(", waiting to reconnect");
+	} else if (wifi_status == 2) {
+		status.append_str(", connecting");
+	} else if (wifi_status == 3) {
+		status.append_str(", connected, IP ");
+		status.append_str(ip);
+		if (mdns) {
+			status.append_str(", Bonjour name ");
+			status.append_str(Net->me().buf().cold());
+			status.append_str(".local");
+		} else {
+			status.append_str(", no Bonjour");
+		}
+	}
+	return status;
 }
 
 void wifi_handle()
@@ -47,14 +73,17 @@ void wifi_handle()
 		int ws = WiFi.status();
 		if (ws == WL_CONNECTED) {
 			Serial.println("Connected to WiFi");
-			Serial.println(WiFi.localIP().toString().c_str());
+			ip = Buffer(WiFi.localIP().toString().c_str());
+			Serial.println(ip.cold());
 			wifiServer.begin();
 			if (!MDNS.begin(Net->me().buf().cold())) {
 				Serial.println("mDNS not ok, use IP to connect.");
+				mdns = false;
 			} else {
 				Serial.print("Local net name: ");
 				Serial.print(Net->me().buf().cold());
 				Serial.println(".local");
+				mdns = true;
 			}
 			wifi_status = 3;
 		} else if (millis() > wifi_timeout) {
@@ -68,6 +97,8 @@ void wifi_handle()
 			wifi_status = 1;
 			wifi_timeout = millis() + 1000;
 			telnet_client.stop();
+			ip = "(none)";
+			mdns = false;
 		}
 	}
 

@@ -6,6 +6,7 @@
 #include "Display.h"
 #include "Network.h"
 #include "CLI.h"
+#include "TCPIP.h"
 
 extern Ptr<Network> Net;
 bool debug = false;
@@ -111,6 +112,11 @@ static void cli_neigh()
 	console_println("---------------------------");
 }
 
+static void cli_parse_wifi()
+{
+	console_println(get_wifi_status().cold());
+}
+
 static void cli_parse_meta(Buffer cmd)
 {
 	cmd.strip();
@@ -129,6 +135,8 @@ static void cli_parse_meta(Buffer cmd)
 		cli_parse_password(cmd);
 	} else if (cmd.strncmp("password", 8) == 0 && cmd.length() == 8) {
 		cli_parse_password("");
+	} else if (cmd.strncmp("wifi", 4) == 0 && cmd.length() == 4) {
+		cli_parse_wifi();
 	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
 		console_println("Debug on.");
 		debug = true;

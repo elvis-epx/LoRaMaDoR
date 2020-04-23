@@ -220,3 +220,8 @@ Buffer arduino_nvram_load(const char *key)
 	}
 	return nvram[key];
 }
+
+Buffer get_wifi_status()
+{
+	return "Fake Wi-Fi status";
+}
