@@ -1,18 +1,30 @@
 #!/bin/bash
 
+VALGRIND=1
+if [ "$1" = "-v" ]; then
+	VALGRIND=0
+fi
+
 make clean
 make -j 4
-valgrind --leak-check=full --suppressions=valgrind.supp --error-exitcode=1 ./test || exit 1
-./test || exit 1
+if [ $VALGRIND = 1 ]; then
+	valgrind --leak-check=full --suppressions=valgrind.supp --error-exitcode=1 ./test || exit 1
+else
+	./test || exit 1
+fi
+
 PIDS=""
-valgrind --leak-check=full --error-exitcode=1 --log-file=AAAA.val --gen-suppressions=all --suppressions=valgrind.supp ./testnet AAAA > AAAA.log &
-PIDS+=" $!"
-valgrind --leak-check=full --error-exitcode=1 --log-file=BBBB.val --gen-suppressions=all --suppressions=valgrind.supp ./testnet BBBB > BBBB.log &
-PIDS+=" $!"
-valgrind --leak-check=full --error-exitcode=1 --log-file=CCCC.val --gen-suppressions=all --suppressions=valgrind.supp ./testnet CCCC > CCCC.log &
-PIDS+=" $!"
-valgrind --leak-check=full --error-exitcode=1 --log-file=CCCC.val --gen-suppressions=all --suppressions=valgrind.supp ./testnet DDDD > DDDD.log &
-PIDS+=" $!"
+for eee in AAAA BBBB CCCC DDDD; do
+	if [ $VALGRIND = 1 ]; then
+		valgrind --leak-check=full --error-exitcode=1 --log-file=${eee}.val --gen-suppressions=all \
+			--suppressions=valgrind.supp ./testnet ${eee} > ${eee}.log &
+		PIDS+=" $!"
+	else
+		./testnet ${eee} > ${eee}.log &
+		PIDS+=" $!"
+	fi
+done
+
 ERR=0
 for P in $PIDS; do
 	if ! wait $P; then
@@ -21,7 +33,7 @@ for P in $PIDS; do
 done
 if [ "$ERR" != 0 ]; then
 	echo
-	echo Checar logs Valgrind!
+	echo Erro de execução, checar logs.
 	echo
 else
 	make coverage
