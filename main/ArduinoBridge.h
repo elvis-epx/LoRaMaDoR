@@ -17,10 +17,6 @@ Callsign arduino_nvram_callsign_load();
 void arduino_nvram_callsign_save(const Callsign&);
 Buffer arduino_nvram_load(const char *);
 void arduino_nvram_save(const char *, const Buffer&);
-void console_print(const char *);
-void console_print(char);
-void console_println(const char *);
-void console_println();
 void arduino_restart();
 
 #endif

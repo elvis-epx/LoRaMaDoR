@@ -17,11 +17,8 @@ void setup()
 	Net = Ptr<Network>(new Network(cs));
 	oled_show("Net configured", cs.buf().cold(), "", "");
 
-	wifi_setup(Net);
 	cons_setup(Net);
-
-	Serial.print(cs.buf().cold());
-	Serial.println(" ready");
+	wifi_setup(Net);
 }
 
 void loop()

@@ -83,24 +83,6 @@ Buffer arduino_nvram_load(const char *key)
 	return Buffer(svalue.c_str());
 }
 
-void console_print(const char *msg) {
-	platform_print(msg);
-}
-
-void console_print(char c) {
-	char msg[] = {c, 0};
-	platform_print(msg);
-}
-
-void console_println(const char *msg) {
-	platform_print(msg);
-	platform_print("\r\n");
-}
-
-void console_println() {
-	platform_print("\r\n");
-}
-
 void arduino_restart() {
 	ESP.restart();
 }

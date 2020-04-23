@@ -6,6 +6,7 @@
 #include "Display.h"
 #include "Network.h"
 #include "CLI.h"
+#include "Console.h"
 #include "TCPIP.h"
 
 extern Ptr<Network> Net;
@@ -117,6 +118,26 @@ static void cli_parse_wifi()
 	console_println(get_wifi_status().cold());
 }
 
+static void cli_parse_help()
+{
+	console_println();
+	console_println("Available commands:");
+	console_println();
+	console_println("  !callsign CALLSIGN     Set callsign");
+	console_println("  !callsign              Get current callsign");
+	console_println("  !ssid SSID             Set Wi-Fi network name (None to disable)");
+	console_println("  !ssid                  Get configured Wi-Fi network name");
+	console_println("  !password PASSWORD     Set Wi-Fi password (None if no password)");
+	console_println("  !password              Get configured Wi-Fi password");
+	console_println("  !wifi                  Show Wi-Fi/network status");
+	console_println("  !debug                 Enable debug/verbose mode");
+	console_println("  !nodebug               Disable debug mode");
+	console_println("  !restart or !reset     Restart controller");
+	console_println("  !neigh                 List known neighbours");
+	console_println("  !lastid                Last sent packet #");
+	console_println();
+}
+
 static void cli_parse_meta(Buffer cmd)
 {
 	cmd.strip();
@@ -137,6 +158,8 @@ static void cli_parse_meta(Buffer cmd)
 		cli_parse_password("");
 	} else if (cmd.strncmp("wifi", 4) == 0 && cmd.length() == 4) {
 		cli_parse_wifi();
+	} else if (cmd.strncmp("help", 4) == 0 && cmd.length() == 4) {
+		cli_parse_help();
 	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
 		console_println("Debug on.");
 		debug = true;

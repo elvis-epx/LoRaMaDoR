@@ -15,4 +15,9 @@ void cons_telnet_enable();
 void cons_telnet_disable();
 void cons_telnet_type(char c);
 
+void console_print(const char *);
+void console_print(char);
+void console_println(const char *);
+void console_println();
+
 #endif

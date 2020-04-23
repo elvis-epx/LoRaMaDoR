@@ -213,6 +213,7 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 // FIXME put outside this source so it can be an example for app layer
 unsigned long int Network::beacon()
 {
+	// FIXME convert to hms
 	Buffer msg = Buffer::sprintf("LoRaMaDoR %ld 73", arduino_millis() / 1000);
 	send(Callsign("QB"), Params(), msg);
 	unsigned long int next = fudge(AVG_BEACON_TIME, 0.5);
