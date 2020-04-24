@@ -47,8 +47,13 @@ public:
 	void radio_recv(const char *recv_area, unsigned int plen, int rssi);
 	unsigned int get_last_pkt_id() const;
 	unsigned int get_next_pkt_id();
-	void add_protocol(Protocol*);
+
+	// publicised to be called by Protocols
 	void schedule(Task*);
+
+	// Called by Protocol base class constructor.
+	// Never call this yourself.
+	void add_protocol(Protocol*);
 
 	// publicised to be called by Tasks
 	unsigned long int tx(const Buffer&);

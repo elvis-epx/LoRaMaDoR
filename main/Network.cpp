@@ -112,10 +112,10 @@ Network::Network(const Callsign &callsign)
 	schedule(new CleanNeighTask(this, NEIGH_CLEAN));
 
 	// Core protocols
-	add_protocol(new Proto_Ping(this));
-	add_protocol(new Proto_Rreq(this));
-	add_protocol(new Proto_R(this));
-	add_protocol(new Proto_Beacon(this));
+	new Proto_Ping(this);
+	new Proto_Rreq(this);
+	new Proto_R(this);
+	new Proto_Beacon(this);
 
 	trampoline_target = this;
 	lora_start(radio_recv_trampoline);

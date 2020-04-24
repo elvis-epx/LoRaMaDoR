@@ -23,11 +23,7 @@ public:
 protected:
 	virtual unsigned long int run2(unsigned long int now)
 	{
-		if (beacon) {
-			return beacon->beacon();
-		} else {
-			return 0;
-		}
+		return beacon->beacon();
 	}
 private:
 	Proto_Beacon *beacon;
