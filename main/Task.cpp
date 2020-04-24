@@ -1,14 +1,13 @@
 #include "Task.h"
 #include "ArduinoBridge.h"
 
-Task::Task(Network *net, const char *name, unsigned long int offset):
-	net(net), name(name), offset(offset), timebase(0)
+Task::Task(const char *name, unsigned long int offset):
+	name(name), offset(offset), timebase(0)
 {
 }
 
 Task::~Task()
 {
-	this->net = 0;
 	this->timebase = 0;
 }
 

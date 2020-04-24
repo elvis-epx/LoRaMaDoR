@@ -7,11 +7,10 @@
 #include "Pointer.h"
 
 class TaskManager;
-class Network;
 
 class Task {
 public:
-	Task(Network* net, const char *name, unsigned long int offset);
+	Task(const char *name, unsigned long int offset);
 	virtual ~Task();
 	unsigned long int next_run() const;
 	const char *get_name() const;
@@ -19,7 +18,6 @@ public:
 protected:
 	// overridden by concrete task subclasses
 	virtual unsigned long int run2(unsigned long int now) = 0;
-	Network* net;
 
 private:
 	bool run(unsigned long int now);

@@ -1,11 +1,15 @@
 // LoRaMaDoR (LoRa-based mesh network for hams) project
 // Copyright (c) 2019 PU5EPX
 
-#include "Network.h"
 #include "ArduinoBridge.h"
-
-#define SECONDS 1000
-#define MINUTES 60000
+#include "Network.h"
+#include "Packet.h"
+#include "Params.h"
+#include "Radio.h"
+#include "Proto_Ping.h"
+#include "Proto_Beacon.h"
+#include "Proto_R.h"
+#include "Proto_Rreq.h"
 
 static const unsigned int TX_BUSY_RETRY_TIME = 1 * SECONDS;
 
@@ -15,24 +19,15 @@ static const unsigned int NEIGH_CLEAN = 1 * MINUTES;
 static const unsigned int RECV_LOG_PERSIST = 10 * MINUTES;
 static const unsigned int RECV_LOG_CLEAN = 1 * MINUTES;
 
-#ifndef UNDER_TEST
-static const unsigned int AVG_BEACON_TIME = 10 * MINUTES;
-static const unsigned int AVG_FIRST_BEACON_TIME = 30 * SECONDS;
-#else
-static const unsigned int AVG_BEACON_TIME = 10 * SECONDS;
-static const unsigned int AVG_FIRST_BEACON_TIME = 1 * SECONDS;
-#endif
-
-static unsigned long int fudge(unsigned long int avg, double fudge)
+unsigned long int Network::fudge(unsigned long int avg, double fudge)
 {
 	return arduino_random(avg * (1.0 - fudge), avg * (1.0 + fudge));
 }
 
-
 class PacketTx: public Task {
 public:
 	PacketTx(Network* net, const Buffer& encoded_packet, unsigned long int offset): 
-			Task(net, "tx", offset), encoded_packet(encoded_packet)
+			Task("tx", offset), net(net), encoded_packet(encoded_packet)
 	{
 	}
 protected:
@@ -40,6 +35,7 @@ protected:
 		return net->tx(encoded_packet);
 	}
 private:
+	Network *net;
 	const Buffer encoded_packet;
 };
 
@@ -47,7 +43,7 @@ private:
 class PacketFwd: public Task {
 public:
 	PacketFwd(Network* net, const Ptr<Packet> packet, bool we_are_origin):
-		Task(net, "fwd", 0), packet(packet), we_are_origin(we_are_origin)
+		Task("fwd", 0), net(net), packet(packet), we_are_origin(we_are_origin)
 	{
 	}
 protected:
@@ -58,29 +54,16 @@ protected:
 		return 0;
 	}
 private:
+	Network *net;
 	const Ptr<Packet> packet;
 	const bool we_are_origin;
-};
-
-// FIXME put outside this source so it can be an example for app layer
-class BeaconTask: public Task {
-public:
-	BeaconTask(Network* net, unsigned long int offset):
-		Task(net, "beacon", offset)
-	{
-	}
-protected:
-	virtual unsigned long int run2(unsigned long int now)
-	{
-		return net->beacon();
-	}
 };
 
 
 class CleanNeighTask: public Task {
 public:
 	CleanNeighTask(Network* net, unsigned long int offset):
-		Task(net, "neigh", offset)
+		Task("neigh", offset), net(net)
 	{
 	}
 protected:
@@ -88,13 +71,15 @@ protected:
 	{
 		return net->clean_neigh(now);
 	}
+private:
+	Network *net;
 };
 
 
 class CleanRecvLogTask: public Task {
 public:
 	CleanRecvLogTask(Network* net, unsigned long int offset):
-		Task(net, "recvlog", offset)
+		Task("recvlog", offset), net(net)
 	{
 	}
 protected:
@@ -102,6 +87,8 @@ protected:
 	{
 		return net->clean_recv_log(now);
 	}
+private:
+	Network *net;
 };
 
 
@@ -121,18 +108,14 @@ Network::Network(const Callsign &callsign)
 	my_callsign = callsign;
 	last_pkt_id = arduino_nvram_id_load();
 
-	Ptr<Task> beacon(new BeaconTask(this, fudge(AVG_FIRST_BEACON_TIME, 0.5)));
-	Ptr<Task> clean_recv(new CleanRecvLogTask(this, RECV_LOG_CLEAN));
-	Ptr<Task> clean_neigh(new CleanNeighTask(this, NEIGH_CLEAN));
+	schedule(new CleanRecvLogTask(this, RECV_LOG_CLEAN));
+	schedule(new CleanNeighTask(this, NEIGH_CLEAN));
 
-	task_mgr.schedule(beacon);
-	task_mgr.schedule(clean_recv);
-	task_mgr.schedule(clean_neigh);
-
-	modifiers.push_back(Ptr<Modifier>(new Rreqi()));
-	modifiers.push_back(Ptr<Modifier>(new RetransMark()));
-	handlers.push_back(Ptr<Handler>(new Ping()));
-	handlers.push_back(Ptr<Handler>(new Rreq()));
+	// Core protocols
+	add_protocol(new Proto_Ping(this));
+	add_protocol(new Proto_Rreq(this));
+	add_protocol(new Proto_R(this));
+	add_protocol(new Proto_Beacon(this));
 
 	trampoline_target = this;
 	lora_start(radio_recv_trampoline);
@@ -140,6 +123,11 @@ Network::Network(const Callsign &callsign)
 
 Network::~Network()
 {}
+
+void Network::add_protocol(Protocol* p)
+{
+	protocols.push_back(Ptr<Protocol>(p));
+}
 
 unsigned int Network::get_next_pkt_id()
 {
@@ -166,8 +154,7 @@ void Network::send(const Callsign &to, Params params, const Buffer& msg)
 // schedule radio transmission
 void Network::sendmsg(const Ptr<Packet> pkt)
 {
-	Task *fwd_task = new PacketFwd(this, pkt, true);
-	task_mgr.schedule(Ptr<Task>(fwd_task));
+	schedule(new PacketFwd(this, pkt, true));
 }
 
 // Receive packet targeted to this station
@@ -176,8 +163,8 @@ void Network::recv(Ptr<Packet> pkt)
 	logs("Received pkt", pkt->encode_l3().cold());
 
 	// check if packet can be handled automatically
-	for (unsigned int i = 0; i < handlers.size(); ++i) {
-		Ptr<Packet> response = handlers[i]->handle(*pkt, *this);
+	for (unsigned int i = 0; i < protocols.size(); ++i) {
+		Ptr<Packet> response = protocols[i]->handle(*pkt);
 		if (response) {
 			sendmsg(response);
 			return;
@@ -205,20 +192,7 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 		return;
 	}
 	logi("rx good packet, RSSI =", rssi);
-	Task *fwd_task = new PacketFwd(this, pkt, false);
-	task_mgr.schedule(Ptr<Task>(fwd_task));
-}
-
-// Send automatic beacon pkt
-// FIXME put outside this source so it can be an example for app layer
-unsigned long int Network::beacon()
-{
-	// FIXME convert to hms
-	Buffer msg = Buffer::sprintf("LoRaMaDoR %ld 73", arduino_millis() / 1000);
-	send(Callsign("QB"), Params(), msg);
-	unsigned long int next = fudge(AVG_BEACON_TIME, 0.5);
-	// logi("Next beacon in ", next);
-	return next;
+	schedule(new PacketFwd(this, pkt, false));
 }
 
 // purge old packet IDs from recv log
@@ -286,8 +260,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now
 		// Annotate to detect duplicates
 		recv_log[pkt->signature()] = RecvLogItem(rssi, now);
 		// Transmit
-		Task *tx_task = new PacketTx(this, pkt->encode_l2(), 50);
-		task_mgr.schedule(Ptr<Task>(tx_task));
+		schedule(new PacketTx(this, pkt->encode_l2(), 50));
 		logs("tx ", pkt->encode_l3().cold());
 		return;
 	}
@@ -326,8 +299,8 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now
 
 	// Forward packet modifiers
 	// They can add params and/or change msg
-	for (unsigned int i = 0; i < modifiers.size(); ++i) {
-		Ptr<Packet> modified_pkt = modifiers[i]->modify(*pkt, me());
+	for (unsigned int i = 0; i < protocols.size(); ++i) {
+		Ptr<Packet> modified_pkt = protocols[i]->modify(*pkt);
 		if (modified_pkt) {
 			// replace packet by modified vesion
 			pkt = modified_pkt;
@@ -347,9 +320,13 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now
 
 	logi("relaying w/ delay", delay);
 
-	Task *tx_task = new PacketTx(this, encoded_pkt, delay);
+	schedule(new PacketTx(this, encoded_pkt, delay));
 	logs("relay ", pkt->encode_l3().cold());
-	task_mgr.schedule(Ptr<Task>(tx_task));
+}
+
+void Network::schedule(Task *task)
+{
+	task_mgr.schedule(Ptr<Task>(task));
 }
 
 void Network::run_tasks(unsigned long int millis)

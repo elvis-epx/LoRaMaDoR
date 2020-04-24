@@ -6,11 +6,15 @@
 
 #include "Vector.h"
 #include "Dict.h"
-#include "Packet.h"
-#include "Modifier.h"
-#include "Handler.h"
-#include "Radio.h"
 #include "Task.h"
+#include "Params.h"
+#include "Callsign.h"
+
+#define SECONDS 1000
+#define MINUTES 60000
+
+class Protocol;
+class Packet;
 
 struct Neighbour {
 	Neighbour(int rssi, unsigned long int timestamp):
@@ -37,18 +41,20 @@ public:
 	void send(const Callsign &to, Params params, const Buffer& msg);
 	void run_tasks(unsigned long int);
 	Dict<Neighbour> neigh() const;
+	static unsigned long int fudge(unsigned long int avg, double fudge);
 
 	// publicised to bridge with uncoupled code
 	void radio_recv(const char *recv_area, unsigned int plen, int rssi);
 	unsigned int get_last_pkt_id() const;
 	unsigned int get_next_pkt_id();
+	void add_protocol(Protocol*);
+	void schedule(Task*);
 
 	// publicised to be called by Tasks
 	unsigned long int tx(const Buffer&);
 	void forward(Ptr<Packet>, bool, unsigned long int);
 	unsigned long int clean_recv_log(unsigned long int);
 	unsigned long int clean_neigh(unsigned long int);
-	unsigned long int beacon();
 
 	// publicised for testing purposes
 	TaskManager& _task_mgr();
@@ -64,8 +70,7 @@ private:
 	Dict<Neighbour> neighbours;
 	Dict<RecvLogItem> recv_log;
 	unsigned int last_pkt_id;
-	Vector< Ptr<Modifier> > modifiers;
-	Vector< Ptr<Handler> > handlers;
+	Vector< Ptr<Protocol> > protocols;
 };
 
 #endif
