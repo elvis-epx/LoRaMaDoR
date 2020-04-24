@@ -49,7 +49,15 @@ const char* Task::get_name() const
 
 TaskManager::TaskManager() {}
 
-TaskManager::~TaskManager() {}
+TaskManager::~TaskManager()
+{
+	stop();
+}
+
+void TaskManager::stop()
+{
+	tasks.clear();
+}
 
 void TaskManager::schedule(Ptr<Task> task)
 {

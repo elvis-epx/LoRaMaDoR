@@ -15,11 +15,19 @@ class BeaconTask: public Task
 public:
 	BeaconTask(Proto_Beacon *b, unsigned long int offset):
 		Task("beacon", offset), beacon(b)
-	{ }
+	{
+	}
+	~BeaconTask() {
+		beacon = 0;
+	}
 protected:
 	virtual unsigned long int run2(unsigned long int now)
 	{
-		return beacon->beacon();
+		if (beacon) {
+			return beacon->beacon();
+		} else {
+			return 0;
+		}
 	}
 private:
 	Proto_Beacon *beacon;

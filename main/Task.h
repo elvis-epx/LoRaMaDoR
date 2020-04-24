@@ -44,6 +44,7 @@ class TaskManager {
 public:
 	TaskManager();
 	~TaskManager();
+	void stop();
 	void run(unsigned long int);
 	void schedule(Ptr<Task> task);
 	void cancel(const Task* task);

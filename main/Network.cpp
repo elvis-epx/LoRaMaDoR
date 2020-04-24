@@ -122,7 +122,11 @@ Network::Network(const Callsign &callsign)
 }
 
 Network::~Network()
-{}
+{
+	// makes sure tasks stop before protocols
+	task_mgr.stop();
+	protocols.clear();
+}
 
 void Network::add_protocol(Protocol* p)
 {
