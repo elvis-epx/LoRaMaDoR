@@ -1,5 +1,3 @@
-Commands !ip, !wifistatus, others
-
 Add example of application (try some sensor)
 	- Create framework with Handler/Modifier/Task
 		- Move PING, RREQ, beacon into it
@@ -11,7 +9,6 @@ Add example of application (try some sensor)
 Possibility of remote, NAT-piercing access
 
 Add !version command
-Add !help command
 
 NTP client? QB message with time instead of uptime?
 
