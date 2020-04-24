@@ -1,15 +1,7 @@
 Add example of application (try some sensor)
-	- Create framework with Handler/Modifier/Task
-		- Move PING, RREQ, beacon into it
-	- Handler
-	- accepting remote commands
-	- generating traffic
-	- Tasks, timeouts
 
 Possibility of remote, NAT-piercing access
 
 Add !version command
-
-NTP client? QB message with time instead of uptime?
 
 Gateway via Internet, IP router
