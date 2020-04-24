@@ -1,7 +1,6 @@
 Add example of application (try some sensor)
-
 Possibility of remote, NAT-piercing access
-
 Add !version command
-
 Gateway via Internet, IP router
+Add last seen to !neigh, uptime to QB packet
+Add !uptime command
