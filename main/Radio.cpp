@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Functions related to low-level LoRa functionality used by Network.
+
 #ifndef __AVR__
 #include <SPI.h>
 #endif
@@ -102,6 +109,7 @@ void lora_resume_rx()
 	}
 }
 
+// Asynchronous transmission
 bool lora_tx(const Buffer& packet)
 {
 	if (status == ST_TX) {

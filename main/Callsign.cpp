@@ -1,5 +1,12 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
 #include "Callsign.h"
 #include <string.h>
+
+// Class that validates and encapsulates a callsign.
 
 Callsign::Callsign()
 {
@@ -11,6 +18,7 @@ Callsign::Callsign(Buffer c)
 	c.uppercase();
 	c.strip();
 	if (! check(c)) {
+		// Invalid callsign is flagged, not stored
 		valid = false;
 		return;
 	}

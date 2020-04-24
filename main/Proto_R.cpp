@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Implementation of R earmarking of forwarded packets
+
 #include "Proto_R.h"
 #include "Network.h"
 #include "Packet.h"

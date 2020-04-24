@@ -23,7 +23,7 @@ void console_telnet_enable();
 void console_telnet_disable();
 
 // Receive keystrokes from Telnet
-void cons_telnet_type(char c);
+void console_telnet_type(char c);
 
 // Goes to Telnet session, or serial
 void console_print(const char *);

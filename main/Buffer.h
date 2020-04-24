@@ -3,6 +3,8 @@
  * Copyright (c) 2019 PU5EPX
  */
 
+// Class that encapsulates a buffer or string
+
 #ifndef __BUFFER_H
 #define __BUFFER_H
 

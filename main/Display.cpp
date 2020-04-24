@@ -1,5 +1,12 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
 #include "Display.h"
 #include "SSD1306.h"
+
+// Functions related to OLED display
 
 SSD1306 display(0x3c, 4, 15);
 

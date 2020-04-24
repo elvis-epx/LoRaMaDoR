@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Functions related to Wi-Fi and Telnet server support
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
@@ -15,6 +22,7 @@ static bool is_telnet = false;
 Buffer ip = "(none)";
 bool mdns = false;
 
+// called by Arduino setup()
 void wifi_setup(Ptr<Network> net)
 {
 	Net = net;
@@ -30,6 +38,7 @@ void wifi_setup(Ptr<Network> net)
 	}
 }
 
+// Called by CLI when user sends the !wifi cmmand
 Buffer get_wifi_status()
 {
 	if (wifi_status == 0) {
@@ -56,6 +65,7 @@ Buffer get_wifi_status()
 	return status;
 }
 
+// called periodically by Arduino loop()
 void wifi_handle()
 {
 	if (wifi_status == 1) {
@@ -106,22 +116,23 @@ void wifi_handle()
 	if (is_telnet && !telnet_client) {
 		is_telnet = false;
 		serial_println("Telnet client disconnected");
-		cons_telnet_disable();
+		console_telnet_disable();
 		output_buffer = "";
 	}
 
 	if (!is_telnet && wifi_status == 3 && (telnet_client = wifiServer.available())) {
 		is_telnet = true;
 		serial_println("Telnet client connected");
-		cons_telnet_enable();
+		console_telnet_enable();
 		output_buffer = "";
 	}
 
 	if (is_telnet) {
 		if (telnet_client && telnet_client.available() > 0) {
-			cons_telnet_type(telnet_client.read());
+			console_telnet_type(telnet_client.read());
 		}
 		if (telnet_client && output_buffer.length() > 0) {
+			// non-blocking write, otherwise supervisor may reset
 			int written = telnet_client.write(output_buffer.cold(),
 							output_buffer.length());
 			if (written >= 0) {

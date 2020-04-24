@@ -1,10 +1,19 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Class that encapsulates the parameters of a LoRaMaDoR packet.
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "Params.h"
 
+// Internal value of a naked parameter
 static const char *naked = " n@ ";
 
+// Parse one parameter key
 static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, Buffer& value)
 {
 	unsigned int skey_len = 0;
@@ -55,6 +64,7 @@ static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, 
 	return true;
 }
 
+// Parse the packet ID
 static bool parse_ident_param(const char* s, unsigned int len, unsigned long int &ident)
 {
 	char *stop;
@@ -76,6 +86,7 @@ static bool parse_ident_param(const char* s, unsigned int len, unsigned long int
 	return true;
 }
 
+// Parse a parameter of any kind
 static bool parse_param(const char* data, unsigned int len,
 		unsigned long int &ident, Buffer &key, Buffer &value)
 {
@@ -94,6 +105,7 @@ static bool parse_param(const char* data, unsigned int len,
 	return false;
 }
 
+// Parse parameters of a packet
 static bool parse_params(const char *data, unsigned int len,
 		unsigned long int &ident, Dict<Buffer> &params)
 {
@@ -152,6 +164,7 @@ Params::Params(Buffer b)
 	valid = parse_params(b.cold(), b.length(), _ident, items);
 }
 
+// Generate the wire format of the parameter list
 Buffer Params::serialized() const
 {
 	Buffer buf = Buffer::sprintf("%ld", _ident);
@@ -171,26 +184,31 @@ Buffer Params::serialized() const
 	return buf;
 }
 
+// The parsed parameters are valid and contain a packet ID
 bool Params::is_valid_with_ident() const
 {
 	return valid && _ident;
 }
 
+// The parsed parameters are valid but may not contain a packet ID
 bool Params::is_valid_without_ident() const
 {
 	return valid;
 }
 
+// Packet ID. Zero is nil.
 unsigned long int Params::ident() const
 {
 	return _ident;
 }
 
+// Number of parameters (not couting packet ID).
 unsigned int Params::count() const
 {
 	return items.count();
 }
 
+// Get parameter by key. Case-insensitive.
 Buffer Params::get(const char *key) const
 {
 	Buffer ukey(key);
@@ -198,6 +216,7 @@ Buffer Params::get(const char *key) const
 	return items.get(ukey);
 }
 
+// Check if a parameter is present. Case-insensitive.
 bool Params::has(const char *key) const
 {
 	Buffer ukey(key);
@@ -205,6 +224,7 @@ bool Params::has(const char *key) const
 	return items.has(ukey);
 }
 
+// Add or replace a parameter with value. Key is case-insensitive.
 void Params::put(const char *key, const Buffer& value)
 {
 	Buffer ukey(key);
@@ -212,6 +232,7 @@ void Params::put(const char *key, const Buffer& value)
 	items.put(ukey, value);
 }
 
+// Add or replace a naked parameter (key w/o value)
 void Params::put_naked(const char *key)
 {
 	Buffer ukey(key);
@@ -219,6 +240,8 @@ void Params::put_naked(const char *key)
 	items.put(ukey, naked);
 }
 
+// Returns whether the parameter is naked (key w/o value).
+// Undefined if key does not exist at all.
 bool Params::is_key_naked(const char* key) const
 {
 	Buffer ukey(key);
@@ -226,6 +249,7 @@ bool Params::is_key_naked(const char* key) const
 	return items.has(ukey) && items.get(ukey).str_equal(naked);
 }
 
+// Set packet ID. Used only when creating a new packet for tx.
 void Params::set_ident(unsigned long int new_ident)
 {
 	_ident = new_ident;

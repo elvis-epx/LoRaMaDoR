@@ -1,21 +1,31 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
 #include <Arduino.h>
 #include "Network.h"
 #include "CLI.h"
 #include "TCPIP.h"
 #include "Console.h"
 
+// Serial and telnet console. Intermediates communication between
+// CLI and the platform streams (serial, Telnet).
+
 static Ptr<Network> Net;
 static bool is_telnet = false;
 static Buffer output_buffer;
 
+// Called by main Arduino setup().
 void console_setup(Ptr<Network> net)
 {
 	Net = net;
-
 	console_print(Net->me().buf().cold());
 	console_println(" ready. Type !help to see available commands.");
 }
 
+// Called by main Arduino loop(). 
+// Handles serial communication, using non-blocking writes.
 void console_handle()
 {
 	if (Serial.available() > 0) {
@@ -42,11 +52,13 @@ void console_telnet_disable()
 	is_telnet = false;
 }
 
+// Receive typed character from Telnet socket
 void console_telnet_type(char c)
 {	
 	if (is_telnet) cli_type(c);
 }
 
+// Print to serial console (indirectly; see console_handle())
 void serial_print(const char *msg)
 {
 	output_buffer.append_str(msg);
@@ -58,6 +70,8 @@ void serial_println(const char *msg)
 	output_buffer.append_str("\r\n");
 }
 
+// Redirects console print to Telnet if there is a connection,
+// otherwise sends to serial console.
 static void platform_print(const char *msg)
 {
 	if (!is_telnet) {
@@ -67,6 +81,7 @@ static void platform_print(const char *msg)
 	}
 }
 
+// Print string on console.
 void console_print(const char *msg) {
 	platform_print(msg);
 }

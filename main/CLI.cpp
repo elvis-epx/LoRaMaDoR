@@ -1,3 +1,8 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
 #ifndef UNDER_TEST
 #include <Arduino.h>
 #endif
@@ -9,9 +14,12 @@
 #include "Console.h"
 #include "TCPIP.h"
 
+// Command-line interface implementation.
+
 extern Ptr<Network> Net;
 bool debug = false;
 
+// May be called from anywhere, but mostly from network stack.
 void logs(const char* a, const char* b) {
 	if (!debug) return;
 	Buffer msg = Buffer::sprintf("%s %s", a, b);
@@ -24,6 +32,7 @@ void logi(const char* a, long int b) {
 	cli_print(msg);
 }
 
+// Print a representation of a received packet
 void app_recv(Ptr<Packet> pkt)
 {
 	Buffer msg = Buffer::sprintf("%s < %s %s\n\r(%s rssi %d)",
@@ -36,6 +45,7 @@ void app_recv(Ptr<Packet> pkt)
 	oled_show(msga.cold(), pkt->msg().cold(), msgb.cold(), msgc.cold());
 }
 
+// Configure callsign and store to NVRAM
 static void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
@@ -63,6 +73,7 @@ static void cli_parse_callsign(const Buffer &candidate)
 	arduino_restart();
 }
 
+// Wi-Fi network name (SSID) configuration
 static void cli_parse_ssid(Buffer candidate)
 {
 	candidate.strip();
@@ -78,6 +89,7 @@ static void cli_parse_ssid(Buffer candidate)
 	console_println("SSID saved, call !restart to apply");
 }
 
+// Wi-Fi network password configuration
 static void cli_parse_password(Buffer candidate)
 {
 	candidate.strip();
@@ -93,12 +105,14 @@ static void cli_parse_password(Buffer candidate)
 	console_println("Wi-Fi password saved, call !restart to apply");
 }
 
+// ID of the latest packet sent by us
 static void cli_lastid()
 {
 	auto b = Buffer::sprintf("Last packet ID #%ld", Net->get_last_pkt_id());
 	console_println(b.cold());
 }
 
+// Print list of detected network neighbours
 static void cli_neigh()
 {
 	console_println("---------------------------");
@@ -113,6 +127,7 @@ static void cli_neigh()
 	console_println("---------------------------");
 }
 
+// Print Wi-Fi status information
 static void cli_parse_wifi()
 {
 	console_println(get_wifi_status().cold());
@@ -138,6 +153,7 @@ static void cli_parse_help()
 	console_println();
 }
 
+// !command switchboard
 static void cli_parse_meta(Buffer cmd)
 {
 	cmd.strip();
@@ -182,6 +198,7 @@ static void cli_parse_meta(Buffer cmd)
 	}
 }
 
+// Parse a packet typed in console
 static void cli_parse_packet(Buffer cmd)
 {
 	Buffer preamble;
@@ -222,6 +239,7 @@ static void cli_parse_packet(Buffer cmd)
 	Net->send(dest, params, payload);
 }
 
+// Parse a command or packet typed in CLI
 static void cli_parse(Buffer cmd)
 {
 	cmd.lstrip();
@@ -235,6 +253,7 @@ static void cli_parse(Buffer cmd)
 
 Buffer cli_buf;
 
+// ENTER pressed in CLI
 static void cli_enter() {
 	console_println();
 	if (cli_buf.empty()) {
@@ -246,6 +265,7 @@ static void cli_enter() {
 	cli_buf = "";
 }
 
+// Simulate typing. Used by unit testing.
 void cli_simtype(const char *c)
 {
 	while (*c) {
@@ -253,8 +273,13 @@ void cli_simtype(const char *c)
 	}
 }
 
+// Telnet IAC is a special sequence sent by a telnet client
+// to configure the server. We don't honor these configurations,
+// but a Telnet client sends them anyway, so they need to be
+// filtered out.
 static int telnet_iac = 0;
 
+// Handled a typed character.
 void cli_type(char c) {
 	if (telnet_iac == 2) {
 		// inside IAC sequence
@@ -291,6 +316,8 @@ void cli_type(char c) {
 	}
 }
 
+// Print a message, and reposition the cursor so any command
+// that was being typed, is not lost.
 void cli_print(const Buffer &msg)
 {
 	console_println();

@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Implementation of PING protocol
+
 #include "Proto_Ping.h"
 #include "Network.h"
 #include "Packet.h"

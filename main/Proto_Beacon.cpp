@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Implementation of periodic beacon (sent to QB).
+
 #include "Proto_Beacon.h"
 #include "Network.h"
 #include "ArduinoBridge.h"
@@ -10,6 +17,7 @@ static const unsigned int AVG_BEACON_TIME = 10 * SECONDS;
 static const unsigned int AVG_FIRST_BEACON_TIME = 1 * SECONDS;
 #endif
 
+// Task for periodic transmission of beacon packet.
 class BeaconTask: public Task
 {
 public:

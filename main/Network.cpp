@@ -1,5 +1,9 @@
-// LoRaMaDoR (LoRa-based mesh network for hams) project
-// Copyright (c) 2019 PU5EPX
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Main LoRaMaDoR network class, plus some auxiliary types
 
 #include "ArduinoBridge.h"
 #include "Network.h"
@@ -19,11 +23,13 @@ static const unsigned int NEIGH_CLEAN = 1 * MINUTES;
 static const unsigned int RECV_LOG_PERSIST = 10 * MINUTES;
 static const unsigned int RECV_LOG_CLEAN = 1 * MINUTES;
 
+// Generates a random number with average avg and spread 'fudge'
 unsigned long int Network::fudge(unsigned long int avg, double fudge)
 {
 	return arduino_random(avg * (1.0 - fudge), avg * (1.0 + fudge));
 }
 
+// Packet transmission task.
 class PacketTx: public Task {
 public:
 	PacketTx(Network* net, const Buffer& encoded_packet, unsigned long int offset): 
@@ -39,7 +45,7 @@ private:
 	const Buffer encoded_packet;
 };
 
-
+// Packet forwarding task.
 class PacketFwd: public Task {
 public:
 	PacketFwd(Network* net, const Ptr<Packet> packet, bool we_are_origin):
@@ -59,7 +65,7 @@ private:
 	const bool we_are_origin;
 };
 
-
+// Prune neighbourhood table task.
 class CleanNeighTask: public Task {
 public:
 	CleanNeighTask(Network* net, unsigned long int offset):
@@ -76,6 +82,7 @@ private:
 };
 
 
+// Prune packet rx log task.
 class CleanRecvLogTask: public Task {
 public:
 	CleanRecvLogTask(Network* net, unsigned long int offset):
@@ -94,10 +101,9 @@ private:
 
 // bridges C-style callback from LoRa/Radio module to network object
 void radio_recv_trampoline(const char *recv_area, unsigned int plen, int rssi);
+Network* trampoline_target = 0;
 
 //////////////////////////// Network class proper
-
-Network* trampoline_target = 0;
 
 Network::Network(const Callsign &callsign)
 {
@@ -108,6 +114,7 @@ Network::Network(const Callsign &callsign)
 	my_callsign = callsign;
 	last_pkt_id = arduino_nvram_id_load();
 
+	// Periodic housecleaning tasks
 	schedule(new CleanRecvLogTask(this, RECV_LOG_CLEAN));
 	schedule(new CleanNeighTask(this, NEIGH_CLEAN));
 
@@ -128,11 +135,15 @@ Network::~Network()
 	protocols.clear();
 }
 
+// Add a protocol to stack. Called by Protocol class itself,
+// so it never has to be called explicitly when stantiating 
+// a protocol.
 void Network::add_protocol(Protocol* p)
 {
 	protocols.push_back(Ptr<Protocol>(p));
 }
 
+// Gets next packet ID and saves to NVRAM
 unsigned int Network::get_next_pkt_id()
 {
 	if (++last_pkt_id > 9999) {
@@ -328,11 +339,13 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now
 	logs("relay ", pkt->encode_l3().cold());
 }
 
+// Schedule a Task. Run later via run_tasks().
 void Network::schedule(Task *task)
 {
 	task_mgr.schedule(Ptr<Task>(task));
 }
 
+// Run pending tasks. Called by system may loop.
 void Network::run_tasks(unsigned long int millis)
 {
 	task_mgr.run(millis);
@@ -347,19 +360,19 @@ Dict<Neighbour> Network::neigh() const
 	return neighbours;
 }
 
-/* For testing purposes only */
+/* For testing purposes only! */
 TaskManager& Network::_task_mgr()
 {
 	return task_mgr;
 }
 
-/* For testing purposes only */
+/* For testing purposes only! */
 Dict<Neighbour>& Network::_neighbours()
 {
 	return neighbours;
 }
 
-/* For testing purposes only */
+/* For testing purposes only! */
 Dict<RecvLogItem>& Network::_recv_log()
 {
 	return recv_log;

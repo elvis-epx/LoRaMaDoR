@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Main LoRaMaDoR network class, plus some auxiliary types
+
 #include "Packet.h"
 #include "Network.h"
 #include "Display.h"
@@ -17,13 +24,13 @@ void setup()
 	Net = Ptr<Network>(new Network(cs));
 	oled_show("Net configured", cs.buf().cold(), "", "");
 
-	cons_setup(Net);
+	console_setup(Net);
 	wifi_setup(Net);
 }
 
 void loop()
 {
 	wifi_handle();
-	cons_handle();
+	console_handle();
 	Net->run_tasks(millis());
 }

@@ -3,6 +3,9 @@
  * Copyright (c) 2019 PU5EPX
  */
 
+// Class that encapsulates a LoRaMaDoR packet.
+// Includes layer-2 and layer-3 parsing and encoding.
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +23,7 @@ char rs_decoded[MSGSIZE_LONG];
 RS::ReedSolomon<MSGSIZE_LONG, REDUNDANCY> rs_long;
 RS::ReedSolomon<MSGSIZE_SHORT, REDUNDANCY> rs_short;
 
+// Decode packet preamble (except callsigns).
 static bool decode_preamble(const char* data, unsigned int len,
 		Callsign &to, Callsign &from, Params& params, int& error)
 {
@@ -65,6 +69,7 @@ Packet::~Packet()
 {
 }
 
+// Decode packet coming from layer 1.
 Ptr<Packet> Packet::decode_l2(const char *data, unsigned int len, int rssi, int& error)
 {
 	error = 0;
@@ -93,12 +98,13 @@ Ptr<Packet> Packet::decode_l2(const char *data, unsigned int len, int rssi, int&
 	}
 }
 
-// just for testing
+// Decode packet coming from layer 2.
 Ptr<Packet> Packet::decode_l3(const char* data, int& error)
 {
 	return decode_l3(data, strlen(data), -50, error);
 }
 
+// Decode packet coming from layer 2.
 Ptr<Packet> Packet::decode_l3(const char* data, unsigned int len, int rssi, int &error)
 {
 	const char *preamble = 0;
@@ -130,16 +136,19 @@ Ptr<Packet> Packet::decode_l3(const char* data, unsigned int len, int rssi, int 
 	return Ptr<Packet>(new Packet(to, from, params, Buffer(msg, msg_len), rssi));
 }
 
+// Generate a new packet, based on present packet, with modified message.
 Ptr<Packet> Packet::change_msg(const Buffer& msg) const
 {
 	return Ptr<Packet>(new Packet(this->to(), this->from(), this->params(), msg));
 }
 
+// Generate a new packet, based on present packet, with modified parameters.
 Ptr<Packet> Packet::change_params(const Params&new_params) const
 {
 	return Ptr<Packet>(new Packet(this->to(), this->from(), new_params, this->msg()));
 }
 
+// Encode a packet in layer 3.
 Buffer Packet::encode_l3() const
 {
 	Buffer b(_to.buf());
@@ -159,6 +168,7 @@ Buffer Packet::encode_l3() const
 	return b;
 }
 
+// Encode a packet in level 2, with FEC and ready to be sent.
 Buffer Packet::encode_l2() const
 {
 	Buffer b = encode_l3();
@@ -176,36 +186,44 @@ Buffer Packet::encode_l2() const
 	return b;
 }
 
+// Packet unique identification (prefix + ID).
 const char* Packet::signature() const
 {
 	return _signature.cold();
 }
 
+// Compares signature with another packet
 bool Packet::is_dup(const Packet& other) const
 {
 	return strcmp(this->signature(), other.signature()) == 0;
 }
 
+// Returns destination callsign of this packet.
 Callsign Packet::to() const
 {
 	return _to;
 }
 
+// Returns source callsign
 Callsign Packet::from() const
 {
 	return _from;
 }
 
+// returns parameters of this packet
 const Params Packet::params() const
 {
 	return _params;
 }
 
+// returns the message or payload of this packet.
 const Buffer Packet::msg() const
 {
 	return _msg;
 }
 
+// returns the RSSI tagged to this packet upon reception
+// (undefined if packet was not received via LoRa.)
 int Packet::rssi() const
 {
 	return _rssi;

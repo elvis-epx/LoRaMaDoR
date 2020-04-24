@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Implementation of RREQ protocol
+
 #include "Proto_Rreq.h"
 #include "Network.h"
 #include "Packet.h"

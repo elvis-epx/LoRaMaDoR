@@ -1,3 +1,24 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+/* Abstract class for Task classes: delayed code execution
+ *
+ * The scheme assumes the existence of a monotonic clock like
+ * Arduino's millis(). Each task is associated with a future
+ * clock value (timebase + offset) All tasks whose value is
+ * less than millis() * are run.
+ *
+ * Concrete Task classes implement run2(). This method may
+ * return 0 (meaning the task is finished) or a positive offset
+ * (meaning the task should be rescheduled to now + offset).
+ *
+ * The task manager lives inside the Network class, so the
+ * main loop calls a Network method periodically, which
+ * calls the task manager.
+ */
+
 #include "Task.h"
 #include "ArduinoBridge.h"
 
@@ -37,7 +58,7 @@ bool Task::run(unsigned long int now)
 {
 	// concrete routine returns new timeout (which could be random)
 	this->offset = this->run2(now);
-	// task cancelled by default, rescheduled by task mgr
+	// task cancelled by default, rebased by task mgr if necessary
 	this->timebase = 0;
 	return this->offset > 0;
 }
