@@ -15,10 +15,11 @@ public:
 	Protocol(Network*);
 	virtual Ptr<Packet> handle(const Packet&);
 	virtual Ptr<Packet> modify(const Packet&);
-	virtual ~Protocol() = 0;
+	virtual ~Protocol();
 protected:
 	Network *net;
 	// This class must be new()ed and not fooled around
+	Protocol() = delete;
 	Protocol(const Protocol&) = delete;
 	Protocol(const Protocol&&) = delete;
 	Protocol& operator=(const Protocol&) = delete;

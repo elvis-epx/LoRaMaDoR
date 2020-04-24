@@ -12,6 +12,7 @@ public:
 	Proto_Ping(Network* net);
 	virtual Ptr<Packet> handle(const Packet&);
 
+	Proto_Ping() = delete;
 	Proto_Ping(const Proto_Ping&) = delete;
 	Proto_Ping(const Proto_Ping&&) = delete;
 	Proto_Ping& operator=(const Proto_Ping&) = delete;

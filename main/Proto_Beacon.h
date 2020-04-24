@@ -16,6 +16,7 @@ private:
 	unsigned long int beacon() const;
 	friend class BeaconTask;
 
+	Proto_Beacon() = delete;
 	Proto_Beacon(const Proto_Beacon&) = delete;
 	Proto_Beacon(const Proto_Beacon&&) = delete;
 	Proto_Beacon& operator=(const Proto_Beacon&) = delete;

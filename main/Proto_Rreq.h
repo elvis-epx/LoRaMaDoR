@@ -13,6 +13,7 @@ public:
 	virtual Ptr<Packet> handle(const Packet&);
 	virtual Ptr<Packet> modify(const Packet&);
 
+	Proto_Rreq() = delete;
 	Proto_Rreq(const Proto_Rreq&) = delete;
 	Proto_Rreq(const Proto_Rreq&&) = delete;
 	Proto_Rreq& operator=(const Proto_Rreq&) = delete;

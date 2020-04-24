@@ -12,6 +12,7 @@ public:
 	Proto_R(Network* net);
 	virtual Ptr<Packet> modify(const Packet&);
 
+	Proto_R() = delete;
 	Proto_R(const Proto_R&) = delete;
 	Proto_R(const Proto_R&&) = delete;
 	Proto_R& operator=(const Proto_R&) = delete;
