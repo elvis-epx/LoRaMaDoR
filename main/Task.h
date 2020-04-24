@@ -33,7 +33,7 @@ private:
 	// the pointer is the ID, no copies allowed
 	Task() = delete;
 	Task(const Task&) = delete;
-	Task(const Task&&) = delete;
+	Task(Task&&) = delete;
 	Task& operator=(const Task&) = delete;
 	Task& operator=(Task&&) = delete;
 

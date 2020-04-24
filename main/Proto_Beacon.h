@@ -18,9 +18,9 @@ private:
 
 	Proto_Beacon() = delete;
 	Proto_Beacon(const Proto_Beacon&) = delete;
-	Proto_Beacon(const Proto_Beacon&&) = delete;
+	Proto_Beacon(Proto_Beacon&&) = delete;
 	Proto_Beacon& operator=(const Proto_Beacon&) = delete;
-	Proto_Beacon& operator=(const Proto_Beacon&&) = delete;
+	Proto_Beacon& operator=(Proto_Beacon&&) = delete;
 };
 
 #endif

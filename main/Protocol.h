@@ -21,9 +21,9 @@ protected:
 	// This class must be new()ed and not fooled around
 	Protocol() = delete;
 	Protocol(const Protocol&) = delete;
-	Protocol(const Protocol&&) = delete;
+	Protocol(Protocol&&) = delete;
 	Protocol& operator=(const Protocol&) = delete;
-	Protocol& operator=(const Protocol&&) = delete;
+	Protocol& operator=(Protocol&&) = delete;
 };
 
 #endif

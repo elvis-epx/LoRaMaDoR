@@ -14,9 +14,9 @@ public:
 
 	Proto_R() = delete;
 	Proto_R(const Proto_R&) = delete;
-	Proto_R(const Proto_R&&) = delete;
+	Proto_R(Proto_R&&) = delete;
 	Proto_R& operator=(const Proto_R&) = delete;
-	Proto_R& operator=(const Proto_R&&) = delete;
+	Proto_R& operator=(Proto_R&&) = delete;
 };
 
 #endif

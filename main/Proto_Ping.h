@@ -14,9 +14,9 @@ public:
 
 	Proto_Ping() = delete;
 	Proto_Ping(const Proto_Ping&) = delete;
-	Proto_Ping(const Proto_Ping&&) = delete;
+	Proto_Ping(Proto_Ping&&) = delete;
 	Proto_Ping& operator=(const Proto_Ping&) = delete;
-	Proto_Ping& operator=(const Proto_Ping&&) = delete;
+	Proto_Ping& operator=(Proto_Ping&&) = delete;
 };
 
 #endif

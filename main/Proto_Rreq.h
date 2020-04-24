@@ -15,9 +15,9 @@ public:
 
 	Proto_Rreq() = delete;
 	Proto_Rreq(const Proto_Rreq&) = delete;
-	Proto_Rreq(const Proto_Rreq&&) = delete;
+	Proto_Rreq(Proto_Rreq&&) = delete;
 	Proto_Rreq& operator=(const Proto_Rreq&) = delete;
-	Proto_Rreq& operator=(const Proto_Rreq&&) = delete;
+	Proto_Rreq& operator=(Proto_Rreq&&) = delete;
 };
 
 #endif

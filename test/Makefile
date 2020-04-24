@@ -3,7 +3,7 @@ CFLAGS=-DDEBUG -DUNDER_TEST -fsanitize=undefined -fstack-protector-strong -fstac
 all: test testnet
 
 clean:
-	rm -rf *.o test testnet *.gcda *.gcno *.info out *.dSYM
+	rm -rf *.o test testnet *.gcda *.gcno *.info out *.dSYM *.log *.val
 
 .cpp.o: *.h
 	gcc $(CFLAGS) -c $<
