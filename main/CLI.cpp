@@ -75,7 +75,7 @@ static void cli_parse_ssid(Buffer candidate)
 	}
 	
 	arduino_nvram_save("ssid", candidate);
-	console_println("SSDI saved, call !restart to apply");
+	console_println("SSID saved, call !restart to apply");
 }
 
 static void cli_parse_password(Buffer candidate)
