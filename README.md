@@ -31,11 +31,11 @@ There are some commands, all start with ! (exclamation point):
 ```
 !callsign ABCDEF-1
 !debug
-!nodebug
+!help
 ```
 
 To show the currently configured callsign, call !callsign without a parameter.
-By default is FIXMEE-1.
+By default is FIXMEE-1. Type !help to get a list of all available commands.
 
 # More examples
 
@@ -156,3 +156,19 @@ In our experiments, LoRa packets often arrive with errors even under the
 best circunstances. Using maximum CR is not enough to prevent this, and
 LoRa CRC protection would discard lots of packets. Software-level FEC code
 seems to be the best solution.
+
+## Telnet CLI
+
+The terminal can be accessed using a Telnet client. You just have to configure
+the WiFi, using the commands !ssid, !password, then !reset and check the
+connection messages to see if it is all Ok. Type !wifi to get the network
+status.
+
+You can open the Telnet session using the IP (shown in !wifi). Bonjour (mDNS)
+is supported, so you can try using the name e.g. FIXMEE-1.local or fixmee-1.local
+instead of the IP.
+
+Then a Telnet client is connected, the serial terminal is disabled, though it
+still shows some messages related to Wi-Fi disconnection and reconnection. All
+other messages, including debug messages, are redirected to the Telnet client
+while the connection is open.
