@@ -1,3 +1,11 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Serial and telnet console. Intermediates communication between
+// CLI and the platform streams (serial, Telnet).
+
 #ifndef __CONSOLE_H
 #define __CONSOLE_H
 
@@ -9,15 +17,15 @@
 
 class Network;
 
-void cons_setup(Ptr<Network> net);
-void cons_handle();
-void cons_telnet_enable();
-void cons_telnet_disable();
+void console_setup(Ptr<Network> net);
+void console_handle();
+void console_telnet_enable();
+void console_telnet_disable();
 
 // Receive keystrokes from Telnet
 void cons_telnet_type(char c);
 
-// Goes either to Telnet session if open, or serial
+// Goes to Telnet session, or serial
 void console_print(const char *);
 void console_print(char);
 void console_println(const char *);

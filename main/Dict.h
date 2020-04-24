@@ -3,6 +3,8 @@
  * Copyright (c) 2019 PU5EPX
  */
 
+// Light implementation of an associative array
+
 #ifndef _ODICT_H
 #define _ODICT_H
 

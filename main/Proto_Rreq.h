@@ -1,5 +1,8 @@
-// LoRaMaDoR (LoRa-based mesh network for hams) project
-// Copyright (c) 2020 PU5EPX
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
 // Implementation of RREQ protocol
 
 #ifndef __PROTO_RREQ_H

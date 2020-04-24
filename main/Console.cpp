@@ -8,7 +8,7 @@ static Ptr<Network> Net;
 static bool is_telnet = false;
 static Buffer output_buffer;
 
-void cons_setup(Ptr<Network> net)
+void console_setup(Ptr<Network> net)
 {
 	Net = net;
 
@@ -16,7 +16,7 @@ void cons_setup(Ptr<Network> net)
 	console_println(" ready. Type !help to see available commands.");
 }
 
-void cons_handle()
+void console_handle()
 {
 	if (Serial.available() > 0) {
 		int c = Serial.read();
@@ -32,17 +32,17 @@ void cons_handle()
 	}
 }
 
-void cons_telnet_enable()
+void console_telnet_enable()
 {
 	is_telnet = true;
 }
 
-void cons_telnet_disable()
+void console_telnet_disable()
 {
 	is_telnet = false;
 }
 
-void cons_telnet_type(char c)
+void console_telnet_type(char c)
 {	
 	if (is_telnet) cli_type(c);
 }
@@ -58,7 +58,7 @@ void serial_println(const char *msg)
 	output_buffer.append_str("\r\n");
 }
 
-void platform_print(const char *msg)
+static void platform_print(const char *msg)
 {
 	if (!is_telnet) {
 		serial_print(msg);

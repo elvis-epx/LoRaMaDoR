@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Class that encapsulates the parameters of a LoRaMaDoR packet.
+
 #ifndef __PARAMS_H
 #define __PARAMS_H
 

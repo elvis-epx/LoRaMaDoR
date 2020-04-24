@@ -3,6 +3,9 @@
  * Copyright (c) 2019 PU5EPX
  */
 
+// Class that encapsulates a LoRaMaDoR packet.
+// Includes layer-2 and layer-3 parsing and encoding.
+
 #ifndef __PACKET_H
 #define  __PACKET_H
 

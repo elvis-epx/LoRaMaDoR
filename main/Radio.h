@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Functions related to low-level LoRa functionality used by Network.
+
 #ifndef __RADIO_H
 #define __RADIO_H
 

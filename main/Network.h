@@ -1,5 +1,9 @@
-// LoRaMaDoR (LoRa-based mesh network for hams) project
-// Copyright (c) 2019 PU5EPX
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Main LoRaMaDoR network class, plus some auxiliary types
 
 #ifndef __NETWORK_H
 #define __NETWORK_H

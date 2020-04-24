@@ -4,8 +4,6 @@
 #include "Buffer.h"
 #include "Callsign.h"
 
-extern void platform_print(const char*);
-
 Preferences prefs;
 
 unsigned long int arduino_millis()

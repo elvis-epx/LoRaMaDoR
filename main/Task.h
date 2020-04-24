@@ -1,7 +1,12 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Abstract class for Task classes: delayed code execution
+
 #ifndef __TASK_H
 #define __TASK_H
-
-// inherited by classes that will supply callback methods for tasks
 
 #include "Vector.h"
 #include "Pointer.h"

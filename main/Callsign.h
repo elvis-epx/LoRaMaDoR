@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Class that encapsulates a callsign
+
 #ifndef __CALLSIGN_H
 #define __CALLSIGN_H
 

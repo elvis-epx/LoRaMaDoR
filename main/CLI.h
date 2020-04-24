@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Command-line interface implementation.
+
 #ifndef __CLI_H
 #define __CLI_H
 

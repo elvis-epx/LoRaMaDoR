@@ -1,3 +1,10 @@
+/*
+ * LoRaMaDoR (LoRa-based mesh network for hams) project
+ * Copyright (c) 2019 PU5EPX
+ */
+
+// Smart pointer implementation.
+
 #ifndef __PTR_H
 #define __PTR_H
 

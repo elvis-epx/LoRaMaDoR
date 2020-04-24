@@ -3,6 +3,7 @@
 // Zac Staples
 // zacstaples (at) mac (dot) com
 //
+// Light implementation of a vector or list
 
 #ifndef __VECTOR_H
 #define __VECTOR_H
