@@ -5,11 +5,15 @@ which is more powerful and more extensible, allowing for true network formation.
 The implementation is a work in
 progress, and more documentation will be added as time permits.
 
-# Terminal (CLI) usage
+# Console and command-line interface (CLI)
 
-Set the speed to 115200bps, connect to Arduino's serial port
-using the terminal software of your choice (screen, minicom, etc.),
-and start chatting!
+Use the terminal software of your choice (screen, minicom, etc.)
+to connect to Arduino serial port. Set the speed to 115200bps
+and disable RTS/CTS handshaking if necessary.
+
+Alternatively, you can operate the console wirelessly using any
+Telnet client e.g. PuTTY. Just fill in your Wi-Fi configuration
+(details further down this document).
 
 Users can use the protocol almost directly, with a "hands on" sensation,
 the implementation fills in the red tape to generate a valid packet.
@@ -157,18 +161,21 @@ best circunstances. Using maximum CR is not enough to prevent this, and
 LoRa CRC protection would discard lots of packets. Software-level FEC code
 seems to be the best solution.
 
-## Telnet CLI
+## Console via Telnet
 
-The terminal can be accessed using a Telnet client. You just have to configure
-the WiFi, using the commands !ssid, !password, then !reset and check the
-connection messages to see if it is all Ok. Type !wifi to get the network
-status.
+The console can be operated via Telnet. This is more convenient e.g. when
+the Arduino is far away, perhaps positioned in a good antenna spot. This
+is possible because ESP32 TTGO has built-in support for Wi-Fi and TCP/IP.
 
-You can open the Telnet session using the IP (shown in !wifi). Bonjour (mDNS)
-is supported, so you can try using the name e.g. FIXMEE-1.local or fixmee-1.local
-instead of the IP.
+You just need to enter your network details in LoRaMaDoR via serial console,
+using the commands !ssid and !password. Then !reset and check the console
+for connection messages to confirm the network configuration is ok. Use the
+!wifi command to get the detailed status.
 
-Then a Telnet client is connected, the serial terminal is disabled, though it
-still shows some messages related to Wi-Fi disconnection and reconnection. All
-other messages, including debug messages, are redirected to the Telnet client
-while the connection is open.
+The console and the !wifi command shows the IP address. But LoRaMaDoR also
+supports Bonjour (mDNS). For example, if callsign is configured to ABCDEF-1,
+the network name will be ABCDEF-1.local or abcdef-1.local (it is case-insensitive).
+
+While a Telnet client is connected, the serial console is silenced (save
+for Wi-Fi disconnection messages) and does not accept input. Once the Telnet
+connection is closed, the serial console is reenabled.
