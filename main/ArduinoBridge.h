@@ -15,9 +15,6 @@
 
 uint32_t arduino_millis();
 int32_t arduino_random(int32_t min, int32_t max);
-void logs(const char*, const char*);
-void logi(const char*, int32_t);
-void app_recv(Ptr<Packet>);
 uint32_t arduino_nvram_id_load();
 void arduino_nvram_id_save(uint32_t);
 Callsign arduino_nvram_callsign_load();

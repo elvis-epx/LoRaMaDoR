@@ -3,8 +3,10 @@
  * Copyright (c) 2019 PU5EPX
  */
 
+#include "ArduinoBridge.h"
 #include "Display.h"
 #include "SSD1306.h"
+#include "Buffer.h"
 
 // Functions related to OLED display
 

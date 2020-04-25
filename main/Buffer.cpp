@@ -132,9 +132,9 @@ const char* Buffer::cold() const
 	return this->buf;
 }
 
-char* Buffer::hot()
+char* Buffer::hot(size_t n)
 {
-	return this->buf;
+	return this->buf + n;
 }
 
 size_t Buffer::length() const
@@ -276,7 +276,7 @@ Buffer Buffer::sprintf(const char *mask, ...)
 		ret = "fail";
 	} else {
 		ret = Buffer(size);
-		vsprintf(ret.hot(), mask, args);
+		vsprintf(ret.buf, mask, args);
 	}
 
 	va_end(args);
@@ -301,6 +301,6 @@ Buffer Buffer::substr(size_t start, size_t count) const
 	}
 
 	Buffer copy(count);
-	memcpy(copy.hot(), this->buf + start, count);
+	memcpy(copy.buf, this->buf + start, count);
 	return copy;
 }

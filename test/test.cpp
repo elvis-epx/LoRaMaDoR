@@ -223,26 +223,26 @@ int main()
 	assert (q);
 
 	/* Corrupt some chars */
-	spl2.hot()[1] = 66;
-	spl2.hot()[3] = 66;
-	spl2.hot()[7] = 66;
-	spl2.hot()[9] = 66;
-	spl2.hot()[12] = 66;
-	spl2.hot()[15] = 66;
-	spl2.hot()[33] = 66;
-	spl2.hot()[40] = 66;
+	*spl2.hot(1) = 66;
+	*spl2.hot(3) = 66;
+	*spl2.hot(7) = 66;
+	*spl2.hot(9) = 66;
+	*spl2.hot(12) = 66;
+	*spl2.hot(15) = 66;
+	*spl2.hot(33) = 66;
+	*spl2.hot(40) = 66;
 	q = Packet::decode_l2(spl2.cold(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt too many chars */
-	spl2.hot()[2] = 66;
-	spl2.hot()[5] = 66;
-	spl2.hot()[6] = 66;
-	spl2.hot()[8] = 66;
-	spl2.hot()[10] = 66;
-	spl2.hot()[11] = 66;
-	spl2.hot()[13] = 66;
-	spl2.hot()[39] = 66;
+	*spl2.hot(2) = 66;
+	*spl2.hot(5) = 66;
+	*spl2.hot(6) = 66;
+	*spl2.hot(8) = 66;
+	*spl2.hot(10) = 66;
+	*spl2.hot(11) = 66;
+	*spl2.hot(13) = 66;
+	*spl2.hot(39) = 66;
 	assert(! Packet::decode_l2(spl2.cold(), spl2.length(), -50, error));
 
 	assert (p.is_dup(*q));
@@ -261,10 +261,10 @@ int main()
 	assert(plong2.length() > 100);
 	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
 	// corrupt a little
-	plong2.hot()[13] = 66;
+	*plong2.hot(13) = 66;
 	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
 	// corrupt a lot
-	memset(plong2.hot() + 14, 66, 30);
+	memset(plong2.hot(14), 66, 30);
 	assert(!Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
 	
 	Buffer pshort("bla");

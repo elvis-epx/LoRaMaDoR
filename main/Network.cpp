@@ -9,6 +9,7 @@
 #include "Network.h"
 #include "Packet.h"
 #include "Params.h"
+#include "CLI.h"
 #include "Radio.h"
 #include "Proto_Ping.h"
 #include "Proto_Beacon.h"
@@ -175,7 +176,7 @@ void Network::sendmsg(const Ptr<Packet> pkt)
 // Receive packet targeted to this station
 void Network::recv(Ptr<Packet> pkt)
 {
-	logs("Received pkt", pkt->encode_l3().cold());
+	logs("Received pkt", pkt->encode_l3());
 
 	// check if packet can be handled automatically
 	for (size_t i = 0; i < protocols.size(); ++i) {
@@ -225,7 +226,7 @@ uint32_t Network::clean_recv_log(uint32_t now)
 
 	for (size_t i = 0; i < remove_list.size(); ++i) {
 		recv_log.remove(remove_list[i]);
-		// logs("Forgotten packet", remove_list[i].cold());
+		// logs("Forgotten packet", remove_list[i]);
 	}
 
 	return RECV_LOG_CLEAN;
@@ -246,7 +247,7 @@ uint32_t Network::clean_neigh(uint32_t now)
 
 	for (size_t i = 0; i < remove_list.size(); ++i) {
 		neighbours.remove(remove_list[i]);
-		logs("Forgotten station", remove_list[i].cold());
+		logs("Forgotten station", remove_list[i]);
 	}
 
 	return NEIGH_CLEAN;
@@ -276,7 +277,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 		recv_log[pkt->signature()] = RecvLogItem(rssi, now);
 		// Transmit
 		schedule(new PacketTx(this, pkt->encode_l2(), 50));
-		logs("tx ", pkt->encode_l3().cold());
+		logs("tx ", pkt->encode_l3());
 		return;
 	}
 
@@ -303,7 +304,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 		// We are just one of the destinations
 		if (! pkt->params().has("R")) {
 			if (! neighbours.has(pkt->from().buf())) {
-				logs("discovered neighbour", pkt->from().buf().cold());
+				logs("discovered neighbour", pkt->from().buf());
 			}
 			neighbours[pkt->from().buf()] = Neighbour(rssi, now);
 		}
@@ -336,7 +337,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 	logi("relaying w/ delay", delay);
 
 	schedule(new PacketTx(this, encoded_pkt, delay));
-	logs("relay ", pkt->encode_l3().cold());
+	logs("relay ", pkt->encode_l3());
 }
 
 // Schedule a Task. Run later via run_tasks().

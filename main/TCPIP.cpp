@@ -30,7 +30,7 @@ void wifi_setup(Ptr<Network> net)
 	password = arduino_nvram_load("password");
 
 	serial_print("Wi-Fi SSID ");
-	serial_println(ssid.cold());
+	serial_println(ssid);
 
 	if (!ssid.str_equal("None")) {
 		wifi_status = 1;
@@ -85,14 +85,14 @@ void wifi_handle()
 		if (ws == WL_CONNECTED) {
 			serial_println("Connected to WiFi");
 			ip = Buffer(WiFi.localIP().toString().c_str());
-			serial_println(ip.cold());
+			serial_println(ip);
 			wifiServer.begin();
 			if (!MDNS.begin(Net->me().buf().cold())) {
 				serial_println("mDNS not ok, use IP to connect.");
 				mdns = false;
 			} else {
 				serial_print("Local net name: ");
-				serial_print(Net->me().buf().cold());
+				serial_print(Net->me().buf());
 				serial_println(".local");
 				mdns = true;
 			}

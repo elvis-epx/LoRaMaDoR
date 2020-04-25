@@ -27,12 +27,16 @@ void console_telnet_type(char c);
 
 // Goes to Telnet session, or serial
 void console_print(const char *);
+void console_print(const Buffer &);
 void console_print(char);
 void console_println(const char *);
+void console_println(const Buffer &);
 void console_println();
 
 // Goes straight to serial
 void serial_print(const char *);
+void serial_print(const Buffer &);
 void serial_println(const char *);
+void serial_println(const Buffer &);
 
 #endif

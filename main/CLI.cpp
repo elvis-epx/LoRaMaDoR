@@ -26,6 +26,11 @@ void logs(const char* a, const char* b) {
 	cli_print(msg);
 }
 
+void logs(const char* a, const Buffer &b)
+{
+	logs(a, b.cold());
+}
+
 void logi(const char* a, int32_t b) {
 	if (!debug) return;
 	Buffer msg = Buffer::sprintf("%s %d", a, b);
@@ -50,13 +55,13 @@ static void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
 		console_print("Callsign is ");
-		console_println(Net->me().buf().cold());
+		console_println(Net->me().buf());
 		return;
 	}
 	
 	if (candidate.charAt(0) == 'Q') {
 		console_print("Invalid Q callsign: ");
-		console_println(candidate.cold());
+		console_println(candidate);
 		return;
 	}
 
@@ -64,7 +69,7 @@ static void cli_parse_callsign(const Buffer &candidate)
 
 	if (! callsign.is_valid()) {
 		console_print("Invalid callsign: ");
-		console_println(candidate.cold());
+		console_println(candidate);
 		return;
 	}
 	
@@ -79,7 +84,7 @@ static void cli_parse_ssid(Buffer candidate)
 	candidate.strip();
 	if (candidate.empty()) {
 		console_print("SSID is '");
-		console_print(arduino_nvram_load("ssid").cold());
+		console_print(arduino_nvram_load("ssid"));
 		console_println("'");
 		console_println("Set SSID to None to disable Wi-Fi.");
 		return;
@@ -95,7 +100,7 @@ static void cli_parse_password(Buffer candidate)
 	candidate.strip();
 	if (candidate.empty()) {
 		console_print("Wi-Fi password is '");
-		console_print(arduino_nvram_load("password").cold());
+		console_print(arduino_nvram_load("password"));
 		console_println("'");
 		console_println("Set password to None for Wi-Fi network without password.");
 		return;
@@ -109,21 +114,21 @@ static void cli_parse_password(Buffer candidate)
 static void cli_lastid()
 {
 	auto b = Buffer::sprintf("Last packet ID #%d", Net->get_last_pkt_id());
-	console_println(b.cold());
+	console_println(b);
 }
 
 // System uptime
 static void cli_uptime()
 {
 	Buffer hms = Buffer::millis_to_hms(arduino_millis());
-	console_println(Buffer::sprintf("Uptime %s", hms.cold()).cold());
+	console_println(Buffer::sprintf("Uptime %s", hms.cold()));
 }
 
 // Print list of detected network neighbours
 static void cli_neigh()
 {
 	console_println("---------------------------");
-	console_println(Buffer::sprintf("Neighbourhood of %s:", Net->me().buf().cold()).cold());
+	console_println(Buffer::sprintf("Neighbourhood of %s:", Net->me().buf().cold()));
 	auto neigh = Net->neigh();
 	for (auto i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
@@ -132,7 +137,7 @@ static void cli_neigh()
 		Buffer ssince = Buffer::millis_to_hms(since);
 		auto b = Buffer::sprintf("    %s llast seen %s ago w/ %d rssi",
 					cs.cold(), ssince.cold(), rssi);
-		console_println(b.cold());
+		console_println(b);
 	}
 	console_println("---------------------------");
 }
@@ -140,7 +145,7 @@ static void cli_neigh()
 // Print Wi-Fi status information
 static void cli_wifi()
 {
-	console_println(get_wifi_status().cold());
+	console_println(get_wifi_status());
 }
 
 static void cli_parse_help()
@@ -207,7 +212,7 @@ static void cli_parse_meta(Buffer cmd)
 		cli_uptime();
 	} else {
 		console_print("Unknown cmd: ");
-		console_println(cmd.cold());
+		console_println(cmd);
 	}
 }
 
@@ -238,14 +243,14 @@ static void cli_parse_packet(Buffer cmd)
 
 	if (! dest.is_valid()) {
 		console_print("Invalid destination: ");
-		console_println(cdest.cold());
+		console_println(cdest);
 		return;
 	}
 
 	Params params(sparams);
 	if (! params.is_valid_without_ident()) {
 		console_print("Invalid params: ");
-		console_println(sparams.cold());
+		console_println(sparams);
 		return;
 	}
 
@@ -334,6 +339,6 @@ void cli_type(char c) {
 void cli_print(const Buffer &msg)
 {
 	console_println();
-	console_println(msg.cold());
-	console_print(cli_buf.cold());
+	console_println(msg);
+	console_print(cli_buf);
 }

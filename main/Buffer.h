@@ -30,7 +30,7 @@ public:
 	bool empty() const;
 	size_t length() const;
 	const char* cold() const;
-	char* hot();
+	char* hot(size_t);
 	Buffer& uppercase();
 	bool str_equal(const char *cmp) const;
 	bool str_equal(const Buffer &) const;

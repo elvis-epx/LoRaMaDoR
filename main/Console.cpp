@@ -20,7 +20,7 @@ static Buffer output_buffer;
 void console_setup(Ptr<Network> net)
 {
 	Net = net;
-	console_print(Net->me().buf().cold());
+	console_print(Net->me().buf());
 	console_println(" ready. Type !help to see available commands.");
 }
 
@@ -64,7 +64,18 @@ void serial_print(const char *msg)
 	output_buffer.append_str(msg);
 }
 
+void serial_print(const Buffer &msg)
+{
+	output_buffer.append_str(msg);
+}
+
 void serial_println(const char *msg)
+{
+	output_buffer.append_str(msg);
+	output_buffer.append_str("\r\n");
+}
+
+void serial_println(const Buffer &msg)
 {
 	output_buffer.append_str(msg);
 	output_buffer.append_str("\r\n");
@@ -86,6 +97,10 @@ void console_print(const char *msg) {
 	platform_print(msg);
 }
 
+void console_print(const Buffer &msg) {
+	platform_print(msg.cold());
+}
+
 void console_print(char c) {
 	char msg[] = {c, 0};
 	platform_print(msg);
@@ -93,6 +108,11 @@ void console_print(char c) {
 
 void console_println(const char *msg) {
 	platform_print(msg);
+	platform_print("\r\n");
+}
+
+void console_println(const Buffer &msg) {
+	platform_print(msg.cold());
 	platform_print("\r\n");
 }
 

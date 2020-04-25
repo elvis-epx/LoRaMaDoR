@@ -178,12 +178,20 @@ void arduino_nvram_id_save(uint32_t id)
 	nvram_id = id;
 }
 
+void console_print(const Buffer &b) {
+	printf("%s", b.cold());
+}
+
 void console_print(const char *msg) {
 	printf("%s", msg);
 }
 
 void console_print(char msg) {
 	printf("%c", msg);
+}
+
+void console_println(const Buffer& b) {
+	printf("%s\n", b.cold());
 }
 
 void console_println(const char *msg) {
