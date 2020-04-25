@@ -112,6 +112,13 @@ static void cli_lastid()
 	console_println(b.cold());
 }
 
+// System uptime
+static void cli_uptime()
+{
+	Buffer hms = Buffer::millis_to_hms(arduino_millis());
+	console_println(Buffer::sprintf("Uptime %s", hms.cold()).cold());
+}
+
 // Print list of detected network neighbours
 static void cli_neigh()
 {
@@ -131,7 +138,7 @@ static void cli_neigh()
 }
 
 // Print Wi-Fi status information
-static void cli_parse_wifi()
+static void cli_wifi()
 {
 	console_println(get_wifi_status().cold());
 }
@@ -153,6 +160,7 @@ static void cli_parse_help()
 	console_println("  !restart or !reset     Restart controller");
 	console_println("  !neigh                 List known neighbours");
 	console_println("  !lastid                Last sent packet #");
+	console_println("  !uptime                Show uptime");
 	console_println();
 }
 
@@ -176,7 +184,7 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd.strncmp("password", 8) == 0 && cmd.length() == 8) {
 		cli_parse_password("");
 	} else if (cmd.strncmp("wifi", 4) == 0 && cmd.length() == 4) {
-		cli_parse_wifi();
+		cli_wifi();
 	} else if (cmd.strncmp("help", 4) == 0 && cmd.length() == 4) {
 		cli_parse_help();
 	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
@@ -195,6 +203,8 @@ static void cli_parse_meta(Buffer cmd)
 		cli_neigh();
 	} else if (cmd.strncmp("lastid", 6) == 0 && cmd.length() == 6) {
 		cli_lastid();
+	} else if (cmd.strncmp("uptime", 6) == 0 && cmd.length() == 6) {
+		cli_uptime();
 	} else {
 		console_print("Unknown cmd: ");
 		console_println(cmd.cold());

@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
 			rreq();
 		} else if (arduino_random(0, 100) == 0) {
 			cli_simtype("!neigh\r");
+			cli_simtype("!uptime\r");
 		}
 
 		Ptr<Task> tsk = Net->_task_mgr().next_task();
