@@ -121,7 +121,10 @@ static void cli_neigh()
 	for (auto i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
 		int rssi = neigh[cs].rssi;
-		auto b = Buffer::sprintf("    %s rssi %d", cs.cold(), rssi);
+		int32_t since = arduino_millis() - neigh[cs].timestamp;
+		Buffer ssince = Buffer::millis_to_hms(since);
+		auto b = Buffer::sprintf("    %s llast seen %s ago w/ %d rssi",
+					cs.cold(), ssince.cold(), rssi);
 		console_println(b.cold());
 	}
 	console_println("---------------------------");

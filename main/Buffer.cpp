@@ -240,6 +240,26 @@ int Buffer::strncmp(const char *cmp, size_t len) const
 	return std::strncmp(cmp, buf, len);
 }
 
+Buffer Buffer::millis_to_hms(int32_t t)
+{
+	if (t < 0) return "???";
+	t /= 1000;
+	int32_t s = t % 60;
+	t -= s;
+	t /= 60;
+	int32_t m = t % 60;
+	t -= m;
+	t /= 60;
+	int32_t h = t % 24;
+	t -= h;
+	t /= 24;
+	int32_t d = t;
+
+	if (d > 0) return Buffer::sprintf("%d:%02d:%02d:%02d", d, h, m, s);
+	if (h > 0) return Buffer::sprintf("%d:%02d:%02d", h, m, s);
+	return Buffer::sprintf("%d:%02d", m, s);
+}
+
 Buffer Buffer::sprintf(const char *mask, ...)
 {
 	va_list args;

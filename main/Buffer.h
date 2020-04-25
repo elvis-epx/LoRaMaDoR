@@ -9,6 +9,7 @@
 #define __BUFFER_H
 
 #include <cstddef>
+#include <cstdint>
 
 class Buffer {
 public:
@@ -22,6 +23,7 @@ public:
 	~Buffer();
 
 	static Buffer sprintf(const char*, ...);
+	static Buffer millis_to_hms(int32_t);
 	Buffer substr(size_t start) const;
 	Buffer substr(size_t start, size_t end) const;
 

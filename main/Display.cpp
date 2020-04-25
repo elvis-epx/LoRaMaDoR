@@ -28,8 +28,8 @@ void oled_init()
 void oled_show(const char *ma, const char *mb, const char *mc, const char *md)
 {
 	char ms[20];
-	// FIXME convert to hms
-	sprintf(ms, "%d", millis() / 1000);
+	Buffer uptime = Buffer::millis_to_hms(arduino_millis());
+	sprintf(ms, "%s", uptime.cold());
 	display.clear();
 	display.drawString(0, 0, ma);
 	display.drawString(0, 12, mb);

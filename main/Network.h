@@ -23,7 +23,7 @@ class Protocol;
 class Packet;
 
 struct Neighbour {
-	Neighbour(int rssi, uint32_t timestamp):
+	Neighbour(int rssi, int32_t timestamp):
 		rssi(rssi), timestamp(timestamp) {}
 	Neighbour() {}
 	int rssi;
@@ -31,7 +31,7 @@ struct Neighbour {
 };
 
 struct RecvLogItem {
-	RecvLogItem(int rssi, uint32_t timestamp):
+	RecvLogItem(int rssi, int32_t timestamp):
 		rssi(rssi), timestamp(timestamp) {}
 	RecvLogItem() {}
 	int rssi;

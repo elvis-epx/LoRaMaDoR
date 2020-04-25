@@ -4,6 +4,20 @@
 #include "Packet.h"
 
 void test2() {
+	Buffer tm;
+	tm = Buffer::millis_to_hms(-1);
+	assert(tm.str_equal("???"));
+	tm = Buffer::millis_to_hms(0);
+	assert(tm.str_equal("0:00"));
+	tm = Buffer::millis_to_hms(30 * 1000);
+	assert(tm.str_equal("0:30"));
+	tm = Buffer::millis_to_hms(90 * 1000);
+	assert(tm.str_equal("1:30"));
+	tm = Buffer::millis_to_hms(61 * 60 * 1000);
+	assert(tm.str_equal("1:01:00"));
+	tm = Buffer::millis_to_hms(25 * 60 * 60 * 1000);
+	assert(tm.str_equal("1:01:00:00"));
+
 	int error;
 	printf("---\n");
 	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133", error);

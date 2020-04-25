@@ -46,8 +46,8 @@ Proto_Beacon::Proto_Beacon(Network *net): Protocol(net)
 
 uint32_t Proto_Beacon::beacon() const
 {
-	// FIXME convert to hms
-	Buffer msg = Buffer::sprintf("LoRaMaDoR %d 73", arduino_millis() / 1000);
+	Buffer uptime = Buffer::millis_to_hms(arduino_millis());
+	Buffer msg = Buffer::sprintf("LoRaMaDoR up %s", uptime.cold());
 	net->send(Callsign("QB"), Params(), msg);
 	uint32_t next = Network::fudge(AVG_BEACON_TIME, 0.5);
 	// logi("Next beacon in ", next);
