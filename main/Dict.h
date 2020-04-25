@@ -109,10 +109,10 @@ public:
 		return _keys;
 	}
 
-	int indexOf(const char *key, unsigned int from, unsigned int to, bool exact) const {
+	int indexOf(const char *key, size_t from, size_t to, bool exact) const {
 		if ((to - from) <= 3) {
 			// linear search
-			for (unsigned int i = from; i < to; ++i) {
+			for (size_t i = from; i < to; ++i) {
 				int cmp = _keys[i].strcmp(key);
 				if (cmp == 0) {
 					// good for exact and non-exact queriers
@@ -127,7 +127,7 @@ public:
 		}
 
 		// recursive binary search
-		unsigned int middle = (from + to) / 2;
+		size_t middle = (from + to) / 2;
 		int cmp = _keys[middle].strcmp(key);
 		if (cmp == 0) {
 			return middle;

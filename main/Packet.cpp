@@ -24,7 +24,7 @@ RS::ReedSolomon<MSGSIZE_LONG, REDUNDANCY> rs_long;
 RS::ReedSolomon<MSGSIZE_SHORT, REDUNDANCY> rs_short;
 
 // Decode packet preamble (except callsigns).
-static bool decode_preamble(const char* data, unsigned int len,
+static bool decode_preamble(const char* data, size_t len,
 		Callsign &to, Callsign &from, Params& params, int& error)
 {
 	const char *d1 = (const char*) memchr(data, '<', len);
@@ -47,7 +47,7 @@ static bool decode_preamble(const char* data, unsigned int len,
 	}
 
 	const char *sparams = d2 + 1;
-	unsigned int sparams_len = len - (d2 - data) - 1;
+	size_t sparams_len = len - (d2 - data) - 1;
 	params = Params(Buffer(sparams, sparams_len));
 
 	if (! params.is_valid_with_ident()) {
@@ -62,7 +62,7 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 			const Params& params, const Buffer& msg, int rssi): 
 			_to(to), _from(from), _params(params), _msg(msg), _rssi(rssi)
 {
-	_signature = Buffer::sprintf("%s:%ld", _from.buf().cold(), params.ident());
+	_signature = Buffer::sprintf("%s:%d", _from.buf().cold(), params.ident());
 }
 
 Packet::~Packet()
@@ -70,7 +70,7 @@ Packet::~Packet()
 }
 
 // Decode packet coming from layer 1.
-Ptr<Packet> Packet::decode_l2(const char *data, unsigned int len, int rssi, int& error)
+Ptr<Packet> Packet::decode_l2(const char *data, size_t len, int rssi, int& error)
 {
 	error = 0;
 	if (len <= REDUNDANCY || len > (MSGSIZE_LONG + REDUNDANCY)) {
@@ -105,12 +105,12 @@ Ptr<Packet> Packet::decode_l3(const char* data, int& error)
 }
 
 // Decode packet coming from layer 2.
-Ptr<Packet> Packet::decode_l3(const char* data, unsigned int len, int rssi, int &error)
+Ptr<Packet> Packet::decode_l3(const char* data, size_t len, int rssi, int &error)
 {
 	const char *preamble = 0;
 	const char *msg = 0;
-	unsigned int preamble_len = 0;
-	unsigned int msg_len = 0;
+	size_t preamble_len = 0;
+	size_t msg_len = 0;
 
 	const char *msgd = (const char*) memchr(data, ' ', len);
 	

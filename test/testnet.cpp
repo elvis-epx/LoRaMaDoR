@@ -136,9 +136,9 @@ int main(int argc, char* argv[])
 		struct timeval timeout;
 		struct timeval* ptimeout = 0;
 		if (tsk) {
-			long int now = arduino_millis();
-			long int to = tsk->next_run() - now;
-			printf("Timeout: %s %ld\n", tsk->get_name(), to);
+			int32_t now = arduino_millis();
+			int32_t to = tsk->next_run() - now;
+			printf("Timeout: %s %d\n", tsk->get_name(), to);
 			if (to < 0) {
 				to = 0;
 			}

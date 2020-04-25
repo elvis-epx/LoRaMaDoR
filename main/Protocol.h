@@ -8,6 +8,8 @@
 #ifndef __PROTOCOL_H
 #define __PROTOCOL_H
 
+#include <cstddef>
+#include <cstdint>
 #include "Pointer.h"
 
 class Network;

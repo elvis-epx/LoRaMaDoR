@@ -8,6 +8,8 @@
 #ifndef __BUFFER_H
 #define __BUFFER_H
 
+#include <cstddef>
+
 class Buffer {
 public:
 	Buffer();
@@ -20,19 +22,19 @@ public:
 	~Buffer();
 
 	static Buffer sprintf(const char*, ...);
-	Buffer substr(unsigned int start) const;
-	Buffer substr(unsigned int start, unsigned int end) const;
+	Buffer substr(size_t start) const;
+	Buffer substr(size_t start, size_t end) const;
 
 	bool empty() const;
-	unsigned int length() const;
+	size_t length() const;
 	const char* cold() const;
 	char* hot();
 	Buffer& uppercase();
 	bool str_equal(const char *cmp) const;
 	bool str_equal(const Buffer &) const;
 	int strcmp(const char *cmp) const;
-	int strncmp(const char *, unsigned int) const;
-	Buffer& append(const char *s, unsigned int length);
+	int strncmp(const char *, size_t) const;
+	Buffer& append(const char *s, size_t length);
 	Buffer& append(const char s);
 	Buffer& append_str(const Buffer&);
 	Buffer& cut(int);
@@ -45,7 +47,7 @@ public:
 	friend class BufferImpl;
 private:
 	char *buf;
-	unsigned int len;
+	size_t len;
 };
 
 #endif

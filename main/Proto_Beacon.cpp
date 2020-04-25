@@ -10,18 +10,18 @@
 #include "ArduinoBridge.h"
 
 #ifndef UNDER_TEST
-static const unsigned int AVG_BEACON_TIME = 10 * MINUTES;
-static const unsigned int AVG_FIRST_BEACON_TIME = 30 * SECONDS;
+static const uint32_t AVG_BEACON_TIME = 10 * MINUTES;
+static const uint32_t AVG_FIRST_BEACON_TIME = 30 * SECONDS;
 #else
-static const unsigned int AVG_BEACON_TIME = 10 * SECONDS;
-static const unsigned int AVG_FIRST_BEACON_TIME = 1 * SECONDS;
+static const uint32_t AVG_BEACON_TIME = 10 * SECONDS;
+static const uint32_t AVG_FIRST_BEACON_TIME = 1 * SECONDS;
 #endif
 
 // Task for periodic transmission of beacon packet.
 class BeaconTask: public Task
 {
 public:
-	BeaconTask(Proto_Beacon *b, unsigned long int offset):
+	BeaconTask(Proto_Beacon *b, uint32_t offset):
 		Task("beacon", offset), beacon(b)
 	{
 	}
@@ -29,7 +29,7 @@ public:
 		beacon = 0;
 	}
 protected:
-	virtual unsigned long int run2(unsigned long int now)
+	virtual uint32_t run2(uint32_t now)
 	{
 		return beacon->beacon();
 	}
@@ -44,12 +44,12 @@ Proto_Beacon::Proto_Beacon(Network *net): Protocol(net)
 		Network::fudge(AVG_FIRST_BEACON_TIME, 0.5)));
 }
 
-unsigned long int Proto_Beacon::beacon() const
+uint32_t Proto_Beacon::beacon() const
 {
 	// FIXME convert to hms
-	Buffer msg = Buffer::sprintf("LoRaMaDoR %ld 73", arduino_millis() / 1000);
+	Buffer msg = Buffer::sprintf("LoRaMaDoR %d 73", arduino_millis() / 1000);
 	net->send(Callsign("QB"), Params(), msg);
-	unsigned long int next = Network::fudge(AVG_BEACON_TIME, 0.5);
+	uint32_t next = Network::fudge(AVG_BEACON_TIME, 0.5);
 	// logi("Next beacon in ", next);
 	return next;
 }

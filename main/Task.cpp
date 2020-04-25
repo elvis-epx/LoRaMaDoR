@@ -22,7 +22,7 @@
 #include "Task.h"
 #include "ArduinoBridge.h"
 
-Task::Task(const char *name, unsigned long int offset):
+Task::Task(const char *name, uint32_t offset):
 	name(name), offset(offset), timebase(0)
 {
 }
@@ -32,7 +32,7 @@ Task::~Task()
 	this->timebase = 0;
 }
 
-void Task::set_timebase(unsigned long int now)
+void Task::set_timebase(uint32_t now)
 {
 	this->timebase = now;
 }
@@ -42,19 +42,19 @@ bool Task::cancelled() const
 	return this->timebase == 0;
 }
 
-unsigned long int Task::next_run() const
+uint32_t Task::next_run() const
 {
 	// logi("Timebase", this->timebase);
 	// logi("Offset", this->offset);
 	return this->timebase + this->offset;
 }
 
-bool Task::should_run(unsigned long int now) const
+bool Task::should_run(uint32_t now) const
 {
 	return ! this->cancelled() && this->next_run() <= now;
 }
 
-bool Task::run(unsigned long int now)
+bool Task::run(uint32_t now)
 {
 	// concrete routine returns new timeout (which could be random)
 	this->offset = this->run2(now);
@@ -90,11 +90,11 @@ void TaskManager::schedule(Ptr<Task> task)
 Ptr<Task> TaskManager::next_task() const
 {
 	Ptr<Task> ret(0);
-	unsigned long int task_time = 0x7fffffff;
-	for (unsigned int i = 0 ; i < tasks.size(); ++i) {
+	uint32_t task_time = 0x7fffffff;
+	for (size_t i = 0 ; i < tasks.size(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (! t->cancelled()) {
-			unsigned long int nr = t->next_run();
+			uint32_t nr = t->next_run();
 			if (nr < task_time) {
 				task_time = nr;
 				ret = t;
@@ -107,7 +107,7 @@ Ptr<Task> TaskManager::next_task() const
 /*
 void TaskManager::cancel(const Task* task)
 {
-	for (unsigned int i = 0 ; i < tasks.size(); ++i) {
+	for (size_t i = 0 ; i < tasks.size(); ++i) {
 		if (tasks[i].id() == task) {
 			tasks.remov(i);
 			break;
@@ -116,11 +116,11 @@ void TaskManager::cancel(const Task* task)
 }
 */
 
-void TaskManager::run(unsigned long int now)
+void TaskManager::run(uint32_t now)
 {
 	bool dirty = false;
 
-	for (unsigned int i = 0 ; i < tasks.size(); ++i) {
+	for (size_t i = 0 ; i < tasks.size(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (t->should_run(now)) {
 			bool stay = t->run(now);
@@ -136,7 +136,7 @@ void TaskManager::run(unsigned long int now)
 
 	while (dirty) {
 		dirty = false;
-		for (unsigned int i = 0 ; i < tasks.size(); ++i) {
+		for (size_t i = 0 ; i < tasks.size(); ++i) {
 			Ptr<Task> t = tasks[i];
 			if (t->cancelled()) {
 				tasks.remov(i);

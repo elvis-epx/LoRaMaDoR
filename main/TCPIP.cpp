@@ -15,7 +15,7 @@ static Buffer ssid;
 static Buffer password;
 static WiFiServer wifiServer(23);
 static int wifi_status = 0;
-static unsigned long int wifi_timeout = 0;
+static uint32_t wifi_timeout = 0;
 static WiFiClient telnet_client;
 static Buffer output_buffer;
 static bool is_telnet = false;

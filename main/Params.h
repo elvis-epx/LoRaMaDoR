@@ -8,6 +8,7 @@
 #ifndef __PARAMS_H
 #define __PARAMS_H
 
+#include <cstdint>
 #include "Buffer.h"
 #include "Dict.h"
 
@@ -19,17 +20,17 @@ public:
 	Buffer serialized() const;
 	bool is_valid_with_ident() const;
 	bool is_valid_without_ident() const;
-	unsigned long int ident() const;
-	unsigned int count() const;
+	uint32_t ident() const;
+	size_t count() const;
 	Buffer get(const char *) const;
 	bool has(const char *) const;
 	void put(const char *, const Buffer&);
 	void put_naked(const char *);
 	bool is_key_naked(const char *) const;
-	void set_ident(unsigned long int);
+	void set_ident(uint32_t);
 private:
 	Dict<Buffer> items;
-	unsigned long int _ident;
+	uint32_t _ident;
 	bool valid;
 };
 

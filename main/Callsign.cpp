@@ -59,7 +59,7 @@ bool Callsign::is_valid() const
 
 bool Callsign::check(const Buffer &sbuf)
 {
-	unsigned int length = sbuf.length();
+	size_t length = sbuf.length();
 	const char *s = sbuf.cold();
 
 	if (length < 2) {
@@ -80,7 +80,7 @@ bool Callsign::check(const Buffer &sbuf)
 		}
 
 		const char *ssid_delim = strchr(s, '-');
-		unsigned int prefix_length;
+		size_t prefix_length;
 
 		if (ssid_delim) {
 			const char *ssid = ssid_delim + 1;
@@ -110,7 +110,7 @@ bool Callsign::check(const Buffer &sbuf)
 		if (prefix_length > 7 || prefix_length < 4) {
 			return false;
 		}
-		for (unsigned int i = 1; i < prefix_length; ++i) {
+		for (size_t i = 1; i < prefix_length; ++i) {
 			char c = s[i];
 			if (c >= '0' && c <= '9') {
 			} else if (c >= 'A' && c <= 'Z') {

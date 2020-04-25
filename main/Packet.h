@@ -15,14 +15,15 @@
 #include "Callsign.h"
 #include "Params.h"
 
-struct Packet {
+class Packet {
+public:
 	Packet(const Callsign &to, const Callsign &from, 
 		const Params& params, const Buffer& msg, int rssi=0);
 	~Packet();
 
-	static Ptr<Packet> decode_l2(const char* data, unsigned int len, int rssi, int& error);
+	static Ptr<Packet> decode_l2(const char* data, size_t len, int rssi, int& error);
 	/* public for unit testing */
-	static Ptr<Packet> decode_l3(const char* data, unsigned int len, int rssi, int& error);
+	static Ptr<Packet> decode_l3(const char* data, size_t len, int rssi, int& error);
 	static Ptr<Packet> decode_l3(const char *data, int& error);
 
 	Packet(const Packet &) = delete;

@@ -23,7 +23,7 @@
 class BufferImpl {
 	friend class Buffer;
 
-	static void init(Buffer* b, const char *s, unsigned int len)
+	static void init(Buffer* b, const char *s, size_t len)
 	{
 		b->len = len;
 		b->buf = new char[len + 1];
@@ -76,7 +76,7 @@ Buffer& Buffer::append_str(const Buffer &b)
 	return append(b.cold(), strlen(b.cold()));
 }
 
-Buffer& Buffer::append(const char *s, unsigned int add_length)
+Buffer& Buffer::append(const char *s, size_t add_length)
 {
 	if (!s) {
 		return *this;
@@ -137,7 +137,7 @@ char* Buffer::hot()
 	return this->buf;
 }
 
-unsigned int Buffer::length() const
+size_t Buffer::length() const
 {
 	return this->len;
 }
@@ -156,7 +156,7 @@ int Buffer::charAt(int i) const
 
 int Buffer::indexOf(char c) const
 {
-	for (unsigned int i = 0; i < this->len; ++i) {
+	for (size_t i = 0; i < this->len; ++i) {
 		if (this->buf[i] == c) {
 			return i;
 		}
@@ -166,11 +166,11 @@ int Buffer::indexOf(char c) const
 
 Buffer& Buffer::cut(int i)
 {
-	unsigned int ai = abs(i);
+	size_t ai = abs(i);
 	if (ai > this->len) {
 		ai = this->len;
 	}
-	unsigned int hi = (i >= 0) ? i : 0;
+	size_t hi = (i >= 0) ? i : 0;
 	if (hi > this->len) {
 		hi = this->len;
 	}
@@ -212,7 +212,7 @@ bool Buffer::empty() const {
 
 Buffer& Buffer::uppercase()
 {
-	for (unsigned int i = 0; i < len; ++i) {
+	for (size_t i = 0; i < len; ++i) {
 		if (buf[i] >= 'a' && buf[i] <= 'z') {
 			buf[i] += 'A' - 'a';
 		}
@@ -235,7 +235,7 @@ int Buffer::strcmp(const char *cmp) const
 	return std::strcmp(cmp, buf);
 }
 
-int Buffer::strncmp(const char *cmp, unsigned int len) const
+int Buffer::strncmp(const char *cmp, size_t len) const
 {
 	return std::strncmp(cmp, buf, len);
 }
@@ -264,12 +264,12 @@ Buffer Buffer::sprintf(const char *mask, ...)
 }
 
 
-Buffer Buffer::substr(unsigned int start) const
+Buffer Buffer::substr(size_t start) const
 {
 	return substr(start, this->len - start);
 }
 
-Buffer Buffer::substr(unsigned int start, unsigned int count) const
+Buffer Buffer::substr(size_t start, size_t count) const
 {
 	if (start >= this->len) {
 		start = 0;

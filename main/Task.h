@@ -8,6 +8,8 @@
 #ifndef __TASK_H
 #define __TASK_H
 
+#include <cstddef>
+#include <cstdint>
 #include "Vector.h"
 #include "Pointer.h"
 
@@ -15,24 +17,24 @@ class TaskManager;
 
 class Task {
 public:
-	Task(const char *name, unsigned long int offset);
+	Task(const char *name, uint32_t offset);
 	virtual ~Task();
-	unsigned long int next_run() const;
+	uint32_t next_run() const;
 	const char *get_name() const;
 
 protected:
 	// overridden by concrete task subclasses
-	virtual unsigned long int run2(unsigned long int now) = 0;
+	virtual uint32_t run2(uint32_t now) = 0;
 
 private:
-	bool run(unsigned long int now);
-	void set_timebase(unsigned long int timebase);
-	bool should_run(unsigned long int now) const;
+	bool run(uint32_t now);
+	void set_timebase(uint32_t timebase);
+	bool should_run(uint32_t now) const;
 	bool cancelled() const;
 
 	const char *name;
-	unsigned long int offset;
-	unsigned long int timebase;
+	uint32_t offset;
+	uint32_t timebase;
 
 	// Tasks must be manipulated through (smart) pointers,
 	// the pointer is the ID, no copies allowed
@@ -50,7 +52,7 @@ public:
 	TaskManager();
 	~TaskManager();
 	void stop();
-	void run(unsigned long int);
+	void run(uint32_t);
 	void schedule(Ptr<Task> task);
 	void cancel(const Task* task);
 	// for testing purposes

@@ -8,6 +8,8 @@
 #ifndef __NETWORK_H
 #define __NETWORK_H
 
+#include <cstddef>
+#include <cstdint>
 #include "Vector.h"
 #include "Dict.h"
 #include "Task.h"
@@ -21,19 +23,19 @@ class Protocol;
 class Packet;
 
 struct Neighbour {
-	Neighbour(int rssi, unsigned long int timestamp):
+	Neighbour(int rssi, uint32_t timestamp):
 		rssi(rssi), timestamp(timestamp) {}
 	Neighbour() {}
 	int rssi;
-	long int timestamp;
+	int32_t timestamp;
 };
 
 struct RecvLogItem {
-	RecvLogItem(int rssi, unsigned long int timestamp):
+	RecvLogItem(int rssi, uint32_t timestamp):
 		rssi(rssi), timestamp(timestamp) {}
 	RecvLogItem() {}
 	int rssi;
-	long int timestamp;
+	int32_t timestamp;
 };
 
 class Network {
@@ -43,14 +45,14 @@ public:
 
 	Callsign me() const;
 	void send(const Callsign &to, Params params, const Buffer& msg);
-	void run_tasks(unsigned long int);
+	void run_tasks(uint32_t);
 	Dict<Neighbour> neigh() const;
-	static unsigned long int fudge(unsigned long int avg, double fudge);
+	static uint32_t fudge(uint32_t avg, double fudge);
 
 	// publicised to bridge with uncoupled code
-	void radio_recv(const char *recv_area, unsigned int plen, int rssi);
-	unsigned int get_last_pkt_id() const;
-	unsigned int get_next_pkt_id();
+	void radio_recv(const char *recv_area, size_t plen, int rssi);
+	size_t get_last_pkt_id() const;
+	size_t get_next_pkt_id();
 
 	// publicised to be called by Protocols
 	void schedule(Task*);
@@ -60,10 +62,10 @@ public:
 	void add_protocol(Protocol*);
 
 	// publicised to be called by Tasks
-	unsigned long int tx(const Buffer&);
-	void forward(Ptr<Packet>, bool, unsigned long int);
-	unsigned long int clean_recv_log(unsigned long int);
-	unsigned long int clean_neigh(unsigned long int);
+	uint32_t tx(const Buffer&);
+	void forward(Ptr<Packet>, bool, uint32_t);
+	uint32_t clean_recv_log(uint32_t);
+	uint32_t clean_neigh(uint32_t);
 
 	// publicised for testing purposes
 	TaskManager& _task_mgr();
@@ -78,7 +80,7 @@ private:
 	TaskManager task_mgr;
 	Dict<Neighbour> neighbours;
 	Dict<RecvLogItem> recv_log;
-	unsigned int last_pkt_id;
+	size_t last_pkt_id;
 	Vector< Ptr<Protocol> > protocols;
 };
 

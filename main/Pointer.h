@@ -8,6 +8,8 @@
 #ifndef __PTR_H
 #define __PTR_H
 
+#include <cstddef>
+
 template <class T> class PtrRef;
 
 template <class T> class Ptr
@@ -91,7 +93,7 @@ template <class T> class PtrRef
 	}
 
 	T* pointer;
-	unsigned int refcount;
+	size_t refcount;
 
 friend class Ptr<T>;
 };

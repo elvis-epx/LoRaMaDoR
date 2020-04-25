@@ -9,6 +9,7 @@
 #define __CALLSIGN_H
 
 #include "Buffer.h"
+#include <cstdarg>
 
 class Callsign
 {

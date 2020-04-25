@@ -39,9 +39,9 @@
 #define BWIDTH  62500
 #define CR4SLSH 5
 
-unsigned long int lora_speed_bps()
+uint32_t lora_speed_bps()
 {
-	unsigned long int bps = BWIDTH;
+	uint32_t bps = BWIDTH;
 	bps *= SPREAD;
 	bps *= 4;
 	bps /= CR4SLSH;
@@ -88,12 +88,12 @@ static bool setup_lora_common()
 static int status = ST_IDLE;
 
 static char recv_area[255];
-static void (*rx_callback)(const char *, unsigned int, int) = 0;
+static void (*rx_callback)(const char *, size_t, int) = 0;
 
 static void on_receive(int plen)
 {
 	int rssi = LoRa.packetRssi();
-	for (unsigned int i = 0; i < plen && i < sizeof(recv_area); i++) {
+	for (size_t i = 0; i < plen && i < sizeof(recv_area); i++) {
 		recv_area[i] = LoRa.read();
 	}
 	if (rx_callback) {
@@ -133,7 +133,7 @@ void lora_tx_done()
 	lora_resume_rx();
 }
 
-void lora_start(void (*cb)(const char *buf, unsigned int plen, int rssi))
+void lora_start(void (*cb)(const char *buf, size_t plen, int rssi))
 {
 	rx_callback = cb;
 	setup_lora();

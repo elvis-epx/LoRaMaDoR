@@ -13,20 +13,20 @@
 
 Preferences prefs;
 
-unsigned long int arduino_millis()
+uint32_t arduino_millis()
 {
 	return millis();
 }
 
-long int arduino_random(long int min, long int max)
+int32_t arduino_random(int32_t min, int32_t max)
 {
 	return random(min, max);
 }
 
-unsigned int arduino_nvram_id_load()
+uint32_t arduino_nvram_id_load()
 {
 	prefs.begin("LoRaMaDoR");
-	unsigned int id = prefs.getUInt("lastid");
+	uint32_t id = prefs.getUInt("lastid");
 	prefs.end();
 
 	if (id <= 0 || id > 9999) {
@@ -36,7 +36,7 @@ unsigned int arduino_nvram_id_load()
 	return id;
 }
 
-void arduino_nvram_id_save(unsigned int id)
+void arduino_nvram_id_save(uint32_t id)
 {
 	prefs.begin("LoRaMaDoR", false);
 	prefs.putUInt("lastid", id);

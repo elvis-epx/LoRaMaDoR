@@ -29,7 +29,7 @@ void oled_show(const char *ma, const char *mb, const char *mc, const char *md)
 {
 	char ms[20];
 	// FIXME convert to hms
-	sprintf(ms, "%ld", millis() / 1000);
+	sprintf(ms, "%d", millis() / 1000);
 	display.clear();
 	display.drawString(0, 0, ma);
 	display.drawString(0, 12, mb);

@@ -14,10 +14,10 @@
 static const char *naked = " n@ ";
 
 // Parse one parameter key
-static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, Buffer& value)
+static bool parse_symbol_param(const char *data, size_t len, Buffer& key, Buffer& value)
 {
-	unsigned int skey_len = 0;
-	unsigned int svalue_len = 0;
+	size_t skey_len = 0;
+	size_t svalue_len = 0;
 
 	// find '=' separator, if exists
 	const char *equal = (const char*) memchr(data, '=', len);
@@ -33,7 +33,7 @@ static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, 
 	}
 
 	// check key name characters
-	for (unsigned int i = 0; i < skey_len; ++i) {
+	for (size_t i = 0; i < skey_len; ++i) {
 		char c = data[i];
 		if (c >= 'a' && c <= 'z') {
 		} else if (c >= 'A' && c <= 'Z') {
@@ -45,7 +45,7 @@ static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, 
 	
 	// check value characters, if there is a value
 	if (equal) {
-		for (unsigned int i = 0; i < svalue_len; ++i) {
+		for (size_t i = 0; i < svalue_len; ++i) {
 			char c = equal[1 + i];
 			if (strchr("= ,:<", c) || c == 0) {
 				return false;
@@ -65,7 +65,7 @@ static bool parse_symbol_param(const char *data, unsigned int len, Buffer& key, 
 }
 
 // Parse the packet ID
-static bool parse_ident_param(const char* s, unsigned int len, unsigned long int &ident)
+static bool parse_ident_param(const char* s, size_t len, uint32_t &ident)
 {
 	char *stop;
 	ident = strtol(s, &stop, 10);
@@ -78,7 +78,7 @@ static bool parse_ident_param(const char* s, unsigned int len, unsigned long int
 	}
 
 	char n[10];
-	snprintf(n, 10, "%ld", ident);
+	snprintf(n, 10, "%d", ident);
 	if (strlen(n) != len) {
 		return false;
 	}
@@ -87,8 +87,8 @@ static bool parse_ident_param(const char* s, unsigned int len, unsigned long int
 }
 
 // Parse a parameter of any kind
-static bool parse_param(const char* data, unsigned int len,
-		unsigned long int &ident, Buffer &key, Buffer &value)
+static bool parse_param(const char* data, size_t len,
+		uint32_t &ident, Buffer &key, Buffer &value)
 {
 	char c = data[0];
 
@@ -106,15 +106,15 @@ static bool parse_param(const char* data, unsigned int len,
 }
 
 // Parse parameters of a packet
-static bool parse_params(const char *data, unsigned int len,
-		unsigned long int &ident, Dict<Buffer> &params)
+static bool parse_params(const char *data, size_t len,
+		uint32_t &ident, Dict<Buffer> &params)
 {
 	ident = 0;
 	params = Dict<Buffer>();
 
 	while (len > 0) {
-		unsigned int param_len;
-		unsigned int advance_len;
+		size_t param_len;
+		size_t advance_len;
 
 		const char *comma = (const char*) memchr(data, ',', len);
 		if (! comma) {
@@ -130,7 +130,7 @@ static bool parse_params(const char *data, unsigned int len,
 			return false;
 		}
 
-		unsigned long int tident = 0;
+		uint32_t tident = 0;
 		Buffer key;
 		Buffer value;
 
@@ -167,10 +167,10 @@ Params::Params(Buffer b)
 // Generate the wire format of the parameter list
 Buffer Params::serialized() const
 {
-	Buffer buf = Buffer::sprintf("%ld", _ident);
+	Buffer buf = Buffer::sprintf("%d", _ident);
 
 	const Vector<Buffer>& keys = items.keys();
-	for (unsigned int i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.size(); ++i) {
 		const Buffer& key = keys[i];
 		const Buffer& value = items[key];
 		buf.append(',');
@@ -197,13 +197,13 @@ bool Params::is_valid_without_ident() const
 }
 
 // Packet ID. Zero is nil.
-unsigned long int Params::ident() const
+uint32_t Params::ident() const
 {
 	return _ident;
 }
 
 // Number of parameters (not couting packet ID).
-unsigned int Params::count() const
+size_t Params::count() const
 {
 	return items.count();
 }
@@ -250,7 +250,7 @@ bool Params::is_key_naked(const char* key) const
 }
 
 // Set packet ID. Used only when creating a new packet for tx.
-void Params::set_ident(unsigned long int new_ident)
+void Params::set_ident(uint32_t new_ident)
 {
 	_ident = new_ident;
 }

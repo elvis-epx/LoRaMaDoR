@@ -16,7 +16,7 @@ class Proto_Beacon: public Protocol {
 public:
 	Proto_Beacon(Network* net);
 private:
-	unsigned long int beacon() const;
+	uint32_t beacon() const;
 	friend class BeaconTask;
 
 	Proto_Beacon() = delete;

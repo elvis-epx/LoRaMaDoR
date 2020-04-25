@@ -26,9 +26,9 @@ void logs(const char* a, const char* b) {
 	cli_print(msg);
 }
 
-void logi(const char* a, long int b) {
+void logi(const char* a, int32_t b) {
 	if (!debug) return;
-	Buffer msg = Buffer::sprintf("%s %ld", a, b);
+	Buffer msg = Buffer::sprintf("%s %d", a, b);
 	cli_print(msg);
 }
 
@@ -40,7 +40,7 @@ void app_recv(Ptr<Packet> pkt)
 				pkt->params().serialized().cold(), pkt->rssi());
 	cli_print(msg);
 	Buffer msga = Buffer::sprintf("%s < %s", pkt->to().buf().cold(), pkt->from().buf().cold());
-	Buffer msgb = Buffer::sprintf("id %ld rssi %d", pkt->params().ident(), pkt->rssi());
+	Buffer msgb = Buffer::sprintf("id %d rssi %d", pkt->params().ident(), pkt->rssi());
 	Buffer msgc = Buffer::sprintf("p %s", pkt->params().serialized().cold());
 	oled_show(msga.cold(), pkt->msg().cold(), msgb.cold(), msgc.cold());
 }
@@ -108,7 +108,7 @@ static void cli_parse_password(Buffer candidate)
 // ID of the latest packet sent by us
 static void cli_lastid()
 {
-	auto b = Buffer::sprintf("Last packet ID #%ld", Net->get_last_pkt_id());
+	auto b = Buffer::sprintf("Last packet ID #%d", Net->get_last_pkt_id());
 	console_println(b.cold());
 }
 

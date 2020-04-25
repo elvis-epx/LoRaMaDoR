@@ -15,16 +15,16 @@
 #include "Proto_R.h"
 #include "Proto_Rreq.h"
 
-static const unsigned int TX_BUSY_RETRY_TIME = 1 * SECONDS;
+static const uint32_t TX_BUSY_RETRY_TIME = 1 * SECONDS;
 
-static const unsigned int NEIGH_PERSIST = 60 * MINUTES;
-static const unsigned int NEIGH_CLEAN = 1 * MINUTES;
+static const uint32_t NEIGH_PERSIST = 60 * MINUTES;
+static const uint32_t NEIGH_CLEAN = 1 * MINUTES;
 
-static const unsigned int RECV_LOG_PERSIST = 10 * MINUTES;
-static const unsigned int RECV_LOG_CLEAN = 1 * MINUTES;
+static const uint32_t RECV_LOG_PERSIST = 10 * MINUTES;
+static const uint32_t RECV_LOG_CLEAN = 1 * MINUTES;
 
 // Generates a random number with average avg and spread 'fudge'
-unsigned long int Network::fudge(unsigned long int avg, double fudge)
+uint32_t Network::fudge(uint32_t avg, double fudge)
 {
 	return arduino_random(avg * (1.0 - fudge), avg * (1.0 + fudge));
 }
@@ -32,12 +32,12 @@ unsigned long int Network::fudge(unsigned long int avg, double fudge)
 // Packet transmission task.
 class PacketTx: public Task {
 public:
-	PacketTx(Network* net, const Buffer& encoded_packet, unsigned long int offset): 
+	PacketTx(Network* net, const Buffer& encoded_packet, uint32_t offset): 
 			Task("tx", offset), net(net), encoded_packet(encoded_packet)
 	{
 	}
 protected:
-	virtual unsigned long int run2(unsigned long int now) {
+	virtual uint32_t run2(uint32_t now) {
 		return net->tx(encoded_packet);
 	}
 private:
@@ -53,7 +53,7 @@ public:
 	{
 	}
 protected:
-	virtual unsigned long int run2(unsigned long int now)
+	virtual uint32_t run2(uint32_t now)
 	{
 		net->forward(packet, we_are_origin, now);
 		// forces this task to be one-off
@@ -68,12 +68,12 @@ private:
 // Prune neighbourhood table task.
 class CleanNeighTask: public Task {
 public:
-	CleanNeighTask(Network* net, unsigned long int offset):
+	CleanNeighTask(Network* net, uint32_t offset):
 		Task("neigh", offset), net(net)
 	{
 	}
 protected:
-	virtual unsigned long int run2(unsigned long int now)
+	virtual uint32_t run2(uint32_t now)
 	{
 		return net->clean_neigh(now);
 	}
@@ -85,12 +85,12 @@ private:
 // Prune packet rx log task.
 class CleanRecvLogTask: public Task {
 public:
-	CleanRecvLogTask(Network* net, unsigned long int offset):
+	CleanRecvLogTask(Network* net, uint32_t offset):
 		Task("recvlog", offset), net(net)
 	{
 	}
 protected:
-	virtual unsigned long int run2(unsigned long int now)
+	virtual uint32_t run2(uint32_t now)
 	{
 		return net->clean_recv_log(now);
 	}
@@ -100,7 +100,7 @@ private:
 
 
 // bridges C-style callback from LoRa/Radio module to network object
-void radio_recv_trampoline(const char *recv_area, unsigned int plen, int rssi);
+void radio_recv_trampoline(const char *recv_area, size_t plen, int rssi);
 Network* trampoline_target = 0;
 
 //////////////////////////// Network class proper
@@ -144,7 +144,7 @@ void Network::add_protocol(Protocol* p)
 }
 
 // Gets next packet ID and saves to NVRAM
-unsigned int Network::get_next_pkt_id()
+size_t Network::get_next_pkt_id()
 {
 	if (++last_pkt_id > 9999) {
 		last_pkt_id = 1;
@@ -153,7 +153,7 @@ unsigned int Network::get_next_pkt_id()
 	return last_pkt_id;
 }
 
-unsigned int Network::get_last_pkt_id() const
+size_t Network::get_last_pkt_id() const
 {
 	return last_pkt_id;
 }
@@ -178,7 +178,7 @@ void Network::recv(Ptr<Packet> pkt)
 	logs("Received pkt", pkt->encode_l3().cold());
 
 	// check if packet can be handled automatically
-	for (unsigned int i = 0; i < protocols.size(); ++i) {
+	for (size_t i = 0; i < protocols.size(); ++i) {
 		Ptr<Packet> response = protocols[i]->handle(*pkt);
 		if (response) {
 			sendmsg(response);
@@ -191,14 +191,14 @@ void Network::recv(Ptr<Packet> pkt)
 }
 
 // Called by LoRa layer
-void radio_recv_trampoline(const char *recv_area, unsigned int plen, int rssi)
+void radio_recv_trampoline(const char *recv_area, size_t plen, int rssi)
 {
 	// ugly, but...
 	trampoline_target->radio_recv(recv_area, plen, rssi);
 }
 
 // Handle packet from radio, schedule processing
-void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
+void Network::radio_recv(const char *recv_area, size_t plen, int rssi)
 {
 	int error;
 	Ptr<Packet> pkt = Packet::decode_l2(recv_area, plen, rssi, error);
@@ -211,19 +211,19 @@ void Network::radio_recv(const char *recv_area, unsigned int plen, int rssi)
 }
 
 // purge old packet IDs from recv log
-unsigned long int Network::clean_recv_log(unsigned long int now)
+uint32_t Network::clean_recv_log(uint32_t now)
 {
 	Vector<Buffer> remove_list;
-	long int cutoff = now - RECV_LOG_PERSIST;
+	int32_t cutoff = now - RECV_LOG_PERSIST;
 
 	const Vector<Buffer>& keys = recv_log.keys();
-	for (unsigned int i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.size(); ++i) {
 		if (recv_log[keys[i]].timestamp < cutoff) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
-	for (unsigned int i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.size(); ++i) {
 		recv_log.remove(remove_list[i]);
 		// logs("Forgotten packet", remove_list[i].cold());
 	}
@@ -232,19 +232,19 @@ unsigned long int Network::clean_recv_log(unsigned long int now)
 }
 
 // purge neighbours that have been silent for a while
-unsigned long int Network::clean_neigh(unsigned long int now)
+uint32_t Network::clean_neigh(uint32_t now)
 {
 	Vector<Buffer> remove_list;
-	long int cutoff = now - NEIGH_PERSIST;
+	int32_t cutoff = now - NEIGH_PERSIST;
 
 	const Vector<Buffer>& keys = neighbours.keys();
-	for (unsigned int i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.size(); ++i) {
 		if (neighbours[keys[i]].timestamp < cutoff) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
-	for (unsigned int i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.size(); ++i) {
 		neighbours.remove(remove_list[i]);
 		logs("Forgotten station", remove_list[i].cold());
 	}
@@ -253,7 +253,7 @@ unsigned long int Network::clean_neigh(unsigned long int now)
 }
 
 // execute packet transmission
-unsigned long int Network::tx(const Buffer& encoded_packet)
+uint32_t Network::tx(const Buffer& encoded_packet)
 {
 	if (! lora_tx(encoded_packet)) {
 		return TX_BUSY_RETRY_TIME;
@@ -262,7 +262,7 @@ unsigned long int Network::tx(const Buffer& encoded_packet)
 }
 
 // handle packet received from radio or from application layer
-void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now)
+void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 {
 	int rssi = pkt->rssi();
 
@@ -314,7 +314,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now
 
 	// Forward packet modifiers
 	// They can add params and/or change msg
-	for (unsigned int i = 0; i < protocols.size(); ++i) {
+	for (size_t i = 0; i < protocols.size(); ++i) {
 		Ptr<Packet> modified_pkt = protocols[i]->modify(*pkt);
 		if (modified_pkt) {
 			// replace packet by modified vesion
@@ -326,12 +326,12 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, unsigned long int now
 	Buffer encoded_pkt = pkt->encode_l2();
 
 	// TX delay in bits: packet size x stations nearby x 2
-	unsigned long int bit_delay = encoded_pkt.length() * 8;
+	uint32_t bit_delay = encoded_pkt.length() * 8;
 	bit_delay *= 2 * (1 + neighbours.count());
 
 	// convert delay in bits to milisseconds
 	// e.g. 900 bits @ 600 bps = 1500 ms
-	unsigned long int delay = bit_delay * SECONDS / lora_speed_bps();
+	uint32_t delay = bit_delay * SECONDS / lora_speed_bps();
 
 	logi("relaying w/ delay", delay);
 
@@ -346,7 +346,7 @@ void Network::schedule(Task *task)
 }
 
 // Run pending tasks. Called by system may loop.
-void Network::run_tasks(unsigned long int millis)
+void Network::run_tasks(uint32_t millis)
 {
 	task_mgr.run(millis);
 }

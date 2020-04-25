@@ -15,7 +15,7 @@
 // Emulation of millis() and random()
 
 static struct timeval tm_first;
-static unsigned int nvram_id = 0;
+static uint32_t nvram_id = 0;
 static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
 static Dict<Buffer> nvram;
@@ -27,7 +27,7 @@ static void init_things()
 	srandom(tm_first.tv_sec + tm_first.tv_usec);
 }
 
-unsigned long int arduino_millis()
+int32_t arduino_millis()
 {
 	if (virgin) init_things();
 	struct timeval tm;
@@ -36,7 +36,7 @@ unsigned long int arduino_millis()
 		- (tm_first.tv_sec * 1000000 + tm_first.tv_usec)) / 1000 + 1;
 }
 
-long int arduino_random(long int min, long int max)
+int32_t arduino_random(int32_t min, int32_t max)
 {
 	if (virgin) init_things();
 	return min + random() % (max - min);
@@ -102,7 +102,7 @@ static void setup_lora()
 	}
 }
 
-unsigned long int lora_speed_bps()
+uint32_t lora_speed_bps()
 {
 	return 1200;
 }
@@ -130,9 +130,9 @@ bool lora_tx(const Buffer& b)
 	return 1;
 }
 
-static void (*rx_callback)(char const*, unsigned int, int) = 0;
+static void (*rx_callback)(char const*, size_t, int) = 0;
 
-void lora_start(void (*new_cb)(char const*, unsigned int, int))
+void lora_start(void (*new_cb)(char const*, size_t, int))
 {
 	setup_lora();
 	rx_callback = new_cb;
@@ -165,7 +165,7 @@ void lora_emu_rx()
 	rx_callback(message, rec, -50);
 }
 
-unsigned int arduino_nvram_id_load()
+uint32_t arduino_nvram_id_load()
 {
 	if (nvram_id == 0) {
 		nvram_id = arduino_random(9900, 10000);
@@ -173,7 +173,7 @@ unsigned int arduino_nvram_id_load()
 	return nvram_id;
 }
 
-void arduino_nvram_id_save(unsigned int id)
+void arduino_nvram_id_save(uint32_t id)
 {
 	nvram_id = id;
 }

@@ -10,8 +10,8 @@
 
 #include "Buffer.h"
 
-void lora_start(void (*cb)(const char *buf, unsigned int plen, int rssi));
+void lora_start(void (*cb)(const char *buf, size_t plen, int rssi));
 bool lora_tx(const Buffer& packet);
-unsigned long int lora_speed_bps();
+uint32_t lora_speed_bps();
 
 #endif

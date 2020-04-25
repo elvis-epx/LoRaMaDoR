@@ -13,9 +13,9 @@
 
 template<class T>
 class Vector {
-	unsigned int sz;
+	size_t sz;
 	T** elem;
-	unsigned int space;
+	size_t space;
 
 public:
 	Vector() : sz(0), elem(0), space(0) {}
@@ -36,13 +36,13 @@ public:
 	T& operator[](int n) { return *elem[n]; }
 	const T& operator[](int n) const { return *elem[n]; }
 	
-	unsigned int size() const { return sz; }
-	unsigned int capacity() const { return space; }
+	size_t size() const { return sz; }
+	size_t capacity() const { return space; }
 	
-	void reserve(unsigned int newalloc);
+	void reserve(size_t newalloc);
 	void push_back(const T& val);
-	void remov(unsigned int pos);
-	void insert(unsigned int pos, const T& val);
+	void remov(size_t pos);
+	void insert(size_t pos, const T& val);
 };
 
 template<class T> 
@@ -56,7 +56,7 @@ Vector<T>& Vector<T>::operator=(const Vector& a) {
 	space = sz = a.size();
 
 	// copy elements
-	for(unsigned int i=0; i < sz; ++i) {
+	for(size_t i=0; i < sz; ++i) {
 		elem[i] = new T(a[i]);
 	}
 
@@ -71,7 +71,7 @@ Vector<T>::Vector(const Vector& a) {
 	space = sz = a.size();
 
 	// copy elements
-	for(unsigned int i=0; i < sz; ++i) {
+	for(size_t i=0; i < sz; ++i) {
 		elem[i] = new T(a[i]);
 	}
 }
@@ -90,7 +90,7 @@ Vector<T>::Vector(Vector&& a) {
 template<class T> 
 void Vector<T>::clear()
 {
-	for (unsigned int i=0; i<sz; ++i) delete elem[i];
+	for (size_t i=0; i<sz; ++i) delete elem[i];
 	delete [] elem;
 	elem = 0;
 	sz = space = 0;
@@ -111,7 +111,7 @@ Vector<T>& Vector<T>::operator=(Vector&& a) {
 	a.space = 0;
 }
 
-template<class T> void Vector<T>::reserve(unsigned int newalloc){
+template<class T> void Vector<T>::reserve(size_t newalloc){
 	if(newalloc <= space) return;
 
 	T** p = new T*[newalloc];
@@ -124,12 +124,12 @@ template<class T> void Vector<T>::reserve(unsigned int newalloc){
 }
 
 template<class T> void
-Vector<T>::remov(unsigned int pos){
+Vector<T>::remov(size_t pos){
 	if (pos >= 0 && pos < sz) {
 		delete elem[pos];
 		--sz;
 		// move pointers
-		for (unsigned int i = pos; i < sz; ++i) {
+		for (size_t i = pos; i < sz; ++i) {
 			elem[i] = elem[i+1];
 		}
 	}
@@ -144,7 +144,7 @@ void Vector<T>::push_back(const T& val){
 }
 
 template<class T> 
-void Vector<T>::insert(unsigned int pos, const T& val){
+void Vector<T>::insert(size_t pos, const T& val){
 	if (pos >= sz || pos < 0) {
 		push_back(val);
 		return;
@@ -154,7 +154,7 @@ void Vector<T>::insert(unsigned int pos, const T& val){
 	else if(sz==space) reserve(2*space);
 
 	// move pointers
-	for (unsigned int i = sz; i > pos; --i) {
+	for (size_t i = sz; i > pos; --i) {
 		elem[i] = elem[i-1];
 	}
 	++sz;
