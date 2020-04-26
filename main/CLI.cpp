@@ -135,7 +135,7 @@ static void cli_neigh()
 		int rssi = neigh[cs].rssi;
 		int32_t since = arduino_millis() - neigh[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
-		auto b = Buffer::sprintf("    %s llast seen %s ago w/ %d rssi",
+		auto b = Buffer::sprintf("    %s last seen %s ago w/ %d rssi",
 					cs.cold(), ssince.cold(), rssi);
 		console_println(b);
 	}
