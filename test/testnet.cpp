@@ -14,6 +14,7 @@
 
 // Radio emulation hooks in FakeArduino.cpp
 int lora_emu_socket();
+void lora_emu_socket_coverage(int coverage);
 void lora_emu_rx();
 
 Ptr<Network> Net(0);
@@ -73,10 +74,18 @@ void rreq()
 
 int main(int argc, char* argv[])
 {
-	if (argc < 2) {
-		printf("Specify a callsign\n");
+	if (argc < 3) {
+		printf("Specify a callsign and coverage bitmask\n");
 		return 1;
 	}
+
+	int coverage = atoi(argv[2]) & 0xff;
+	if (!coverage) {
+		printf("Coverage bitmask must not be 0\n");
+		return 1;
+	}
+
+	lora_emu_socket_coverage(coverage);
 
 	Callsign cs(argv[1]);
 	if (!cs.is_valid()) {
@@ -116,7 +125,7 @@ int main(int argc, char* argv[])
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
 
-	int x = 2000;
+	int x = 4000;
 	while (x-- > 0) {
 		if (arduino_random(0, 100) == 0) {
 			ping();

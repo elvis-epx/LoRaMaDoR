@@ -14,13 +14,15 @@ else
 fi
 
 PIDS=""
-for eee in AAAA BBBB CCCC DDDD; do
+for eee in AAAA:1 BBBB:1 CCCC:3 DDDD:2 EEEE:2; do
+	sta=$(echo $eee | sed 's/:.*$//')
+	cov=$(echo $eee | sed 's/^.*://')
 	if [ $VALGRIND = 1 ]; then
-		valgrind --leak-check=full --error-exitcode=1 --log-file=${eee}.val --gen-suppressions=all \
-			--suppressions=valgrind.supp ./testnet ${eee} > ${eee}.log &
+		valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
+			--suppressions=valgrind.supp ./testnet ${sta} ${cov} > ${sta}.log &
 		PIDS+=" $!"
 	else
-		./testnet ${eee} > ${eee}.log &
+		./testnet ${sta} ${cov} > ${sta}.log &
 		PIDS+=" $!"
 	fi
 done
