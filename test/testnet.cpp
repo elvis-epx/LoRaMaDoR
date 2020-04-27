@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 	int s = lora_emu_socket();
 
 	int x = 4000;
-	while (x-- > 0) {
+	while (x-- > 0 && arduino_millis() < 180*1000) {
 		if (arduino_random(0, 100) == 0) {
 			ping();
 		} else if (arduino_random(0, 100) == 0) {
