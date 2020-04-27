@@ -40,7 +40,7 @@ void logi(const char* a, int32_t b) {
 // Print a representation of a received packet
 void app_recv(Ptr<Packet> pkt)
 {
-	Buffer msg = Buffer::sprintf("%s < %s %s\n\r(%s rssi %d)",
+	Buffer msg = Buffer::sprintf("%s < %s %s\r\n(%s rssi %d)",
 				pkt->to().buf().cold(), pkt->from().buf().cold(), pkt->msg().cold(),
 				pkt->params().serialized().cold(), pkt->rssi());
 	cli_print(msg);

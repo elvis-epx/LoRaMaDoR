@@ -73,7 +73,7 @@ static bool parse_ident_param(const char* s, size_t len, uint32_t &ident)
 		return false;
 	} else if (ident > 999999) {
 		return false;
-	} else if (len != (stop - s)) {
+	} else if (len != (unsigned) (stop - s)) {
 		return false;
 	}
 
