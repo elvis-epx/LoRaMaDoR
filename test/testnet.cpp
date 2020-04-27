@@ -31,8 +31,8 @@ void ping_self()
 void ping()
 {
 	printf("$$$$$ CLI PING\n");
-	const Dict<Neighbour> neigh = Net->neigh();
-	const Vector<Buffer> neigh_cs = Net->neigh().keys();
+	const Dict<Peer> neigh = Net->peers();
+	const Vector<Buffer> neigh_cs = neigh.keys();
 	auto n = neigh.count();
 	if (!n) {
 		return;
@@ -53,8 +53,8 @@ void ping()
 void rreq()
 {
 	printf("$$$$$ CLI RREQ\n");
-	const Dict<Neighbour> neigh = Net->neigh();
-	const Vector<Buffer> neigh_cs = Net->neigh().keys();
+	const Dict<Peer> neigh = Net->peers();
+	const Vector<Buffer> neigh_cs = neigh.keys();
 	unsigned int n = neigh.count();
 	if (!n) {
 		return;
@@ -110,7 +110,8 @@ int main(int argc, char* argv[])
 
 	// Add a couple of old data to exercise cleanup run paths
 	Net->_recv_log()["UNKNOWN:1234"] = RecvLogItem(-50, -90 * 60 * 1000);
-	Net->_neighbours()["UNKNOWN"] = Neighbour(-50, -90 * 60 * 1000);
+	Net->_neighbors()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
+	Net->_peers()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();

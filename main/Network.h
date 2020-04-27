@@ -22,10 +22,11 @@
 class Protocol;
 class Packet;
 
-struct Neighbour {
-	Neighbour(int rssi, int32_t timestamp):
-		rssi(rssi), timestamp(timestamp) {}
-	Neighbour() {}
+struct Peer {
+	Peer(int rssi, int32_t timestamp):
+		rssi(rssi), timestamp(timestamp)
+		{}
+	Peer() {}
 	int rssi;
 	int32_t timestamp;
 };
@@ -46,7 +47,8 @@ public:
 	Callsign me() const;
 	void send(const Callsign &to, Params params, const Buffer& msg);
 	void run_tasks(uint32_t);
-	Dict<Neighbour> neigh() const;
+	const Dict<Peer>& neighbors() const;
+	const Dict<Peer>& peers() const;
 	static uint32_t fudge(uint32_t avg, double fudge);
 
 	// publicised to bridge with uncoupled code
@@ -69,16 +71,19 @@ public:
 
 	// publicised for testing purposes
 	TaskManager& _task_mgr();
-	Dict<Neighbour>& _neighbours();
+	Dict<Peer>& _neighbors();
+	Dict<Peer>& _peers();
 	Dict<RecvLogItem>& _recv_log();
 
 private:
 	void recv(Ptr<Packet> pkt);
 	void sendmsg(const Ptr<Packet> pkt);
+	void update_peerlist(uint32_t, const Ptr<Packet> &);
 
 	Callsign my_callsign;
 	TaskManager task_mgr;
-	Dict<Neighbour> neighbours;
+	Dict<Peer> neigh;
+	Dict<Peer> peerlist;
 	Dict<RecvLogItem> recv_log;
 	size_t last_pkt_id;
 	Vector< Ptr<Protocol> > protocols;

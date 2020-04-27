@@ -124,19 +124,33 @@ static void cli_uptime()
 	console_println(Buffer::sprintf("Uptime %s", hms.cold()));
 }
 
-// Print list of detected network neighbours
+// Print list of detected network neighbors
 static void cli_neigh()
 {
 	console_println("---------------------------");
-	console_println(Buffer::sprintf("Neighbourhood of %s:", Net->me().buf().cold()));
-	auto neigh = Net->neigh();
+	console_println(Buffer::sprintf("Neighborhood of %s:",
+					Net->me().buf().cold()));
+	auto now = arduino_millis();
+	auto neigh = Net->neighbors();
 	for (auto i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
 		int rssi = neigh[cs].rssi;
-		int32_t since = arduino_millis() - neigh[cs].timestamp;
+		int32_t since = now - neigh[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
 		auto b = Buffer::sprintf("    %s last seen %s ago, rssi %d",
 					cs.cold(), ssince.cold(), rssi);
+		console_println(b);
+	}
+	auto peers = Net->peers();
+	for (auto i = 0; i < peers.count(); ++i) {
+		Buffer cs = peers.keys()[i];
+		if (neigh.has(cs)) {
+			continue;
+		}
+		int32_t since = now - peers[cs].timestamp;
+		Buffer ssince = Buffer::millis_to_hms(since);
+		auto b = Buffer::sprintf("    %s last seen %s ago, non adjacent",
+					cs.cold(), ssince.cold());
 		console_println(b);
 	}
 	console_println("---------------------------");
@@ -163,7 +177,7 @@ static void cli_parse_help()
 	console_println("  !debug                 Enable debug/verbose mode");
 	console_println("  !nodebug               Disable debug mode");
 	console_println("  !restart or !reset     Restart controller");
-	console_println("  !neigh                 List known neighbours");
+	console_println("  !neigh                 List known neighbors");
 	console_println("  !lastid                Last sent packet #");
 	console_println("  !uptime                Show uptime");
 	console_println();

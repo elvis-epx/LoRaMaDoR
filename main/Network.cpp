@@ -66,7 +66,7 @@ private:
 	const bool we_are_origin;
 };
 
-// Prune neighbourhood table task.
+// Prune neighborhood table task.
 class CleanNeighTask: public Task {
 public:
 	CleanNeighTask(Network* net, uint32_t offset):
@@ -232,22 +232,38 @@ uint32_t Network::clean_recv_log(uint32_t now)
 	return RECV_LOG_CLEAN;
 }
 
-// purge neighbours that have been silent for a while
+// purge neighbors that have been silent for a while
 uint32_t Network::clean_neigh(uint32_t now)
 {
 	Vector<Buffer> remove_list;
 	int32_t cutoff = now - NEIGH_PERSIST;
 
-	const Vector<Buffer>& keys = neighbours.keys();
+	{
+	const Vector<Buffer>& keys = neigh.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
-		if (neighbours[keys[i]].timestamp < cutoff) {
+		if (neigh[keys[i]].timestamp < cutoff) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
 	for (size_t i = 0; i < remove_list.size(); ++i) {
-		neighbours.remove(remove_list[i]);
-		logs("Forgotten station", remove_list[i]);
+		neigh.remove(remove_list[i]);
+		logs("Forgotten neigh", remove_list[i]);
+	}
+	}
+
+	{
+	const Vector<Buffer>& keys = peerlist.keys();
+	for (size_t i = 0; i < keys.size(); ++i) {
+		if (peerlist[keys[i]].timestamp < cutoff) {
+			remove_list.push_back(keys[i]);
+		}
+	}
+
+	for (size_t i = 0; i < remove_list.size(); ++i) {
+		peerlist.remove(remove_list[i]);
+		logs("Forgotten peer", remove_list[i]);
+	}
 	}
 
 	return NEIGH_CLEAN;
@@ -262,11 +278,29 @@ uint32_t Network::tx(const Buffer& encoded_packet)
 	return 0;
 }
 
+/* Update neighbor and peer lists based on a packet that
+   was sent to us, either unicast or QB/QC */
+void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
+{
+	Buffer from = pkt->from().buf();
+
+	if (! peerlist.has(from)) {
+		logs("discovered peer", from);
+	}
+	peerlist[from] = Peer(pkt->rssi(), now);
+
+	if (! pkt->params().has("R")) {
+		// no R = not forwarded; fresh from source
+		if (! neigh.has(from)) {
+			logs("discovered neighbor", from);
+		}
+		neigh[from] = Peer(pkt->rssi(), now);
+	}
+}
+
 // handle packet received from radio or from application layer
 void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 {
-	int rssi = pkt->rssi();
-
 	if (we_are_origin) {
 		if (me().equal(pkt->to()) || pkt->to().is_localhost()) {
 			recv(pkt);
@@ -274,7 +308,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 		}
 
 		// Annotate to detect duplicates
-		recv_log[pkt->signature()] = RecvLogItem(rssi, now);
+		recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 		// Transmit
 		schedule(new PacketTx(this, pkt->encode_l2(), 50));
 		logs("tx ", pkt->encode_l3());
@@ -292,22 +326,18 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 		logs("pkt dup", pkt->signature());
 		return;
 	}
-	recv_log[pkt->signature()] = RecvLogItem(rssi, now);
+	recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 
 	if (me().equal(pkt->to())) {
-		// We are the final destination
+		// We are the sole final destination
+		update_peerlist(now, pkt);
 		recv(pkt);
 		return;
 	}
 
 	if (pkt->to().equal("QB") || pkt->to().equal("QC")) {
 		// We are just one of the destinations
-		if (! pkt->params().has("R")) {
-			if (! neighbours.has(pkt->from().buf())) {
-				logs("discovered neighbour", pkt->from().buf());
-			}
-			neighbours[pkt->from().buf()] = Neighbour(rssi, now);
-		}
+		update_peerlist(now, pkt);
 		recv(pkt);
 	}
 
@@ -316,11 +346,9 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 	// Forward packet modifiers
 	// They can add params and/or change msg
 	for (size_t i = 0; i < protocols.size(); ++i) {
-		Ptr<Packet> modified_pkt = protocols[i]->modify(*pkt);
+		auto modified_pkt = protocols[i]->modify(*pkt);
 		if (modified_pkt) {
-			// replace packet by modified vesion
 			pkt = modified_pkt;
-			break;
 		}
 	}
 
@@ -328,7 +356,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 
 	// TX delay in bits: packet size x stations nearby x 2
 	uint32_t bit_delay = encoded_pkt.length() * 8;
-	bit_delay *= 2 * (1 + neighbours.count());
+	bit_delay *= 2 * (1 + neigh.count());
 
 	// convert delay in bits to milisseconds
 	// e.g. 900 bits @ 600 bps = 1500 ms
@@ -356,9 +384,14 @@ Callsign Network::me() const {
 	return my_callsign;
 }
 
-Dict<Neighbour> Network::neigh() const
+const Dict<Peer>& Network::neighbors() const
 {
-	return neighbours;
+	return neigh;
+}
+
+const Dict<Peer>& Network::peers() const
+{
+	return peerlist;
 }
 
 /* For testing purposes only! */
@@ -368,9 +401,15 @@ TaskManager& Network::_task_mgr()
 }
 
 /* For testing purposes only! */
-Dict<Neighbour>& Network::_neighbours()
+Dict<Peer>& Network::_neighbors()
 {
-	return neighbours;
+	return neigh;
+}
+
+/* For testing purposes only! */
+Dict<Peer>& Network::_peers()
+{
+	return peerlist;
 }
 
 /* For testing purposes only! */
