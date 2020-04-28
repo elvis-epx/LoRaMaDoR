@@ -118,18 +118,20 @@ A value can be empty and this should be handled different from a naked key e.g.
 in `A=,B`, B is naked while A has a value, which is an empty string. Implementations
 should allow for this distinction.
 
-Predefined parameters:
+Reserved parameters, used by the core stack:
 
-`R` signals the packet was forwarded. Stamped in packets with destination `QB` and `QC`.
+`R` signals the packet was forwarded.
 
 `RREQ` (route request) asks for an automated `RRSP` response. Intermediate routers are
 annotated in the message payload.
 
 `PING` asks for an automated `PONG` response.
 
+Predefined parameters available for any application:
+
 `T=number` is an optional timestamp, as the UNIX timestamp (seconds since 1/1/1970
 0:00 UTC) subtracted by 1552265462. If sub-second precision is required, the number
-can have decimal places.
+may have decimal places.
 
 `S=chars` is an optional digital signature of the payload.
 
