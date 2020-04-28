@@ -45,7 +45,7 @@ public:
 	virtual ~Network();
 
 	Callsign me() const;
-	void send(const Callsign &to, Params params, const Buffer& msg);
+	uint32_t send(const Callsign &to, Params params, const Buffer& msg);
 	void run_tasks(uint32_t);
 	const Dict<Peer>& neighbors() const;
 	const Dict<Peer>& peers() const;

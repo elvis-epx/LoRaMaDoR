@@ -13,7 +13,7 @@
 class Proto_Ping: public Protocol {
 public:
 	Proto_Ping(Network* net);
-	virtual Ptr<Packet> handle(const Packet&);
+	virtual HandlerResponse handle(const Packet&);
 
 	Proto_Ping() = delete;
 	Proto_Ping(const Proto_Ping&) = delete;

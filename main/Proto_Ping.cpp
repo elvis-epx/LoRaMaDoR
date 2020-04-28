@@ -13,7 +13,7 @@ Proto_Ping::Proto_Ping(Network *net): Protocol(net)
 {
 }
 
-Ptr<Packet> Proto_Ping::handle(const Packet& pkt)
+HandlerResponse Proto_Ping::handle(const Packet& pkt)
 {
 	// We don't allow broadcast PING to QC or QB because many stations would
 	// transmit at the same time, corrupting each other's messages.
@@ -21,7 +21,9 @@ Ptr<Packet> Proto_Ping::handle(const Packet& pkt)
 		Params pong = Params();
 		pong.set_ident(net->get_next_pkt_id());
 		pong.put_naked("PONG");
-		return Ptr<Packet>(new Packet(pkt.from(), net->me(), pong, pkt.msg()));
+		auto np = new Packet(pkt.from(), net->me(), pong, pkt.msg());
+		return HandlerResponse(Ptr<Packet>(np), true);
 	}
-	return Ptr<Packet>(0);
+
+	return HandlerResponse();
 }

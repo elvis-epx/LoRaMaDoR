@@ -14,6 +14,7 @@
 #include "Proto_Ping.h"
 #include "Proto_Beacon.h"
 #include "Proto_R.h"
+#include "Proto_C.h"
 #include "Proto_Rreq.h"
 
 static const uint32_t TX_BUSY_RETRY_TIME = 1 * SECONDS;
@@ -123,6 +124,7 @@ Network::Network(const Callsign &callsign)
 	new Proto_Ping(this);
 	new Proto_Rreq(this);
 	new Proto_R(this);
+	new Proto_C(this);
 	new Proto_Beacon(this);
 
 	trampoline_target = this;
@@ -160,11 +162,13 @@ size_t Network::get_last_pkt_id() const
 }
 
 // Called from application layer to send a packet
-void Network::send(const Callsign &to, Params params, const Buffer& msg)
+uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 {
-	params.set_ident(get_next_pkt_id());
+	uint32_t id = get_next_pkt_id();
+	params.set_ident(id);
 	Ptr<Packet> pkt(new Packet(to, me(), params, msg));
 	sendmsg(pkt);
+	return id;
 }
 
 // schedule radio transmission
@@ -180,14 +184,16 @@ void Network::recv(Ptr<Packet> pkt)
 
 	// check if packet can be handled automatically
 	for (size_t i = 0; i < protocols.size(); ++i) {
-		Ptr<Packet> response = protocols[i]->handle(*pkt);
-		if (response) {
-			sendmsg(response);
-			return;
+		auto response = protocols[i]->handle(*pkt);
+		if (response.pkt) {
+			sendmsg(response.pkt);
+			if (response.hide_from_user) {
+				return;
+			}
+			break;
 		}
 	}
 
-	// if not handled automatically, deliver to application layer
 	app_recv(pkt);
 }
 

@@ -268,7 +268,8 @@ static void cli_parse_packet(Buffer cmd)
 		return;
 	}
 
-	Net->send(dest, params, payload);
+	uint32_t id = Net->send(dest, params, payload);
+	console_println(Buffer::sprintf("Sent packet #%d.", id));
 }
 
 // Parse a command or packet typed in CLI

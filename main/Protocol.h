@@ -15,10 +15,17 @@
 class Network;
 class Packet;
 
+struct HandlerResponse {
+	HandlerResponse();
+	HandlerResponse(Ptr<Packet>, bool);
+	Ptr<Packet> pkt;
+	bool hide_from_user;
+};
+
 class Protocol {
 public:
 	Protocol(Network*);
-	virtual Ptr<Packet> handle(const Packet&);
+	virtual HandlerResponse handle(const Packet&);
 	virtual Ptr<Packet> modify(const Packet&);
 	virtual ~Protocol();
 protected:

@@ -15,8 +15,8 @@
  *
  * The class may choose to handle the packet and return a response,
  * or return 0 and pass it on. Packets handled by a protocol are not
- * offered to other Protocols nor delivered to application level
- * (i.e. the user won't see it unless in debug mode).
+ * offered to other Protocols, and normally they are not delivered to
+ * application level (i.e. the user won't see it unless in debug mode).
  *
  * See Proto_Ping.cpp for a concrete example. This class answers
  * PONG to PING packets.
@@ -55,6 +55,14 @@
 #include "Network.h"
 #include "Packet.h"
 
+HandlerResponse::HandlerResponse(Ptr<Packet> pkt, bool hide_from_user):
+	pkt(pkt), hide_from_user(hide_from_user)
+{}
+
+HandlerResponse::HandlerResponse():
+	pkt(Ptr<Packet>(0)), hide_from_user(false)
+{}
+
 Protocol::Protocol(Network *net): net(net)
 {
 	// Network becomes the owner
@@ -66,10 +74,10 @@ Protocol::~Protocol()
 	net = 0;
 }
 
-Ptr<Packet> Protocol::handle(const Packet&)
+HandlerResponse Protocol::handle(const Packet&)
 {
 	// by default, does not handle upon receiving
-	return Ptr<Packet>(0);
+	return HandlerResponse();
 }
 
 Ptr<Packet> Protocol::modify(const Packet&)

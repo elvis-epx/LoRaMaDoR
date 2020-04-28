@@ -13,7 +13,7 @@ Proto_Rreq::Proto_Rreq(Network *net): Protocol(net)
 {
 }
 
-Ptr<Packet> Proto_Rreq::handle(const Packet& pkt)
+HandlerResponse Proto_Rreq::handle(const Packet& pkt)
 {
 	// Respond to RREQ packet
 	if ((!pkt.to().isQ() || pkt.to().is_localhost()) && pkt.params().has("RREQ")) {
@@ -23,9 +23,10 @@ Ptr<Packet> Proto_Rreq::handle(const Packet& pkt)
 		Params rrsp = Params();
 		rrsp.set_ident(net->get_next_pkt_id());
 		rrsp.put_naked("RRSP");
-		return Ptr<Packet>(new Packet(pkt.from(), net->me(), rrsp, msg));
+		auto np = new Packet(pkt.from(), net->me(), rrsp, msg);
+		return HandlerResponse(Ptr<Packet>(np), true);
 	}
-	return Ptr<Packet>(0);
+	return HandlerResponse();
 }
 
 Ptr<Packet> Proto_Rreq::modify(const Packet& pkt)
