@@ -95,7 +95,7 @@ void sendm()
 		asprintf(&cmd, "%s:C ola\r", scs.cold());
 	} else if (opt == 2) {
 		asprintf(&cmd, "%s:C,CO ola\r", scs.cold());
-	} else if (opt == 3) {
+	} else {
 		asprintf(&cmd, "QC:C ola\r");
 	}
 	cli_simtype(cmd);
