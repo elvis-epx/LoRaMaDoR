@@ -72,6 +72,36 @@ void rreq()
 	free(cmd);
 }
 
+void sendm()
+{
+	printf("$$$$$ CLI send msg\n");
+	const Dict<Peer> neigh = Net->peers();
+	const Vector<Buffer> neigh_cs = neigh.keys();
+	unsigned int n = neigh.count();
+	if (!n) {
+		return;
+	}
+	Buffer scs = neigh_cs[arduino_random(0, n)];
+	Callsign cs(scs);
+	if (!cs.is_valid()) {
+		printf("Neigh callsign invalid %s\n", scs.cold());
+		exit(2);
+	}
+	char *cmd;
+	int opt = arduino_random(0, 4);
+	if (opt == 0) {
+		asprintf(&cmd, "%s ola\r", scs.cold());
+	} else if (opt == 1) {
+		asprintf(&cmd, "%s:C ola\r", scs.cold());
+	} else if (opt == 2) {
+		asprintf(&cmd, "%s:C,CO ola\r", scs.cold());
+	} else if (opt == 3) {
+		asprintf(&cmd, "QC:C ola\r");
+	}
+	cli_simtype(cmd);
+	free(cmd);
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc < 3) {
@@ -132,6 +162,8 @@ int main(int argc, char* argv[])
 			ping_self();
 		} else if (arduino_random(0, 100) == 0) {
 			rreq();
+		} else if (arduino_random(0, 100) == 0) {
+			sendm();
 		} else if (arduino_random(0, 100) == 0) {
 			cli_simtype("!neigh\r");
 			cli_simtype("!uptime\r");
