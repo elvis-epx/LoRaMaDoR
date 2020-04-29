@@ -5,12 +5,16 @@
 
 /* Class that encapsulates a buffer or string.
  *
- * This class is used instead of Arduino String for two reasons:
+ * This class is used instead of Arduino String for a couple reasons:
  * 1) Works on other operating systems, so it is easier on unit testing
  *    run outside Arduuino. (Arduino String has an API different from
  *    C++ STL String.)
  * 2) String is considered a memory hog in AVR Arduino. This reason is
  *    probably obsolete since ESP32 is the reference platform now.
+ * 3) Arduino strings miss a couple features to be used as raw buffers
+ *    (e.g. create buffer with predefined length) and it seems to
+ *    assume a zero-terminated string in some methods
+ *    (case in focus: strcpy() in String::move method.)
  */
 
 #include <stdlib.h>
