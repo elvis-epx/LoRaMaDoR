@@ -55,22 +55,32 @@ Buffer::Buffer(const Buffer& model)
 	BufferImpl::init(this, model.buf, model.len);
 }
 
-Buffer& Buffer::operator=(Buffer&& moved)
+Buffer::Buffer(Buffer&& moved)
 {
-	delete [] this->buf; 
-
 	this->len = moved.len;
 	this->buf = moved.buf;
 	moved.len = 0;
 	moved.buf = 0;
+}
 
+Buffer& Buffer::operator=(Buffer&& moved)
+{
+	if (this != &moved) {
+		delete [] this->buf;
+		this->len = moved.len;
+		this->buf = moved.buf;
+		moved.len = 0;
+		moved.buf = 0;
+	}
 	return *this;
 }
 
 Buffer& Buffer::operator=(const Buffer& model)
 {
-	delete [] buf;
-	BufferImpl::init(this, model.buf, model.len);
+	if (this != &model) {
+		delete [] buf;
+		BufferImpl::init(this, model.buf, model.len);
+	}
 	return *this;
 }
 
