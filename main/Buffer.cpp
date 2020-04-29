@@ -124,10 +124,8 @@ Buffer& Buffer::append(const char c)
 
 Buffer::~Buffer()
 {
-	if (this->buf) {
-		delete [] this->buf;
-		this->buf = 0;
-	}
+	delete [] this->buf;
+	this->buf = 0;
 	this->len = 0;
 }
 
