@@ -6,6 +6,7 @@
 void test2() {
 	Buffer tm = "ab cd";
 	assert(tm.startsWith("ab"));
+	assert(!tm.startsWith("ac"));
 	assert(tm.startsWith(Buffer("ab")));
 	assert(tm.startsWith(Buffer("ab ")));
 	assert(! tm.startsWith(Buffer("ab cd ")));
