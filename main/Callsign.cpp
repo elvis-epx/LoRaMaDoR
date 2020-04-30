@@ -29,17 +29,17 @@ Callsign::Callsign(Buffer c)
 bool Callsign::equal(Buffer other) const
 {
 	other.uppercase();
-	return valid && buffer.str_equal(other);
+	return valid && buffer == other;
 }
 
 bool Callsign::equal(const Callsign& other) const
 {
-	return valid && other.valid && buffer.str_equal(other.buffer);
+	return valid && other.valid && buffer == other.buffer;
 }
 
 bool Callsign::is_localhost() const
 {
-	return buffer.str_equal("QL");
+	return buffer == "QL";
 }
 
 bool Callsign::isQ() const

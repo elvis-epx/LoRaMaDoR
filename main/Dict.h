@@ -113,11 +113,11 @@ public:
 		if ((to - from) <= 3) {
 			// linear search
 			for (size_t i = from; i < to; ++i) {
-				int cmp = _keys[i].strcmp(key);
+				int cmp = _keys[i].compareTo(key);
 				if (cmp == 0) {
 					// good for exact and non-exact queriers
 					return i;
-				} else if ((! exact) && (cmp < 0)) {
+				} else if ((! exact) && (cmp > 0)) {
 					// non-exact, looks for insertion point
 					return i;
 				}
@@ -128,14 +128,14 @@ public:
 
 		// recursive binary search
 		size_t middle = (from + to) / 2;
-		int cmp = _keys[middle].strcmp(key);
+		int cmp = _keys[middle].compareTo(key);
 		if (cmp == 0) {
 			return middle;
-		} else if (cmp < 0) {
-			// key A, middle key N, look into left
+		} else if (cmp > 0) {
+			// middle key > our key, look into left
 			return indexOf(key, from, middle, exact);
 		} else {
-			// key Z, middle key N, look into right 
+			// middle key < our key, look into right 
 			return indexOf(key, middle + 1, to, exact);
 		}
 

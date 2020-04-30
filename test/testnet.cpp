@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 		if (tsk) {
 			int32_t now = arduino_millis();
 			int32_t to = tsk->next_run() - now;
-			printf("Timeout: %s %d\n", tsk->get_name(), to);
+			printf("Timeout: %s %d\n", tsk->get_name().cold(), to);
 			if (to < 0) {
 				to = 0;
 			}

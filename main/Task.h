@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Vector.h"
+#include "Buffer.h"
 #include "Pointer.h"
 
 class TaskManager;
@@ -20,7 +21,7 @@ public:
 	Task(const char *name, uint32_t offset);
 	virtual ~Task();
 	uint32_t next_run() const;
-	const char *get_name() const;
+	Buffer get_name() const;
 
 protected:
 	// overridden by concrete task subclasses
@@ -32,7 +33,7 @@ private:
 	bool should_run(uint32_t now) const;
 	bool cancelled() const;
 
-	const char *name;
+	Buffer name;
 	uint32_t offset;
 	uint32_t timebase;
 

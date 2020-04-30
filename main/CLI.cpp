@@ -187,42 +187,39 @@ static void cli_parse_help()
 static void cli_parse_meta(Buffer cmd)
 {
 	cmd.strip();
-	if (cmd.strncmp("callsign ", 9) == 0) {
+	if (cmd.startsWith("callsign ")) {
 		cmd.cut(9);
 		cli_parse_callsign(cmd);
-	} else if (cmd.strncmp("callsign", 8) == 0 && cmd.length() == 8) {
+	} else if (cmd == "callsign") {
 		cli_parse_callsign("");
-	} else if (cmd.strncmp("ssid ", 5) == 0) {
+	} else if (cmd.startsWith("ssid ")) {
 		cmd.cut(5);
 		cli_parse_ssid(cmd);
-	} else if (cmd.strncmp("ssid", 4) == 0 && cmd.length() == 4) {
+	} else if (cmd == "ssid") {
 		cli_parse_ssid("");
-	} else if (cmd.strncmp("password ", 9) == 0) {
+	} else if (cmd.startsWith("password ")) {
 		cmd.cut(9);
 		cli_parse_password(cmd);
-	} else if (cmd.strncmp("password", 8) == 0 && cmd.length() == 8) {
+	} else if (cmd == "password") {
 		cli_parse_password("");
-	} else if (cmd.strncmp("wifi", 4) == 0 && cmd.length() == 4) {
+	} else if (cmd == "wifi") {
 		cli_wifi();
-	} else if (cmd.strncmp("help", 4) == 0 && cmd.length() == 4) {
+	} else if (cmd == "help") {
 		cli_parse_help();
-	} else if (cmd.strncmp("debug", 5) == 0 && cmd.length() == 5) {
+	} else if (cmd == "debug") {
 		console_println("Debug on.");
 		debug = true;
-	} else if (cmd.strncmp("restart", 7) == 0 && cmd.length() == 7) {
+	} else if (cmd == "restart" || cmd == "reset") {
 		console_println("Restarting...");
 		arduino_restart();
-	} else if (cmd.strncmp("reset", 5) == 0 && cmd.length() == 5) {
-		console_println("Restarting...");
-		arduino_restart();
-	} else if (cmd.strncmp("nodebug", 7) == 0 && cmd.length() == 7) {
+	} else if (cmd == "nodebug") {
 		console_println("Debug off.");
 		debug = false;
-	} else if (cmd.strncmp("neigh", 5) == 0 && cmd.length() == 5) {
+	} else if (cmd == "neigh") {
 		cli_neigh();
-	} else if (cmd.strncmp("lastid", 6) == 0 && cmd.length() == 6) {
+	} else if (cmd == "lastid") {
 		cli_lastid();
-	} else if (cmd.strncmp("uptime", 6) == 0 && cmd.length() == 6) {
+	} else if (cmd == "uptime") {
 		cli_uptime();
 	} else {
 		console_print("Unknown cmd: ");

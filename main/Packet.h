@@ -37,7 +37,7 @@ public:
 	Buffer encode_l2() const;
 	Buffer encode_l3() const; /* publicised for unit testing */
 	bool is_dup(const Packet& other) const;
-	const char *signature() const;
+	Buffer signature() const;
 	Callsign to() const;
 	Callsign from() const;
 	const Params params() const;

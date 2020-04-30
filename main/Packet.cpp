@@ -187,15 +187,15 @@ Buffer Packet::encode_l2() const
 }
 
 // Packet unique identification (prefix + ID).
-const char* Packet::signature() const
+Buffer Packet::signature() const
 {
-	return _signature.cold();
+	return _signature;
 }
 
 // Compares signature with another packet
 bool Packet::is_dup(const Packet& other) const
 {
-	return strcmp(this->signature(), other.signature()) == 0;
+	return _signature == other._signature;
 }
 
 // Returns destination callsign of this packet.

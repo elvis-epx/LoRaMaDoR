@@ -232,24 +232,65 @@ Buffer& Buffer::uppercase()
 	return *this;
 }
 
-bool Buffer::str_equal(const char *cmp) const
+bool Buffer::operator==(const char *cmp) const
 {
-	return strcmp(cmp) == 0;
+	return std::strcmp(buf, cmp) == 0;
 }
 
-bool Buffer::str_equal(const Buffer& cmp) const
+bool Buffer::operator!=(const char *cmp) const
 {
-	return strcmp(cmp.cold()) == 0;
+	return ! (*this == cmp);
 }
 
-int Buffer::strcmp(const char *cmp) const
+bool Buffer::operator==(const Buffer& cmp) const
 {
-	return std::strcmp(cmp, buf);
+	return compareTo(cmp) == 0;
 }
 
-int Buffer::strncmp(const char *cmp, size_t len) const
+bool Buffer::operator!=(const Buffer &cmp) const
 {
-	return std::strncmp(cmp, buf, len);
+	return ! (*this == cmp);
+}
+
+int Buffer::compareTo(const Buffer &cmp) const
+{
+	size_t minlen = len < cmp.len ? len : cmp.len;
+	int ret = std::memcmp(buf, cmp.buf, minlen);
+	if (ret == 0) {
+		if (len < cmp.len) {
+			ret = -1;
+		} else if (len > cmp.len) {
+			ret = +1;
+		}
+	}
+	return ret;
+}
+
+int Buffer::compareTo(const char *cmp) const
+{
+	return std::strcmp(buf, cmp);
+}
+
+bool Buffer::startsWith(const char *cmp) const
+{
+	size_t cmplen = strlen(cmp);
+	if (len < cmplen) {
+		return false;
+	}
+	return std::strncmp(buf, cmp, cmplen) == 0;
+}
+
+bool Buffer::startsWith(const Buffer &cmp) const
+{
+	if (len < cmp.len) {
+		return false;
+	}
+	for (size_t i = 0; i < cmp.len; ++i) {
+		if (buf[i] != cmp.buf[i]) {
+			return false;
+		}
+	}
+	return true;
 }
 
 Buffer Buffer::millis_to_hms(int32_t t)

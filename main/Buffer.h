@@ -33,10 +33,14 @@ public:
 	const char* cold() const;
 	char* hot(size_t);
 	Buffer& uppercase();
-	bool str_equal(const char *cmp) const;
-	bool str_equal(const Buffer &) const;
-	int strcmp(const char *cmp) const;
-	int strncmp(const char *, size_t) const;
+	bool operator==(const char *cmp) const;
+	bool operator==(const Buffer &) const;
+	bool operator!=(const char *cmp) const;
+	bool operator!=(const Buffer &) const;
+	int compareTo(const Buffer &) const;
+	int compareTo(const char *cmp) const;
+	bool startsWith(const char *cmp) const;
+	bool startsWith(const Buffer &) const;
 	Buffer& append(const char *s, size_t length);
 	Buffer& append(const char s);
 	Buffer& append_str(const Buffer&);

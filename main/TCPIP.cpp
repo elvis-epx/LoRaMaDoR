@@ -32,7 +32,7 @@ void wifi_setup(Ptr<Network> net)
 	serial_print("Wi-Fi SSID ");
 	serial_println(ssid);
 
-	if (!ssid.str_equal("None")) {
+	if (ssid != "None") {
 		wifi_status = 1;
 		wifi_timeout = millis() + 1000; 
 	}
@@ -71,7 +71,7 @@ void wifi_handle()
 	if (wifi_status == 1) {
 		if (millis() > wifi_timeout) {
 			WiFi.mode(WIFI_STA);
-			if (password.str_equal("None")) {
+			if (password == "None") {
 				WiFi.begin(ssid.cold());
 			} else {
 				WiFi.begin(ssid.cold(), password.cold());

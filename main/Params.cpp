@@ -175,7 +175,7 @@ Buffer Params::serialized() const
 		const Buffer& value = items[key];
 		buf.append(',');
 		buf.append_str(key);
-		if (! value.str_equal(naked)) {
+		if (value != naked) {
 			buf.append('=');
 			buf.append_str(value);
 		}
@@ -246,7 +246,7 @@ bool Params::is_key_naked(const char* key) const
 {
 	Buffer ukey(key);
 	ukey.uppercase();
-	return items.has(ukey) && items.get(ukey).str_equal(naked);
+	return items.has(ukey) && items.get(ukey) == naked;
 }
 
 // Set packet ID. Used only when creating a new packet for tx.

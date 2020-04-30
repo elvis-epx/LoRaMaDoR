@@ -4,19 +4,32 @@
 #include "Packet.h"
 
 void test2() {
-	Buffer tm;
+	Buffer tm = "ab cd";
+	assert(tm.startsWith("ab"));
+	assert(tm.startsWith(Buffer("ab")));
+	assert(tm.startsWith(Buffer("ab ")));
+	assert(! tm.startsWith(Buffer("ab cd ")));
 	tm = Buffer::millis_to_hms(-1);
-	assert(tm.str_equal("???"));
+	assert(tm == tm);
+	assert(tm == "???");
+	assert(tm != "??");
+	assert(! (tm != tm));
 	tm = Buffer::millis_to_hms(0);
-	assert(tm.str_equal("0:00"));
+	assert(tm == "0:00");
 	tm = Buffer::millis_to_hms(30 * 1000);
-	assert(tm.str_equal("0:30"));
+	assert(tm == "0:30");
 	tm = Buffer::millis_to_hms(90 * 1000);
-	assert(tm.str_equal("1:30"));
+	assert(tm == "1:30");
 	tm = Buffer::millis_to_hms(61 * 60 * 1000);
-	assert(tm.str_equal("1:01:00"));
+	assert(tm == "1:01:00");
 	tm = Buffer::millis_to_hms(25 * 60 * 60 * 1000);
-	assert(tm.str_equal("1:01:00:00"));
+	assert(tm == "1:01:00:00");
+	assert(Buffer("aa").compareTo("bb") < 0);
+	assert(Buffer("aa").compareTo(Buffer("bb")) < 0);
+	assert(Buffer("aa").compareTo("a") > 0);
+	assert(Buffer("aa").compareTo(Buffer("a")) > 0);
+	assert(Buffer("aa").compareTo("aaa") < 0);
+	assert(Buffer("aa").compareTo(Buffer("aaa")) < 0);
 
 	int error;
 	printf("---\n");
@@ -27,7 +40,7 @@ void test2() {
 	p = Packet::decode_l3("AAAA-12<BBBB:133 ee", error);
 	assert (!!p);
 	assert (strcmp("ee", p->msg().cold()) == 0);
-	assert (p->msg().str_equal("ee"));
+	assert (p->msg() == "ee");
 	assert (strcmp(p->to().buf().cold(), "AAAA-12") == 0);
 	
 	assert (!Packet::decode_l3("A<BBBB:133", error));
@@ -54,7 +67,7 @@ void test2() {
 	assert(r->params().has("B"));
 	assert(r->params().is_key_naked("A"));
 	assert(! r->params().is_key_naked("B"));
-	assert(r->params().get("B").str_equal("C"));
+	assert(r->params().get("B") == "C");
 
 	assert(!q->params().has("E"));
 	assert(!q->params().has("F"));
@@ -133,9 +146,9 @@ void test4()
 	assert(x.charAt(-4) == -1);
 	assert(Buffer("aaa").cut(4).length() == 0);
 	assert(Buffer("aaa").cut(-4).length() == 0);
-	assert(Buffer("  aaa  ").lstrip().str_equal("aaa  "));
-	assert(Buffer("  aaa  ").rstrip().str_equal("  aaa"));
-	assert(Buffer("  aaa  ").strip().str_equal("aaa"));
+	assert(Buffer("  aaa  ").lstrip() == "aaa  ");
+	assert(Buffer("  aaa  ").rstrip() == "  aaa");
+	assert(Buffer("  aaa  ").strip() == "aaa");
 	assert(Buffer("aaa").substr(5, 1).length() == 0);
 	assert(Buffer("aaa").substr(2, 20).length() == 1);
 
@@ -145,8 +158,8 @@ void test4()
 	a.push_back(Buffer("D"));
 	a.remov(1);
 	assert(a.size() == 2);
-	assert(a[0].str_equal("B"));
-	assert(a[1].str_equal("D"));
+	assert(a[0] == "B");
+	assert(a[1] == "D");
 }
 
 void test5()

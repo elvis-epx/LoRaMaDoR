@@ -63,7 +63,7 @@ bool Task::run(uint32_t now)
 	return this->offset > 0;
 }
 
-const char* Task::get_name() const
+Buffer Task::get_name() const
 {
 	return name;
 }
