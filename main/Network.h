@@ -23,18 +23,15 @@ class Protocol;
 class Packet;
 
 struct Peer {
-	Peer(int rssi, int32_t timestamp):
-		rssi(rssi), timestamp(timestamp)
-		{}
-	Peer() {}
+	Peer(int rssi, int32_t timestamp);
+	Peer();
 	int rssi;
 	int32_t timestamp;
 };
 
 struct RecvLogItem {
-	RecvLogItem(int rssi, int32_t timestamp):
-		rssi(rssi), timestamp(timestamp) {}
-	RecvLogItem() {}
+	RecvLogItem(int rssi, int32_t timestamp);
+	RecvLogItem();
 	int rssi;
 	int32_t timestamp;
 };

@@ -25,6 +25,20 @@ static const uint32_t NEIGH_CLEAN = 1 * MINUTES;
 static const uint32_t RECV_LOG_PERSIST = 10 * MINUTES;
 static const uint32_t RECV_LOG_CLEAN = 1 * MINUTES;
 
+Peer::Peer(int rssi, int32_t timestamp):
+	rssi(rssi), timestamp(timestamp)
+{}
+
+Peer::Peer()
+{}
+
+RecvLogItem::RecvLogItem(int rssi, int32_t timestamp):
+	rssi(rssi), timestamp(timestamp)
+{}
+
+RecvLogItem::RecvLogItem()
+{}
+
 // Generates a random number with average avg and spread 'fudge'
 uint32_t Network::fudge(uint32_t avg, double fudge)
 {
