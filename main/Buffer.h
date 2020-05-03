@@ -30,8 +30,8 @@ public:
 
 	bool empty() const;
 	size_t length() const;
-	const char* cold() const;
-	char* hot(size_t);
+	const char* c_str() const;
+	char* hot(size_t); /* for testing purposes only */
 	Buffer& uppercase();
 	bool operator==(const char *cmp) const;
 	bool operator==(const Buffer &) const;

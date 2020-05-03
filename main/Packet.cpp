@@ -62,7 +62,7 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 			const Params& params, const Buffer& msg, int rssi): 
 			_to(to), _from(from), _params(params), _msg(msg), _rssi(rssi)
 {
-	_signature = Buffer::sprintf("%s:%d", _from.buf().cold(), params.ident());
+	_signature = Buffer::sprintf("%s:%d", _from.buf().c_str(), params.ident());
 }
 
 Packet::~Packet()
@@ -174,7 +174,7 @@ Buffer Packet::encode_l2() const
 	Buffer b = encode_l3();
 
 	memset(rs_decoded, 0, sizeof(rs_decoded));
-	memcpy(rs_decoded, b.cold(), b.length());
+	memcpy(rs_decoded, b.c_str(), b.length());
 	if (b.length() <= MSGSIZE_SHORT) {
 		rs_short.Encode(rs_decoded, rs_encoded);
 		b.append(rs_encoded + MSGSIZE_SHORT, REDUNDANCY);

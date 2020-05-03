@@ -60,7 +60,7 @@ bool Callsign::is_valid() const
 bool Callsign::check(const Buffer &sbuf)
 {
 	size_t length = sbuf.length();
-	const char *s = sbuf.cold();
+	const char *s = sbuf.c_str();
 
 	if (length < 2) {
 		return false;

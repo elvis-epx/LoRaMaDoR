@@ -133,9 +133,9 @@ bool lora_tx(const Buffer& b)
 	// add coverage bitmask
 	Buffer c(b.length() + 1);
 	*c.hot(0) = (char) coverage;
-	memcpy(c.hot(1), b.cold(), b.length());
+	memcpy(c.hot(1), b.c_str(), b.length());
 
-	int sent = sendto(sock, c.cold(), c.length(), 0, (struct sockaddr *) &addr, sizeof(addr));
+	int sent = sendto(sock, c.c_str(), c.length(), 0, (struct sockaddr *) &addr, sizeof(addr));
 	if (sent < 0) {
 		perror("sendto");
 		exit(1);
@@ -201,7 +201,7 @@ void arduino_nvram_id_save(uint32_t id)
 }
 
 void console_print(const Buffer &b) {
-	printf("%s", b.cold());
+	printf("%s", b.c_str());
 }
 
 void console_print(const char *msg) {
@@ -213,7 +213,7 @@ void console_print(char msg) {
 }
 
 void console_println(const Buffer& b) {
-	printf("%s\n", b.cold());
+	printf("%s\n", b.c_str());
 }
 
 void console_println(const char *msg) {
@@ -239,7 +239,7 @@ void oled_show(const char *, const char *, const char *, const char*)
 
 void arduino_nvram_save(const char *key, const Buffer& value)
 {
-	printf("key %s value %s\n", key, value.cold());
+	printf("key %s value %s\n", key, value.c_str());
 	nvram[key] = value;
 }
 

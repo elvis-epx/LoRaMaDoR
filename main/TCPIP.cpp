@@ -56,7 +56,7 @@ Buffer get_wifi_status()
 		status.append_str(ip);
 		if (mdns) {
 			status.append_str(", Bonjour name ");
-			status.append_str(Net->me().buf().cold());
+			status.append_str(Net->me().buf().c_str());
 			status.append_str(".local");
 		} else {
 			status.append_str(", no Bonjour");
@@ -72,9 +72,9 @@ void wifi_handle()
 		if (millis() > wifi_timeout) {
 			WiFi.mode(WIFI_STA);
 			if (password == "None") {
-				WiFi.begin(ssid.cold());
+				WiFi.begin(ssid.c_str());
 			} else {
-				WiFi.begin(ssid.cold(), password.cold());
+				WiFi.begin(ssid.c_str(), password.c_str());
 			}
 			serial_println("Connecting to WiFi...");
 			wifi_status = 2;
@@ -87,7 +87,7 @@ void wifi_handle()
 			ip = Buffer(WiFi.localIP().toString().c_str());
 			serial_println(ip);
 			wifiServer.begin();
-			if (!MDNS.begin(Net->me().buf().cold())) {
+			if (!MDNS.begin(Net->me().buf().c_str())) {
 				serial_println("mDNS not ok, use IP to connect.");
 				mdns = false;
 			} else {
@@ -133,7 +133,7 @@ void wifi_handle()
 		}
 		if (telnet_client && output_buffer.length() > 0) {
 			// non-blocking write, otherwise supervisor may reset
-			int written = telnet_client.write(output_buffer.cold(),
+			int written = telnet_client.write(output_buffer.c_str(),
 							output_buffer.length());
 			if (written >= 0) {
 				output_buffer.cut(written);

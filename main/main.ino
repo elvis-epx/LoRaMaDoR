@@ -22,7 +22,7 @@ void setup()
 
 	Callsign cs = arduino_nvram_callsign_load();
 	Net = Ptr<Network>(new Network(cs));
-	oled_show("Net configured", cs.buf().cold(), "", "");
+	oled_show("Net configured", cs.buf().c_str(), "", "");
 
 	console_setup(Net);
 	wifi_setup(Net);

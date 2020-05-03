@@ -40,9 +40,9 @@ void test2() {
 
 	p = Packet::decode_l3("AAAA-12<BBBB:133 ee", error);
 	assert (!!p);
-	assert (strcmp("ee", p->msg().cold()) == 0);
+	assert (strcmp("ee", p->msg().c_str()) == 0);
 	assert (p->msg() == "ee");
-	assert (strcmp(p->to().buf().cold(), "AAAA-12") == 0);
+	assert (strcmp(p->to().buf().c_str(), "AAAA-12") == 0);
 	
 	assert (!Packet::decode_l3("A<BBBB:133", error));
 	assert (!Packet::decode_l3("AAAA<B:133", error));
@@ -77,10 +77,10 @@ void test2() {
 	assert(r->params().is_key_naked("E"));
 	assert(r->params().has("F"));
 	assert(! r->params().is_key_naked("F"));
-	assert(strcmp(r->params().get("F").cold(), "G") == 0);
+	assert(strcmp(r->params().get("F").c_str(), "G") == 0);
 
-	assert(strcmp(q->msg().cold(), "bla ble") == 0);
-	assert(strcmp(r->msg().cold(), "bla") == 0);
+	assert(strcmp(q->msg().c_str(), "bla ble") == 0);
+	assert(strcmp(r->msg().c_str(), "bla") == 0);
 }
 
 void test3()
@@ -94,7 +94,7 @@ void test3()
 	assert (params.is_valid_with_ident());
 	assert (params.ident() == 1235);
 	assert(params.has("ABC"));
-	printf("ABC=%s\n", params.get("ABC").cold());
+	printf("ABC=%s\n", params.get("ABC").c_str());
 	assert(params.is_key_naked("ABC"));
 
 	params = Params("1236,abc,def=ghi");
@@ -102,7 +102,7 @@ void test3()
 	assert (params.ident() == 1236);
 	assert(params.has("ABC"));
 	assert(params.has("DEF"));
-	assert(strcmp(params.get("DEF").cold(), "ghi") == 0);
+	assert(strcmp(params.get("DEF").c_str(), "ghi") == 0);
 	assert(params.count() == 2);
 
 	params = Params("def=ghi,1239");
@@ -110,7 +110,7 @@ void test3()
 	assert (params.ident() == 1239);
 	assert (params.count() == 1);
 	assert (params.has("DEF"));
-	assert (strcmp(params.get("DEF").cold(), "ghi") == 0);
+	assert (strcmp(params.get("DEF").c_str(), "ghi") == 0);
 
 	assert (!Params("123a").is_valid_with_ident());
 	assert (!Params("0123").is_valid_with_ident());
@@ -219,7 +219,7 @@ int main()
 
 	Buffer bb("abcde");
 	assert (bb.length() == 5);
-	assert (strcmp(bb.cold(), "abcde") == 0);
+	assert (strcmp(bb.c_str(), "abcde") == 0);
 
 	Params d;
 	d.put_naked("x");
@@ -229,11 +229,11 @@ int main()
 	Buffer spl3 = p.encode_l3();
 	Buffer spl2 = p.encode_l2();
 
-	printf("spl3 '%s'\n", spl3.cold());
-	assert (strcmp(spl3.cold(), "AAAA<BBBB:123,X,Y=456 bla ble") == 0);
+	printf("spl3 '%s'\n", spl3.c_str());
+	assert (strcmp(spl3.c_str(), "AAAA<BBBB:123,X,Y=456 bla ble") == 0);
 	printf("---\n");
 	int error;
-	Ptr<Packet> q = Packet::decode_l2(spl2.cold(), spl2.length(), -50, error);
+	Ptr<Packet> q = Packet::decode_l2(spl2.c_str(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt some chars */
@@ -245,7 +245,7 @@ int main()
 	*spl2.hot(15) = 66;
 	*spl2.hot(33) = 66;
 	*spl2.hot(40) = 66;
-	q = Packet::decode_l2(spl2.cold(), spl2.length(), -50, error);
+	q = Packet::decode_l2(spl2.c_str(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt too many chars */
@@ -257,32 +257,32 @@ int main()
 	*spl2.hot(11) = 66;
 	*spl2.hot(13) = 66;
 	*spl2.hot(39) = 66;
-	assert(! Packet::decode_l2(spl2.cold(), spl2.length(), -50, error));
+	assert(! Packet::decode_l2(spl2.c_str(), spl2.length(), -50, error));
 
 	assert (p.is_dup(*q));
 	assert (q->is_dup(p));
-	assert (strcmp(q->to().buf().cold(), "AAAA") == 0);
-	assert (strcmp(q->from().buf().cold(), "BBBB") == 0);
+	assert (strcmp(q->to().buf().c_str(), "AAAA") == 0);
+	assert (strcmp(q->from().buf().c_str(), "BBBB") == 0);
 	assert (q->params().ident() == 123);
 	assert (q->params().has("X"));
 	assert (q->params().has("Y"));
 	assert (! q->params().has("Z"));
-	assert (strcmp(q->params().get("Y").cold(), "456") == 0);
+	assert (strcmp(q->params().get("Y").c_str(), "456") == 0);
 	assert (q->params().is_key_naked("X"));
 
 	Packet plong(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer plong2 = plong.encode_l2();
 	assert(plong2.length() > 100);
-	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
+	assert(Packet::decode_l2(plong2.c_str(), plong2.length(), -50, error));
 	// corrupt a little
 	*plong2.hot(13) = 66;
-	assert(Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
+	assert(Packet::decode_l2(plong2.c_str(), plong2.length(), -50, error));
 	// corrupt a lot
 	memset(plong2.hot(14), 66, 30);
-	assert(!Packet::decode_l2(plong2.cold(), plong2.length(), -50, error));
+	assert(!Packet::decode_l2(plong2.c_str(), plong2.length(), -50, error));
 	
 	Buffer pshort("bla");
-	assert(!Packet::decode_l2(pshort.cold(), pshort.length(), -50, error));
+	assert(!Packet::decode_l2(pshort.c_str(), pshort.length(), -50, error));
 
 	test2();
 	test4();

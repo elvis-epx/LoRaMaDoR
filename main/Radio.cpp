@@ -122,7 +122,7 @@ bool lora_tx(const Buffer& packet)
 	}
 
 	status = ST_TX;
-	LoRa.write((uint8_t*) packet.cold(), packet.length());
+	LoRa.write((uint8_t*) packet.c_str(), packet.length());
 	LoRa.endPacket(true);
 	return true;
 }

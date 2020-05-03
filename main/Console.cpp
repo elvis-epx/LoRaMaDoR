@@ -37,7 +37,7 @@ void console_handle()
 	int b = output_buffer.length();
 	int c = (a < b ? a : b);
 	if (c > 0) {
-		Serial.write((const uint8_t*) output_buffer.cold(), c);
+		Serial.write((const uint8_t*) output_buffer.c_str(), c);
 		output_buffer.cut(c);
 	}
 }
@@ -98,7 +98,7 @@ void console_print(const char *msg) {
 }
 
 void console_print(const Buffer &msg) {
-	platform_print(msg.cold());
+	platform_print(msg.c_str());
 }
 
 void console_print(char c) {
@@ -112,7 +112,7 @@ void console_println(const char *msg) {
 }
 
 void console_println(const Buffer &msg) {
-	platform_print(msg.cold());
+	platform_print(msg.c_str());
 	platform_print("\r\n");
 }
 

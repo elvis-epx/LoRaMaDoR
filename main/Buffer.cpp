@@ -87,7 +87,7 @@ Buffer& Buffer::operator=(const Buffer& model)
 // Appends Buffer as string (stopping at \0, not at length)
 Buffer& Buffer::append_str(const Buffer &b)
 {
-	return append(b.cold(), strlen(b.cold()));
+	return append(b.c_str(), strlen(b.c_str()));
 }
 
 Buffer& Buffer::append(const char *s, size_t add_length)
@@ -139,7 +139,7 @@ Buffer::Buffer(const char *s)
 	BufferImpl::init(this, s, strlen(s));
 }
 
-const char* Buffer::cold() const
+const char* Buffer::c_str() const
 {
 	return this->buf;
 }

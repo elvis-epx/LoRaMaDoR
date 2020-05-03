@@ -24,7 +24,7 @@ void ping_self()
 	printf("$$$$$ CLI PING SELF\n");
 	cli_simtype("QL:PING payload\r");
 	char *cmd;
-	asprintf(&cmd, "%s:PING payload\r", Net->me().buf().cold());
+	asprintf(&cmd, "%s:PING payload\r", Net->me().buf().c_str());
 	cli_simtype(cmd);
 	free(cmd);
 }
@@ -42,11 +42,11 @@ void ping()
 	Buffer scs = neigh_cs[arduino_random(0, n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
-		printf("Neigh callsign invalid %s\n", scs.cold());
+		printf("Neigh callsign invalid %s\n", scs.c_str());
 		exit(2);
 	}
 	char *cmd;
-	asprintf(&cmd, "%s:PING payload\r", scs.cold());
+	asprintf(&cmd, "%s:PING payload\r", scs.c_str());
 	cli_simtype(cmd);
 	free(cmd);
 }
@@ -63,11 +63,11 @@ void rreq()
 	Buffer scs = neigh_cs[arduino_random(0, n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
-		printf("Neigh callsign invalid %s\n", scs.cold());
+		printf("Neigh callsign invalid %s\n", scs.c_str());
 		exit(2);
 	}
 	char *cmd;
-	asprintf(&cmd, "%s:RREQ\r", scs.cold());
+	asprintf(&cmd, "%s:RREQ\r", scs.c_str());
 	cli_simtype(cmd);
 	free(cmd);
 }
@@ -84,17 +84,17 @@ void sendm()
 	Buffer scs = neigh_cs[arduino_random(0, n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
-		printf("Neigh callsign invalid %s\n", scs.cold());
+		printf("Neigh callsign invalid %s\n", scs.c_str());
 		exit(2);
 	}
 	char *cmd;
 	int opt = arduino_random(0, 4);
 	if (opt == 0) {
-		asprintf(&cmd, "%s ola\r", scs.cold());
+		asprintf(&cmd, "%s ola\r", scs.c_str());
 	} else if (opt == 1) {
-		asprintf(&cmd, "%s:C ola\r", scs.cold());
+		asprintf(&cmd, "%s:C ola\r", scs.c_str());
 	} else if (opt == 2) {
-		asprintf(&cmd, "%s:C,CO ola\r", scs.cold());
+		asprintf(&cmd, "%s:C,CO ola\r", scs.c_str());
 	} else {
 		asprintf(&cmd, "QC:C ola\r");
 	}
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 		if (tsk) {
 			int32_t now = arduino_millis();
 			int32_t to = tsk->next_run() - now;
-			printf("Timeout: %s %d\n", tsk->get_name().cold(), to);
+			printf("Timeout: %s %d\n", tsk->get_name().c_str(), to);
 			if (to < 0) {
 				to = 0;
 			}

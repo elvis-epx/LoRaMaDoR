@@ -28,7 +28,7 @@ void logs(const char* a, const char* b) {
 
 void logs(const char* a, const Buffer &b)
 {
-	logs(a, b.cold());
+	logs(a, b.c_str());
 }
 
 void logi(const char* a, int32_t b) {
@@ -41,13 +41,13 @@ void logi(const char* a, int32_t b) {
 void app_recv(Ptr<Packet> pkt)
 {
 	Buffer msg = Buffer::sprintf("%s < %s %s\r\n(%s rssi %d)",
-				pkt->to().buf().cold(), pkt->from().buf().cold(), pkt->msg().cold(),
-				pkt->params().serialized().cold(), pkt->rssi());
+				pkt->to().buf().c_str(), pkt->from().buf().c_str(), pkt->msg().c_str(),
+				pkt->params().serialized().c_str(), pkt->rssi());
 	cli_print(msg);
-	Buffer msga = Buffer::sprintf("%s < %s", pkt->to().buf().cold(), pkt->from().buf().cold());
+	Buffer msga = Buffer::sprintf("%s < %s", pkt->to().buf().c_str(), pkt->from().buf().c_str());
 	Buffer msgb = Buffer::sprintf("id %d rssi %d", pkt->params().ident(), pkt->rssi());
-	Buffer msgc = Buffer::sprintf("p %s", pkt->params().serialized().cold());
-	oled_show(msga.cold(), pkt->msg().cold(), msgb.cold(), msgc.cold());
+	Buffer msgc = Buffer::sprintf("p %s", pkt->params().serialized().c_str());
+	oled_show(msga.c_str(), pkt->msg().c_str(), msgb.c_str(), msgc.c_str());
 }
 
 // Configure callsign and store to NVRAM
@@ -121,7 +121,7 @@ static void cli_lastid()
 static void cli_uptime()
 {
 	Buffer hms = Buffer::millis_to_hms(arduino_millis());
-	console_println(Buffer::sprintf("Uptime %s", hms.cold()));
+	console_println(Buffer::sprintf("Uptime %s", hms.c_str()));
 }
 
 // Print list of detected network neighbors
@@ -129,7 +129,7 @@ static void cli_neigh()
 {
 	console_println("---------------------------");
 	console_println(Buffer::sprintf("Neighborhood of %s:",
-					Net->me().buf().cold()));
+					Net->me().buf().c_str()));
 	auto now = arduino_millis();
 	auto neigh = Net->neighbors();
 	for (auto i = 0; i < neigh.count(); ++i) {
@@ -138,7 +138,7 @@ static void cli_neigh()
 		int32_t since = now - neigh[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
 		auto b = Buffer::sprintf("    %s last seen %s ago, rssi %d",
-					cs.cold(), ssince.cold(), rssi);
+					cs.c_str(), ssince.c_str(), rssi);
 		console_println(b);
 	}
 	auto peers = Net->peers();
@@ -150,7 +150,7 @@ static void cli_neigh()
 		int32_t since = now - peers[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
 		auto b = Buffer::sprintf("    %s last seen %s ago, non adjacent",
-					cs.cold(), ssince.cold());
+					cs.c_str(), ssince.c_str());
 		console_println(b);
 	}
 	console_println("---------------------------");

@@ -33,7 +33,7 @@ public:
 	}
 
 	bool has(const Buffer& key) const {
-		return has(key.cold());
+		return has(key.c_str());
 	}
 
 	const T& get(const char* key) const {
@@ -41,7 +41,7 @@ public:
 	}
 
 	const T& get(const Buffer& key) const {
-		return get(key.cold());
+		return get(key.c_str());
 	}
 
 	const T& operator[](const char* key) const {
@@ -49,7 +49,7 @@ public:
 	}
 
 	const T& operator[](const Buffer& key) const {
-		return operator[](key.cold());
+		return operator[](key.c_str());
 	}
 
 	void remove(const char* key) {
@@ -62,7 +62,7 @@ public:
 	}
 
 	void remove(const Buffer& key) {
-		return remove(key.cold());
+		return remove(key.c_str());
 	}
 
 	// due to limitations of C++, we can't avoid creating a new
@@ -82,7 +82,7 @@ public:
 	}
 
 	bool put(const Buffer &akey, const T& value) {
-		return put(akey.cold(), value);
+		return put(akey.c_str(), value);
 	}
 
 	bool put(const char *key, const T& value) {
@@ -143,7 +143,7 @@ public:
 	}
 
 	int indexOf(const Buffer &key) const {
-		return indexOf(key.cold());
+		return indexOf(key.c_str());
 	}
 
 	int indexOf(const char *key) const {

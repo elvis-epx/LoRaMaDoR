@@ -161,7 +161,7 @@ Params::Params()
 
 Params::Params(Buffer b)
 {
-	valid = parse_params(b.cold(), b.length(), _ident, items);
+	valid = parse_params(b.c_str(), b.length(), _ident, items);
 }
 
 // Generate the wire format of the parameter list
