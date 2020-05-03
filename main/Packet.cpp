@@ -62,7 +62,7 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 			const Params& params, const Buffer& msg, int rssi): 
 			_to(to), _from(from), _params(params), _msg(msg), _rssi(rssi)
 {
-	_signature = Buffer::sprintf("%s:%d", _from.buf().c_str(), params.ident());
+	_signature = Buffer::sprintf("%s:%d", Buffer(_from).c_str(), params.ident());
 }
 
 Packet::~Packet()
@@ -151,10 +151,10 @@ Ptr<Packet> Packet::change_params(const Params&new_params) const
 // Encode a packet in layer 3.
 Buffer Packet::encode_l3() const
 {
-	Buffer b(_to.buf());
+	Buffer b(_to);
 
 	b.append('<');
-	b.append_str(_from.buf());
+	b.append_str(_from);
 	b.append(':');
 	b.append_str(_params.serialized());
 	b.append(' ');

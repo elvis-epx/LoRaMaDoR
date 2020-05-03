@@ -69,7 +69,7 @@ Callsign arduino_nvram_callsign_load()
 void arduino_nvram_callsign_save(const Callsign &new_callsign)
 {
 	prefs.begin("LoRaMaDoR", false);
-	prefs.putString("callsign", new_callsign.buf().c_str());
+	prefs.putString("callsign", Buffer(new_callsign).c_str());
 	prefs.end();
 }
 

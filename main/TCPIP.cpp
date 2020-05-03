@@ -56,7 +56,7 @@ Buffer get_wifi_status()
 		status.append_str(ip);
 		if (mdns) {
 			status.append_str(", Bonjour name ");
-			status.append_str(Net->me().buf().c_str());
+			status.append_str(Buffer(Net->me()).c_str());
 			status.append_str(".local");
 		} else {
 			status.append_str(", no Bonjour");
@@ -87,12 +87,12 @@ void wifi_handle()
 			ip = Buffer(WiFi.localIP().toString().c_str());
 			serial_println(ip);
 			wifiServer.begin();
-			if (!MDNS.begin(Net->me().buf().c_str())) {
+			if (!MDNS.begin(Buffer(Net->me()).c_str())) {
 				serial_println("mDNS not ok, use IP to connect.");
 				mdns = false;
 			} else {
 				serial_print("Local net name: ");
-				serial_print(Net->me().buf());
+				serial_print(Net->me());
 				serial_println(".local");
 				mdns = true;
 			}

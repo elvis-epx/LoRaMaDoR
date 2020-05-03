@@ -16,15 +16,15 @@ class Callsign
 public:
 	Callsign();
 	Callsign(Buffer);
-	Buffer buf() const;
+	operator Buffer() const;
 	bool is_valid() const;
 	bool isQ() const;
 	bool is_localhost() const;
-	bool equal(Buffer) const;
-	bool equal(const Callsign&) const;
+	bool operator==(Buffer) const;
+	bool operator==(const Callsign&) const;
 private:
 	static bool check(const Buffer&);
-	Buffer buffer;
+	Buffer name;
 	bool valid;
 };
 

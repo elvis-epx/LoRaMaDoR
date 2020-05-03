@@ -22,34 +22,34 @@ Callsign::Callsign(Buffer c)
 		valid = false;
 		return;
 	}
-	buffer = c;
+	name = c;
 	valid = true;
 }
 
-bool Callsign::equal(Buffer other) const
+bool Callsign::operator==(Buffer other) const
 {
 	other.uppercase();
-	return valid && buffer == other;
+	return valid && name == other;
 }
 
-bool Callsign::equal(const Callsign& other) const
+bool Callsign::operator==(const Callsign& other) const
 {
-	return valid && other.valid && buffer == other.buffer;
+	return valid && other.valid && name == other.name;
 }
 
 bool Callsign::is_localhost() const
 {
-	return buffer == "QL";
+	return name == "QL";
 }
 
 bool Callsign::isQ() const
 {
-	return buffer.charAt(0) == 'Q';
+	return name.charAt(0) == 'Q';
 }
 
-Buffer Callsign::buf() const
+Callsign::operator Buffer() const
 {
-	return buffer;
+	return name;
 }
 
 bool Callsign::is_valid() const

@@ -288,7 +288,7 @@ uint32_t Network::tx(const Buffer& encoded_packet)
    was sent to us, either unicast or QB/QC */
 void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
 {
-	Buffer from = pkt->from().buf();
+	Buffer from = pkt->from();
 
 	if (! peerlist.has(from)) {
 		logs("discovered peer", from);
@@ -308,7 +308,7 @@ void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
 void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 {
 	if (we_are_origin) {
-		if (me().equal(pkt->to()) || pkt->to().is_localhost()) {
+		if (me() == pkt->to() || pkt->to().is_localhost()) {
 			recv(pkt);
 			return;
 		}
@@ -322,7 +322,7 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 	}
 
 	// Packet originated from us but received via radio = loop
-	if (me().equal(pkt->from())) {
+	if (me() == pkt->from()) {
 		logs("pkt loop", pkt->signature());
 		return;
 	}
@@ -334,14 +334,14 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 	}
 	recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 
-	if (me().equal(pkt->to())) {
+	if (me() == pkt->to()) {
 		// We are the sole final destination
 		update_peerlist(now, pkt);
 		recv(pkt);
 		return;
 	}
 
-	if (pkt->to().equal("QB") || pkt->to().equal("QC")) {
+	if (pkt->to() == "QB" || pkt->to() == "QC") {
 		// We are just one of the destinations
 		update_peerlist(now, pkt);
 		recv(pkt);

@@ -41,10 +41,12 @@ void logi(const char* a, int32_t b) {
 void app_recv(Ptr<Packet> pkt)
 {
 	Buffer msg = Buffer::sprintf("%s < %s %s\r\n(%s rssi %d)",
-				pkt->to().buf().c_str(), pkt->from().buf().c_str(), pkt->msg().c_str(),
+				Buffer(pkt->to()).c_str(), Buffer(pkt->from()).c_str(),
+				pkt->msg().c_str(),
 				pkt->params().serialized().c_str(), pkt->rssi());
 	cli_print(msg);
-	Buffer msga = Buffer::sprintf("%s < %s", pkt->to().buf().c_str(), pkt->from().buf().c_str());
+	Buffer msga = Buffer::sprintf("%s < %s", Buffer(pkt->to()).c_str(),
+						Buffer(pkt->from()).c_str());
 	Buffer msgb = Buffer::sprintf("id %d rssi %d", pkt->params().ident(), pkt->rssi());
 	Buffer msgc = Buffer::sprintf("p %s", pkt->params().serialized().c_str());
 	oled_show(msga.c_str(), pkt->msg().c_str(), msgb.c_str(), msgc.c_str());
@@ -55,7 +57,7 @@ static void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
 		console_print("Callsign is ");
-		console_println(Net->me().buf());
+		console_println(Net->me());
 		return;
 	}
 	
@@ -129,7 +131,7 @@ static void cli_neigh()
 {
 	console_println("---------------------------");
 	console_println(Buffer::sprintf("Neighborhood of %s:",
-					Net->me().buf().c_str()));
+					Buffer(Net->me()).c_str()));
 	auto now = arduino_millis();
 	auto neigh = Net->neighbors();
 	for (auto i = 0; i < neigh.count(); ++i) {

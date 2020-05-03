@@ -42,7 +42,7 @@ void test2() {
 	assert (!!p);
 	assert (strcmp("ee", p->msg().c_str()) == 0);
 	assert (p->msg() == "ee");
-	assert (strcmp(p->to().buf().c_str(), "AAAA-12") == 0);
+	assert (strcmp(Buffer(p->to()).c_str(), "AAAA-12") == 0);
 	
 	assert (!Packet::decode_l3("A<BBBB:133", error));
 	assert (!Packet::decode_l3("AAAA<B:133", error));
@@ -199,8 +199,8 @@ int main()
 	assert (Callsign("QB").isQ());
 	assert (!Callsign("QB").is_localhost());
 	assert (Callsign("QL").is_localhost());
-	assert (Callsign("QL").equal(Callsign("ql")));
-	assert (Callsign("QL").equal(Buffer("ql")));
+	assert (Callsign("QL") == Callsign("ql"));
+	assert (Callsign("QL") == Buffer("ql"));
 	assert (Callsign("QC").is_valid());
 	assert (!Callsign("Q1").is_valid());
 	assert (!Callsign("Q-").is_valid());
@@ -261,8 +261,8 @@ int main()
 
 	assert (p.is_dup(*q));
 	assert (q->is_dup(p));
-	assert (strcmp(q->to().buf().c_str(), "AAAA") == 0);
-	assert (strcmp(q->from().buf().c_str(), "BBBB") == 0);
+	assert (strcmp(Buffer(q->to()).c_str(), "AAAA") == 0);
+	assert (strcmp(Buffer(q->from()).c_str(), "BBBB") == 0);
 	assert (q->params().ident() == 123);
 	assert (q->params().has("X"));
 	assert (q->params().has("Y"));

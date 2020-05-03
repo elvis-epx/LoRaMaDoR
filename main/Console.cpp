@@ -20,7 +20,7 @@ static Buffer output_buffer;
 void console_setup(Ptr<Network> net)
 {
 	Net = net;
-	console_print(Net->me().buf());
+	console_print(Net->me());
 	console_println(" ready. Type !help to see available commands.");
 }
 

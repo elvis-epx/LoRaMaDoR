@@ -24,7 +24,7 @@ void ping_self()
 	printf("$$$$$ CLI PING SELF\n");
 	cli_simtype("QL:PING payload\r");
 	char *cmd;
-	asprintf(&cmd, "%s:PING payload\r", Net->me().buf().c_str());
+	asprintf(&cmd, "%s:PING payload\r", Buffer(Net->me()).c_str());
 	cli_simtype(cmd);
 	free(cmd);
 }
