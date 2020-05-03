@@ -42,8 +42,12 @@ public:
 	bool startsWith(const char *cmp) const;
 	bool startsWith(const Buffer &) const;
 	Buffer& append(const char *s, size_t length);
-	Buffer& append(const char s);
-	Buffer& append_str(const Buffer&);
+	Buffer& operator+=(const char s);
+	Buffer& operator+=(const Buffer&);
+	Buffer& operator+=(const char *);
+	Buffer operator+(const Buffer&) const;
+	Buffer operator+(const char *) const;
+	Buffer operator+(const char) const;
 	Buffer& cut(int);
 	Buffer& lstrip();
 	Buffer& rstrip();

@@ -152,13 +152,12 @@ Ptr<Packet> Packet::change_params(const Params&new_params) const
 Buffer Packet::encode_l3() const
 {
 	Buffer b(_to);
-
-	b.append('<');
-	b.append_str(_from);
-	b.append(':');
-	b.append_str(_params.serialized());
-	b.append(' ');
-	b.append_str(_msg);
+	b += '<';
+	b += _from;
+	b += ':';
+	b += _params.serialized();
+	b += ' ';
+	b += _msg;
 
 	if (b.length() > MSGSIZE_LONG) {
 		// TODO return error or warning

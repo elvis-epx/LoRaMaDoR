@@ -4,12 +4,20 @@
 #include "Packet.h"
 
 void test2() {
-	Buffer tm = "ab cd";
+	Buffer tm = "a";
+	tm += Buffer("b");
+	tm += " c";
+	tm += 'd';
 	assert(tm.startsWith("ab"));
 	assert(!tm.startsWith("ac"));
 	assert(tm.startsWith(Buffer("ab")));
 	assert(tm.startsWith(Buffer("ab ")));
 	assert(! tm.startsWith(Buffer("ab cd ")));
+
+	tm = tm + tm + "ef" + 'g';
+	printf("### %s\n", tm.c_str());
+	assert(tm == "ab cdab cdefg");
+
 	tm = Buffer::millis_to_hms(-1);
 	assert(tm == tm);
 	assert(tm == "???");
@@ -141,8 +149,8 @@ void test4()
 {
 	Buffer x = "a";
 	x.append(NULL, 0);
-	x.append('b');
-	x.append('c');
+	x += 'b';
+	x += 'c';
 	assert(x.charAt(-2) == 'b');
 	assert(x.charAt(-4) == -1);
 	assert(Buffer("aaa").cut(4).length() == 0);

@@ -173,11 +173,11 @@ Buffer Params::serialized() const
 	for (size_t i = 0; i < keys.size(); ++i) {
 		const Buffer& key = keys[i];
 		const Buffer& value = items[key];
-		buf.append(',');
-		buf.append_str(key);
+		buf += ',';
+		buf += key;
 		if (value != naked) {
-			buf.append('=');
-			buf.append_str(value);
+			buf += '=';
+			buf += value;
 		}
 	}
 

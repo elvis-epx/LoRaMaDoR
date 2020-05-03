@@ -45,21 +45,20 @@ Buffer get_wifi_status()
 		return "Wi-Fi disabled.";
 	}
 
-	Buffer status = "Wi-Fi SSID ";
-	status.append_str(ssid);
+	Buffer status = Buffer("Wi-Fi SSID ") + ssid;
 	if (wifi_status == 1) {
-		status.append_str(", waiting to reconnect");
+		status += ", waiting to reconnect";
 	} else if (wifi_status == 2) {
-		status.append_str(", connecting");
+		status += ", connecting";
 	} else if (wifi_status == 3) {
-		status.append_str(", connected, IP ");
-		status.append_str(ip);
+		status += ", connected, IP ";
+		status += ip;
 		if (mdns) {
-			status.append_str(", Bonjour name ");
-			status.append_str(Buffer(Net->me()).c_str());
-			status.append_str(".local");
+			status += ", Bonjour name ";
+			status += Net->me();
+			status += ".local";
 		} else {
-			status.append_str(", no Bonjour");
+			status += ", no Bonjour";
 		}
 	}
 	return status;
@@ -144,5 +143,5 @@ void wifi_handle()
 
 void telnet_print(const char* c)
 {
-	if (is_telnet) output_buffer.append_str(c);
+	if (is_telnet) output_buffer += c;
 }

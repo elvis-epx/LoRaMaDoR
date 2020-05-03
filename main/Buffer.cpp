@@ -84,10 +84,14 @@ Buffer& Buffer::operator=(const Buffer& model)
 	return *this;
 }
 
-// Appends Buffer as string (stopping at \0, not at length)
-Buffer& Buffer::append_str(const Buffer &b)
+Buffer& Buffer::operator+=(const Buffer &b)
 {
-	return append(b.c_str(), strlen(b.c_str()));
+	return append(b.buf, b.len);
+}
+
+Buffer& Buffer::operator+=(const char *b)
+{
+	return append(b, strlen(b));
 }
 
 Buffer& Buffer::append(const char *s, size_t add_length)
@@ -108,7 +112,7 @@ Buffer& Buffer::append(const char *s, size_t add_length)
 	return *this;
 }
 
-Buffer& Buffer::append(const char c)
+Buffer& Buffer::operator+=(const char c)
 {
 	char *oldbuf = this->buf;
 	this->buf = new char[this->len + 2];
@@ -120,6 +124,21 @@ Buffer& Buffer::append(const char c)
 	this->len += 1;
 
 	return *this;
+}
+
+Buffer Buffer::operator+(const Buffer& b) const
+{
+	return Buffer(*this) += b;
+}
+
+Buffer Buffer::operator+(const char * b) const
+{
+	return Buffer(*this) += b;
+}
+
+Buffer Buffer::operator+(const char b) const
+{
+	return Buffer(*this) += b;
 }
 
 Buffer::~Buffer()

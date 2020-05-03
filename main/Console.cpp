@@ -61,24 +61,24 @@ void console_telnet_type(char c)
 // Print to serial console (indirectly; see console_handle())
 void serial_print(const char *msg)
 {
-	output_buffer.append_str(msg);
+	output_buffer += msg;
 }
 
 void serial_print(const Buffer &msg)
 {
-	output_buffer.append_str(msg);
+	output_buffer += msg;
 }
 
 void serial_println(const char *msg)
 {
-	output_buffer.append_str(msg);
-	output_buffer.append_str("\r\n");
+	output_buffer += msg;
+	output_buffer += "\r\n";
 }
 
 void serial_println(const Buffer &msg)
 {
-	output_buffer.append_str(msg);
-	output_buffer.append_str("\r\n");
+	output_buffer += msg;
+	output_buffer += "\r\n";
 }
 
 // Redirects console print to Telnet if there is a connection,

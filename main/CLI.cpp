@@ -317,7 +317,7 @@ void cli_type(char c) {
 		// inside IAC sequence
 		if (c == '\xff') {
 			// 0xff 0xff = 0xff
-			cli_buf.append(c);
+			cli_buf += c;
 			telnet_iac = 0;
 		} else {
 			// continued IAC sequence
@@ -343,7 +343,7 @@ void cli_type(char c) {
 	} else if (cli_buf.length() > 200) {
 		return;
 	} else {
-		cli_buf.append(c);
+		cli_buf += c;
 		console_print(c);
 	}
 }
