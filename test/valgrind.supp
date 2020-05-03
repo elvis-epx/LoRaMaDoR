@@ -50,3 +50,31 @@
    fun:_Z11lora_emu_rxv
    fun:main
 }
+{
+   supp5
+   Memcheck:Value8
+   fun:_ZN2RS2gf3mulEtt
+   fun:_ZN2RS2gf9poly_evalEPKNS_4PolyEt
+   fun:_ZN2RS11ReedSolomonILh80ELh20EE10FindErrorsEPKNS_4PolyEm
+   fun:_ZN2RS11ReedSolomonILh80ELh20EE11DecodeBlockEPKvS3_PvPhm
+   fun:_ZN2RS11ReedSolomonILh80ELh20EE6DecodeEPKvPvPhm
+   fun:_ZN6Packet9decode_l2EPKcmiRi
+   fun:_ZN7Network10radio_recvEPKcmi
+   fun:_Z21radio_recv_trampolinePKcmi
+   fun:_Z11lora_emu_rxv
+   fun:main
+}
+{
+   supp6
+   Memcheck:Value8
+   fun:_ZN2RS2gf3mulEtt
+   fun:_ZN2RS2gf9poly_evalEPKNS_4PolyEt
+   fun:_ZN2RS11ReedSolomonILh80ELh20EE10FindErrorsEPKNS_4PolyEm
+   fun:_ZN2RS11ReedSolomonILh80ELh20EE11DecodeBlockEPKvS3_PvPhm
+   fun:_ZN2RS11ReedSolomonILh80ELh20EE6DecodeEPKvPvPhm
+   fun:_ZN6Packet9decode_l2EPKcmiRi
+   fun:_ZN7Network10radio_recvEPKcmi
+   fun:_Z21radio_recv_trampolinePKcmi
+   fun:_Z11lora_emu_rxv
+   fun:main
+}
