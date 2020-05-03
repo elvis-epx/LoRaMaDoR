@@ -204,9 +204,9 @@ int main()
 {
 	assert (!Callsign("Q").is_valid());
 	assert (Callsign("QB").is_valid());
-	assert (Callsign("QB").isQ());
-	assert (!Callsign("QB").is_localhost());
-	assert (Callsign("QL").is_localhost());
+	assert (Callsign("QB").is_q());
+	assert (!Callsign("QB").is_lo());
+	assert (Callsign("QL").is_lo());
 	assert (Callsign("QL") == Callsign("ql"));
 	assert (Callsign("QL") == Buffer("ql"));
 	assert (Callsign("QC").is_valid());

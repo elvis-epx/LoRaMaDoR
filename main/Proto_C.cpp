@@ -23,8 +23,8 @@ HandlerResponse Proto_C::handle(const Packet& pkt)
 		// do not confirm a confirmation
 		return HandlerResponse();
 	}
-	if (pkt.to().isQ() && !pkt.to().is_localhost()) {
-		// do not confirm broadcast packet
+	if (pkt.to().is_bcast()) {
+		// do not confirm broadcast packets
 		return HandlerResponse();
 	}
 

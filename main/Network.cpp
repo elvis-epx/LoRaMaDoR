@@ -322,7 +322,7 @@ void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
 void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 {
 	if (we_are_origin) {
-		if (me() == pkt->to() || pkt->to().is_localhost()) {
+		if (me() == pkt->to() || pkt->to().is_lo()) {
 			recv(pkt);
 			return;
 		}

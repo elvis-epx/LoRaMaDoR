@@ -16,7 +16,7 @@ Proto_Rreq::Proto_Rreq(Network *net): Protocol(net)
 HandlerResponse Proto_Rreq::handle(const Packet& pkt)
 {
 	// Respond to RREQ packet
-	if ((!pkt.to().isQ() || pkt.to().is_localhost()) && pkt.params().has("RREQ")) {
+	if (!pkt.to().is_bcast() && pkt.params().has("RREQ")) {
 		Buffer msg = pkt.msg();
 		msg += '|';
 		msg += net->me();
@@ -32,7 +32,7 @@ HandlerResponse Proto_Rreq::handle(const Packet& pkt)
 Ptr<Packet> Proto_Rreq::modify(const Packet& pkt)
 {
 	// Add ourselves to chain in forwarded RREQ and RRSP pkts
-	if (! pkt.to().isQ()) {
+	if (! pkt.to().is_q()) {
 		// not QB, QC, etc.
 		if (pkt.params().has("RREQ") || pkt.params().has("RRSP")) {
 			Buffer new_msg = pkt.msg();

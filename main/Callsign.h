@@ -18,8 +18,10 @@ public:
 	Callsign(Buffer);
 	operator Buffer() const;
 	bool is_valid() const;
-	bool isQ() const;
-	bool is_localhost() const;
+	bool is_bcast() const;
+	bool is_q() const;
+	bool is_lo() const;
+	bool is_reserved() const;
 	bool operator==(Buffer) const;
 	bool operator==(const Callsign&) const;
 private:

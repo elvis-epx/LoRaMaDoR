@@ -260,6 +260,11 @@ static void cli_parse_packet(Buffer cmd)
 		return;
 	}
 
+	if (dest.is_reserved()) {
+		console_println("QB is reserved to automatic beacon.");
+		return;
+	}
+
 	Params params(sparams);
 	if (! params.is_valid_without_ident()) {
 		console_print("Invalid params: ");

@@ -17,7 +17,7 @@ HandlerResponse Proto_Ping::handle(const Packet& pkt)
 {
 	// We don't allow broadcast PING to QC or QB because many stations would
 	// transmit at the same time, corrupting each other's messages.
-	if ((!pkt.to().isQ() || pkt.to().is_localhost()) && pkt.params().has("PING")) {
+	if (!pkt.to().is_bcast() && pkt.params().has("PING")) {
 		Params pong = Params();
 		pong.set_ident(net->get_next_pkt_id());
 		pong.put_naked("PONG");

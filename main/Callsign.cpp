@@ -37,14 +37,27 @@ bool Callsign::operator==(const Callsign& other) const
 	return valid && other.valid && name == other.name;
 }
 
-bool Callsign::is_localhost() const
+/* QL = wildcard for localhost */
+bool Callsign::is_lo() const
 {
-	return name == "QL";
+	return valid && name == "QL";
 }
 
-bool Callsign::isQ() const
+/* QB, QC are broadcast pseudo-callsigns, QB is used by beacon */
+bool Callsign::is_bcast() const
 {
-	return name.charAt(0) == 'Q';
+	return valid && (name == "QB" || name == "QC");
+}
+
+/* QB is reserved for automatic beaconing */
+bool Callsign::is_reserved() const
+{
+	return valid && name == "QB";
+}
+
+bool Callsign::is_q() const
+{
+	return valid && name.startsWith("Q");
 }
 
 Callsign::operator Buffer() const
