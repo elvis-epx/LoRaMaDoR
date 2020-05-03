@@ -31,7 +31,7 @@ HandlerResponse Proto_C::handle(const Packet& pkt)
 	Params co = Params();
 	co.set_ident(net->get_next_pkt_id());
 	co.put_naked("CO");
-	Buffer msg = Buffer::sprintf("confirm #%d", pkt.params().ident());
+	Buffer msg = Buffer("confirm #") + pkt.params().s_ident();
 	auto np = new Packet(pkt.from(), net->me(), co, msg);
 	return HandlerResponse(Ptr<Packet>(np), false);
 }

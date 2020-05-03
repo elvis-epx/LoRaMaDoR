@@ -38,6 +38,29 @@ class BufferImpl {
 		}
 		b->buf[len] = 0;
 	}
+
+	static Buffer sprintf(const char *mask, ...)
+	{
+		va_list args;
+		va_start(args, mask);
+	
+		va_list tmpargs;
+		va_copy(tmpargs, args);
+	
+		int size = vsnprintf(NULL, 0, mask, tmpargs);
+		va_end(tmpargs);
+	
+		Buffer ret;
+		if (size < 0) {
+			ret = "fail";
+		} else {
+			ret = Buffer(size);
+			vsprintf(ret.buf, mask, args);
+		}
+	
+		va_end(args);
+		return ret;
+	}
 };
 
 Buffer::Buffer()
@@ -327,32 +350,14 @@ Buffer Buffer::millis_to_hms(int32_t t)
 	t /= 24;
 	int32_t d = t;
 
-	if (d > 0) return Buffer::sprintf("%d:%02d:%02d:%02d", d, h, m, s);
-	if (h > 0) return Buffer::sprintf("%d:%02d:%02d", h, m, s);
-	return Buffer::sprintf("%d:%02d", m, s);
+	if (d > 0) return BufferImpl::sprintf("%d:%02d:%02d:%02d", d, h, m, s);
+	if (h > 0) return BufferImpl::sprintf("%d:%02d:%02d", h, m, s);
+	return BufferImpl::sprintf("%d:%02d", m, s);
 }
 
-Buffer Buffer::sprintf(const char *mask, ...)
+Buffer Buffer::itoa(int32_t i)
 {
-	va_list args;
-	va_start(args, mask);
-
-	va_list tmpargs;
-	va_copy(tmpargs, args);
-
-	int size = vsnprintf(NULL, 0, mask, tmpargs);
-	va_end(tmpargs);
-
-	Buffer ret;
-	if (size < 0) {
-		ret = "fail";
-	} else {
-		ret = Buffer(size);
-		vsprintf(ret.buf, mask, args);
-	}
-
-	va_end(args);
-	return ret;
+	return BufferImpl::sprintf("%d", i);
 }
 
 

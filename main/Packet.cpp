@@ -62,7 +62,7 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 			const Params& params, const Buffer& msg, int rssi): 
 			_to(to), _from(from), _params(params), _msg(msg), _rssi(rssi)
 {
-	_signature = Buffer::sprintf("%s:%d", Buffer(_from).c_str(), params.ident());
+	_signature = Buffer(_from) + ":" + params.s_ident();
 }
 
 Packet::~Packet()

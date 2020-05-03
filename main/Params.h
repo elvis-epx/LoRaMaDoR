@@ -21,6 +21,7 @@ public:
 	bool is_valid_with_ident() const;
 	bool is_valid_without_ident() const;
 	uint32_t ident() const;
+	Buffer s_ident() const;
 	size_t count() const;
 	Buffer get(const char *) const;
 	bool has(const char *) const;

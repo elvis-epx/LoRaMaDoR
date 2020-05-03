@@ -167,7 +167,7 @@ Params::Params(Buffer b)
 // Generate the wire format of the parameter list
 Buffer Params::serialized() const
 {
-	Buffer buf = Buffer::sprintf("%d", _ident);
+	Buffer buf = s_ident();
 
 	const Vector<Buffer>& keys = items.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
@@ -200,6 +200,11 @@ bool Params::is_valid_without_ident() const
 uint32_t Params::ident() const
 {
 	return _ident;
+}
+
+Buffer Params::s_ident() const
+{
+	return Buffer::itoa(_ident);
 }
 
 // Number of parameters (not couting packet ID).

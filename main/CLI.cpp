@@ -22,33 +22,32 @@ bool debug = false;
 // May be called from anywhere, but mostly from network stack.
 void logs(const char* a, const char* b) {
 	if (!debug) return;
-	Buffer msg = Buffer::sprintf("%s %s", a, b);
-	cli_print(msg);
+	cli_print(Buffer(a) + " " + b);
 }
 
 void logs(const char* a, const Buffer &b)
 {
-	logs(a, b.c_str());
+	if (!debug) return;
+	cli_print(Buffer(a) + " " + b);
 }
 
 void logi(const char* a, int32_t b) {
 	if (!debug) return;
-	Buffer msg = Buffer::sprintf("%s %d", a, b);
-	cli_print(msg);
+	cli_print(Buffer(a) + " " + Buffer::itoa(b));
 }
 
 // Print a representation of a received packet
 void app_recv(Ptr<Packet> pkt)
 {
-	Buffer msg = Buffer::sprintf("%s < %s %s\r\n(%s rssi %d)",
-				Buffer(pkt->to()).c_str(), Buffer(pkt->from()).c_str(),
-				pkt->msg().c_str(),
-				pkt->params().serialized().c_str(), pkt->rssi());
+	Buffer msg = Buffer(pkt->to()) + " < " + pkt->from() + " " +
+		pkt->msg().c_str() + /* avoid \0s in message */
+		"\r\n(" + pkt->params().serialized() + " rssi " +
+		Buffer::itoa(pkt->rssi()) + ")";
 	cli_print(msg);
-	Buffer msga = Buffer::sprintf("%s < %s", Buffer(pkt->to()).c_str(),
-						Buffer(pkt->from()).c_str());
-	Buffer msgb = Buffer::sprintf("id %d rssi %d", pkt->params().ident(), pkt->rssi());
-	Buffer msgc = Buffer::sprintf("p %s", pkt->params().serialized().c_str());
+	Buffer msga = Buffer(pkt->to()) + " < " + pkt->from();
+	Buffer msgb = Buffer("id ") + pkt->params().s_ident() +
+		" rssi " + Buffer::itoa(pkt->rssi());
+	Buffer msgc = Buffer("p ") + pkt->params().serialized();
 	oled_show(msga.c_str(), pkt->msg().c_str(), msgb.c_str(), msgc.c_str());
 }
 
@@ -115,7 +114,8 @@ static void cli_parse_password(Buffer candidate)
 // ID of the latest packet sent by us
 static void cli_lastid()
 {
-	auto b = Buffer::sprintf("Last packet ID #%d", Net->get_last_pkt_id());
+	auto b = Buffer("Last packet ID #");
+	b += Buffer::itoa(Net->get_last_pkt_id());
 	console_println(b);
 }
 
@@ -123,15 +123,15 @@ static void cli_lastid()
 static void cli_uptime()
 {
 	Buffer hms = Buffer::millis_to_hms(arduino_millis());
-	console_println(Buffer::sprintf("Uptime %s", hms.c_str()));
+	console_println(Buffer("Uptime ") + hms);
 }
 
 // Print list of detected network neighbors
 static void cli_neigh()
 {
 	console_println("---------------------------");
-	console_println(Buffer::sprintf("Neighborhood of %s:",
-					Buffer(Net->me()).c_str()));
+	console_println(Buffer("Neighborhood of ") + Net->me() + ":");
+
 	auto now = arduino_millis();
 	auto neigh = Net->neighbors();
 	for (auto i = 0; i < neigh.count(); ++i) {
@@ -139,8 +139,8 @@ static void cli_neigh()
 		int rssi = neigh[cs].rssi;
 		int32_t since = now - neigh[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
-		auto b = Buffer::sprintf("    %s last seen %s ago, rssi %d",
-					cs.c_str(), ssince.c_str(), rssi);
+		auto b = Buffer("    ") + cs + " last seen " + ssince +
+			" ago, rssi " + Buffer::itoa(rssi);
 		console_println(b);
 	}
 	auto peers = Net->peers();
@@ -151,8 +151,8 @@ static void cli_neigh()
 		}
 		int32_t since = now - peers[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
-		auto b = Buffer::sprintf("    %s last seen %s ago, non adjacent",
-					cs.c_str(), ssince.c_str());
+		auto b = Buffer("    ") + cs + " last seen " + ssince +
+			" ago, non adjacent";
 		console_println(b);
 	}
 	console_println("---------------------------");
@@ -268,7 +268,7 @@ static void cli_parse_packet(Buffer cmd)
 	}
 
 	uint32_t id = Net->send(dest, params, payload);
-	console_println(Buffer::sprintf("Sent packet #%d.", id));
+	console_println(Buffer("Sent packet #") + Buffer::itoa(id) + ".");
 }
 
 // Parse a command or packet typed in CLI
