@@ -98,6 +98,48 @@ static void cli_parse_repeater(const Buffer &candidate)
 	arduino_restart();
 }
 
+// Configure or print beacon interval time in seconds
+static void cli_parse_beacon(const Buffer &candidate)
+{
+	if (candidate.empty()) {
+		console_print("Beacon average interval is ");
+		console_print(arduino_nvram_beacon_load());
+		console_println("s");
+		return;
+	}
+
+	int b = candidate.toInt();
+	
+	if (b < 10 || b > 600) {
+		console_println("Invalid value. Beacon interval must be 10..600s.");
+		return;
+	}
+	
+	arduino_nvram_beacon_save(b);
+	console_println("Beacon interval saved. Effective after next beacon.");
+}
+
+// Configure or print beacon first interval time in seconds
+static void cli_parse_beacon_first(const Buffer &candidate)
+{
+	if (candidate.empty()) {
+		console_print("Beacon 1st average interval is ");
+		console_print(arduino_nvram_beacon_first_load());
+		console_println("s");
+		return;
+	}
+
+	int b = candidate.toInt();
+	
+	if (b < 1 || b > 300) {
+		console_println("Invalid value. Beacon 1st interval must be 1..300s.");
+		return;
+	}
+	
+	arduino_nvram_beacon_first_save(b);
+	console_println("Beacon 1st interval saved. Effective next reboot.");
+}
+
 // Wi-Fi network name (SSID) configuration
 static void cli_parse_ssid(Buffer candidate)
 {
@@ -188,12 +230,12 @@ static void cli_parse_help()
 	console_println();
 	console_println("Available commands:");
 	console_println();
-	console_println("  !callsign CALLSIGN     Set callsign");
-	console_println("  !callsign              Get current callsign");
-	console_println("  !ssid SSID             Set Wi-Fi network name (None to disable)");
-	console_println("  !ssid                  Get configured Wi-Fi network name");
-	console_println("  !password PASSWORD     Set Wi-Fi password (None if no password)");
-	console_println("  !password              Get configured Wi-Fi password");
+	console_println("  !callsign [CALLSIGN]   Get/set callsign");
+	console_println("  !ssid [SSID]           Get/set Wi-Fi network (None to disable)");
+	console_println("  !password [PASSWORD]   Get/set Wi-Fi password (None if no password)");
+	console_println("  !repeater [0 or 1]     Get/set repeater function switch");
+	console_println("  !beacon [10..600]      Get/set beacon average time (in seconds)");
+	console_println("  !beacon1st [10..300]   Get/set first beacon avg time");
 	console_println("  !wifi                  Show Wi-Fi/network status");
 	console_println("  !debug                 Enable debug/verbose mode");
 	console_println("  !nodebug               Disable debug mode");
@@ -218,6 +260,16 @@ static void cli_parse_meta(Buffer cmd)
 		cli_parse_repeater(cmd);
 	} else if (cmd == "repeater") {
 		cli_parse_repeater("");
+	} else if (cmd.startsWith("beacon ")) {
+		cmd.cut(7);
+		cli_parse_beacon(cmd);
+	} else if (cmd == "beacon") {
+		cli_parse_beacon("");
+	} else if (cmd.startsWith("beacon1st ")) {
+		cmd.cut(10);
+		cli_parse_beacon_first(cmd);
+	} else if (cmd == "beacon1st") {
+		cli_parse_beacon_first("");
 	} else if (cmd.startsWith("ssid ")) {
 		cmd.cut(5);
 		cli_parse_ssid(cmd);

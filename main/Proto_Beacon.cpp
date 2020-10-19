@@ -9,14 +9,6 @@
 #include "Network.h"
 #include "ArduinoBridge.h"
 
-#ifndef UNDER_TEST
-static const uint32_t AVG_BEACON_TIME = 10 * MINUTES;
-static const uint32_t AVG_FIRST_BEACON_TIME = 30 * SECONDS;
-#else
-static const uint32_t AVG_BEACON_TIME = 10 * SECONDS;
-static const uint32_t AVG_FIRST_BEACON_TIME = 1 * SECONDS;
-#endif
-
 // Task for periodic transmission of beacon packet.
 class BeaconTask: public Task
 {
@@ -41,7 +33,7 @@ private:
 Proto_Beacon::Proto_Beacon(Network *net): Protocol(net)
 {
 	net->schedule(new BeaconTask(this,
-		Network::fudge(AVG_FIRST_BEACON_TIME, 0.5)));
+		Network::fudge(arduino_nvram_beacon_first_load() * 1000, 0.5)));
 }
 
 uint32_t Proto_Beacon::beacon() const
@@ -49,7 +41,7 @@ uint32_t Proto_Beacon::beacon() const
 	Buffer uptime = Buffer::millis_to_hms(arduino_millis());
 	Buffer msg = Buffer("LoRaMaDoR up ") + uptime;
 	net->send(Callsign("QB"), Params(), msg);
-	uint32_t next = Network::fudge(AVG_BEACON_TIME, 0.5);
+	uint32_t next = Network::fudge(arduino_nvram_beacon_load() * 1000, 0.5);
 	// logi("Next beacon in ", next);
 	return next;
 }

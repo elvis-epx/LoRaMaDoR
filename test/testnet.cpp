@@ -127,6 +127,8 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
+	cli_simtype("!beacon1st 0\r");
+	cli_simtype("!beacon1st 1\r");
 	Net = Ptr<Network>(new Network(Callsign("INV"), repeater));
 	Net = Ptr<Network>(new Network(cs, repeater));
 	cli_simtype("!callsi\bgn\r");
@@ -140,6 +142,8 @@ int main(int argc, char* argv[])
 	cli_simtype("!repeater\r");
 	cli_simtype("!repeater a\r");
 	cli_simtype("!repeater 1\r");
+	cli_simtype("!beacon 0\r");
+	cli_simtype("!beacon 10\r");
 	cli_simtype("!password ble\r");
 	cli_simtype("!password\r");
 	cli_simtype("!reset\r");

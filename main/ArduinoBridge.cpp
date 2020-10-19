@@ -60,6 +60,57 @@ void arduino_nvram_repeater_save(uint32_t r)
 	prefs.end();
 }
 
+uint32_t arduino_nvram_beacon_load()
+{
+	prefs.begin("LoRaMaDoR");
+	uint32_t b = prefs.getUInt("beacon");
+	prefs.end();
+
+	if (b < 10 || b > 600) {
+		b = 600;
+	}
+
+	return b;
+}
+
+void arduino_nvram_beacon_save(uint32_t b)
+{
+	if (b < 10 || b > 600) {
+		b = 600;
+	}
+
+	prefs.begin("LoRaMaDoR", false);
+	prefs.putUInt("beacon", b);
+	prefs.end();
+}
+
+uint32_t arduino_nvram_beacon_first_load()
+{
+	prefs.begin("LoRaMaDoR");
+	uint32_t b = prefs.getUInt("beacon1");
+	prefs.end();
+
+	if (b < 1 || b > 300) {
+		b = 30;
+	}
+
+	return b;
+}
+
+void arduino_nvram_beacon_first_save(uint32_t b)
+{
+	if (b < 1 || b > 300) {
+		b = 30;
+	}
+
+	prefs.begin("LoRaMaDoR", false);
+	prefs.putUInt("beacon1", b);
+	prefs.end();
+}
+
+Callsign arduino_nvram_callsign_load()
+{
+	char candidate[12];
 Callsign arduino_nvram_callsign_load()
 {
 	char candidate[12];

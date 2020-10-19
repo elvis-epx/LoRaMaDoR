@@ -20,6 +20,8 @@ static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
 static Dict<Buffer> nvram;
 static uint32_t repeater = 0;
+static uint32_t beacon = 0;
+static uint32_t beacon_first = 0;
 
 static void init_things()
 {
@@ -209,6 +211,38 @@ uint32_t arduino_nvram_repeater_load()
 void arduino_nvram_repeater_save(uint32_t r)
 {
 	repeater = r;
+}
+
+uint32_t arduino_nvram_beacon_load()
+{
+	if (beacon < 10 || beacon > 600) {
+		beacon = 600;
+	}
+	return beacon;
+}
+
+void arduino_nvram_beacon_save(uint32_t b)
+{
+	beacon = b;
+	if (beacon < 10 || beacon > 600) {
+		beacon = 600;
+	}
+}
+
+uint32_t arduino_nvram_beacon_first_load()
+{
+	if (beacon_first < 1 || beacon_first > 300) {
+		beacon_first = 30;
+	}
+	return beacon_first;
+}
+
+void arduino_nvram_beacon_first_save(uint32_t b)
+{
+	beacon_first = b;
+	if (beacon_first < 1 || beacon_first > 300) {
+		beacon_first = 30;
+	}
 }
 
 void console_print(const Buffer &b) {

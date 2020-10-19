@@ -381,3 +381,8 @@ Buffer Buffer::substr(size_t start, size_t count) const
 	memcpy(copy.buf, this->buf + start, count);
 	return copy;
 }
+
+int Buffer::toInt() const
+{
+	return strtol(this->buf, 0, 10);
+}

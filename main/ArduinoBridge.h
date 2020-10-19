@@ -19,6 +19,12 @@ int32_t arduino_random(int32_t min, int32_t max);
 uint32_t arduino_nvram_repeater_load();
 void arduino_nvram_repeater_save(uint32_t);
 
+uint32_t arduino_nvram_beacon_load();
+void arduino_nvram_beacon_save(uint32_t);
+
+uint32_t arduino_nvram_beacon_first_load();
+void arduino_nvram_beacon_first_save(uint32_t);
+
 uint32_t arduino_nvram_id_load();
 void arduino_nvram_id_save(uint32_t);
 
