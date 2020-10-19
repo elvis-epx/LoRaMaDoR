@@ -43,8 +43,7 @@ By default is FIXMEE-1. Type !help to get a list of all available commands.
 
 # More examples
 
-Example of beacon packet, sent automatically every 10 minutes by
-every station:
+Example of beacon packet, by default sent every 10 minutes:
 
 ```
 QB<PU5EPX-11:2 bat=7.93V temp=25.4C wind=25.4kmh
@@ -144,8 +143,22 @@ may have decimal places.
 Currently, diffusion routing is the only implemented strategy.
 
 By default, forwarding is OFF. To activate it, use the command `!repeater 1`
-and restart the node. To deactivate, `!repeater 0`. Likewise the callsign, 
+and restart the station. To deactivate, `!repeater 0`. Likewise the callsign, 
 this setting is saved on NVRAM.
+
+## Beacon interval
+
+By default, the average interval of beacon packets is 10 minutes/600 seconds.
+The fudge factor is 0.5, meaning the interval is randomly chosen between 5 and
+15 minutes. The randomization avoids gratitous collisions when e.g. all stations
+in the area are rebooted simultaneously after a blackout.
+
+The first beacon packet is sent, by default and in average, 30 seconds after
+startup. The fudge factor is 0.5 as well.
+
+These intervals can be configured and are stored in NVRAM. Use the commands
+`!beacon` and `!beacon1st` to query or set them. Note the values are expressed
+in seconds.
 
 ## FEC code
 
