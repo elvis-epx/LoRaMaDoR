@@ -44,6 +44,22 @@ void arduino_nvram_id_save(uint32_t id)
 
 }
 
+uint32_t arduino_nvram_repeater_load()
+{
+	prefs.begin("LoRaMaDoR");
+	uint32_t r = prefs.getUInt("repeater");
+	prefs.end();
+
+	return r;
+}
+
+void arduino_nvram_repeater_save(uint32_t r)
+{
+	prefs.begin("LoRaMaDoR", false);
+	prefs.putUInt("repeater", r);
+	prefs.end();
+}
+
 Callsign arduino_nvram_callsign_load()
 {
 	char candidate[12];

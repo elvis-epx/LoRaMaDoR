@@ -143,6 +143,10 @@ may have decimal places.
 
 Currently, diffusion routing is the only implemented strategy.
 
+By default, forwarding is OFF. To activate it, use the command `!repeater 1`
+and restart the node. To deactivate, `!repeater 0`. Likewise the callsign, 
+this setting is saved on NVRAM.
+
 ## FEC code
 
 Every packet is augmented by a 20-octet FEC (Forward Error Code) suffix.

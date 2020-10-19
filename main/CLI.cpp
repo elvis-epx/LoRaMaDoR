@@ -79,6 +79,25 @@ static void cli_parse_callsign(const Buffer &candidate)
 	arduino_restart();
 }
 
+// Configure or print repeater function status
+static void cli_parse_repeater(const Buffer &candidate)
+{
+	if (candidate.empty()) {
+		console_print("Repeater function is ");
+		console_println(arduino_nvram_repeater_load());
+		return;
+	}
+	
+	if (candidate.charAt(0) != '0' && candidate.charAt(0) != '1') {
+		console_println("Invalid new value, should be 0 or 1");
+		return;
+	}
+	
+	arduino_nvram_repeater_save(candidate.charAt(0) - '0');
+	console_println("Repeater config saved, restarting...");
+	arduino_restart();
+}
+
 // Wi-Fi network name (SSID) configuration
 static void cli_parse_ssid(Buffer candidate)
 {
@@ -194,6 +213,11 @@ static void cli_parse_meta(Buffer cmd)
 		cli_parse_callsign(cmd);
 	} else if (cmd == "callsign") {
 		cli_parse_callsign("");
+	} else if (cmd.startsWith("repeater ")) {
+		cmd.cut(9);
+		cli_parse_repeater(cmd);
+	} else if (cmd == "repeater") {
+		cli_parse_repeater("");
 	} else if (cmd.startsWith("ssid ")) {
 		cmd.cut(5);
 		cli_parse_ssid(cmd);

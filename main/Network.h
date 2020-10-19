@@ -38,7 +38,7 @@ struct RecvLogItem {
 
 class Network {
 public:
-	Network(const Callsign &callsign);
+	Network(const Callsign &callsign, uint32_t repeater);
 	virtual ~Network();
 
 	Callsign me() const;
@@ -78,6 +78,8 @@ private:
 	void update_peerlist(uint32_t, const Ptr<Packet> &);
 
 	Callsign my_callsign;
+	uint32_t repeater_function_activated;
+
 	TaskManager task_mgr;
 	Dict<Peer> neigh;
 	Dict<Peer> peerlist;

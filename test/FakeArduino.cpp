@@ -19,6 +19,7 @@ static uint32_t nvram_id = 0;
 static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
 static Dict<Buffer> nvram;
+static uint32_t repeater = 0;
 
 static void init_things()
 {
@@ -198,6 +199,16 @@ uint32_t arduino_nvram_id_load()
 void arduino_nvram_id_save(uint32_t id)
 {
 	nvram_id = id;
+}
+
+uint32_t arduino_nvram_repeater_load()
+{
+	return repeater;
+}
+
+void arduino_nvram_repeater_save(uint32_t r)
+{
+	repeater = r;
 }
 
 void console_print(const Buffer &b) {

@@ -14,15 +14,16 @@ else
 fi
 
 PIDS=""
-for eee in AAAA:1 BBBB:1 CCCC:3 DDDD:2 EEEE:2; do
+for eee in AAAA:0:1 BBBB:1:1 CCCC:1:3 DDDD:0:2 EEEE:1:2; do
 	sta=$(echo $eee | sed 's/:.*$//')
+	rep=$(echo $eee | sed 's/^[^:]*://' | sed 's/:.*$//')
 	cov=$(echo $eee | sed 's/^.*://')
 	if [ $VALGRIND = 1 ]; then
 		valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
-			--suppressions=valgrind.supp ./testnet ${sta} ${cov} > ${sta}.log &
+			--suppressions=valgrind.supp ./testnet ${sta} ${rep} ${cov} > ${sta}.log &
 		PIDS+=" $!"
 	else
-		./testnet ${sta} ${cov} > ${sta}.log &
+		./testnet ${sta} ${rep} ${cov} > ${sta}.log &
 		PIDS+=" $!"
 	fi
 done

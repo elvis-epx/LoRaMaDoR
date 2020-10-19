@@ -121,13 +121,14 @@ Network* trampoline_target = 0;
 
 //////////////////////////// Network class proper
 
-Network::Network(const Callsign &callsign)
+Network::Network(const Callsign &callsign, uint32_t repeater)
 {
 	if (! callsign.is_valid()) {
 		return;
 	}
 
 	my_callsign = callsign;
+	repeater_function_activated = repeater;
 	last_pkt_id = arduino_nvram_id_load();
 
 	// Periodic housecleaning tasks
@@ -362,6 +363,9 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 	}
 
 	// Diffusion routing from this point on
+	if (! repeater_function_activated) {
+		return;
+	}
 
 	// Forward packet modifiers
 	// They can add params and/or change msg

@@ -104,12 +104,16 @@ void sendm()
 
 int main(int argc, char* argv[])
 {
-	if (argc < 3) {
-		printf("Specify a callsign and coverage bitmask\n");
+	if (argc < 4) {
+		printf("Specify, callsign, repeater mode and coverage bitmask\n");
 		return 1;
 	}
 
-	int coverage = atoi(argv[2]) & 0xff;
+	int repeater = atoi(argv[2]) ? 1 : 0;
+	int coverage = atoi(argv[3]) & 0xff;
+	if (repeater < 0 || repeater > 1) {
+		printf("repeater mode must be 0 or 1\n");
+	}
 	if (!coverage) {
 		printf("Coverage bitmask must not be 0\n");
 		return 1;
@@ -123,8 +127,8 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
-	Net = Ptr<Network>(new Network(Callsign("INV")));
-	Net = Ptr<Network>(new Network(cs));
+	Net = Ptr<Network>(new Network(Callsign("INV"), repeater));
+	Net = Ptr<Network>(new Network(cs, repeater));
 	cli_simtype("!callsi\bgn\r");
 	cli_simtype("!callsj\bign\r");
 	cli_simtype("!callsign 5\r");
@@ -133,6 +137,9 @@ int main(int argc, char* argv[])
 	cli_simtype("!nodebug\r");
 	cli_simtype("!ssid bla\r");
 	cli_simtype("!ssid\r");
+	cli_simtype("!repeater\r");
+	cli_simtype("!repeater a\r");
+	cli_simtype("!repeater 1\r");
 	cli_simtype("!password ble\r");
 	cli_simtype("!password\r");
 	cli_simtype("!reset\r");
