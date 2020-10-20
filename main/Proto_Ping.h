@@ -8,12 +8,12 @@
 #ifndef __PROTO_PING_H
 #define __PROTO_PING_H
 
-#include "Protocol.h"
+#include "L7Protocol.h"
 
-class Proto_Ping: public Protocol {
+class Proto_Ping: public L7Protocol {
 public:
 	Proto_Ping(Network* net);
-	virtual HandlerResponse handle(const Packet&);
+	virtual L7HandlerResponse handle(const Packet&);
 
 	Proto_Ping() = delete;
 	Proto_Ping(const Proto_Ping&) = delete;

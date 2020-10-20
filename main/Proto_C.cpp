@@ -9,23 +9,23 @@
 #include "Network.h"
 #include "Packet.h"
 
-Proto_C::Proto_C(Network *net): Protocol(net)
+Proto_C::Proto_C(Network *net): L4Protocol(net)
 {
 }
 
-HandlerResponse Proto_C::handle(const Packet& pkt)
+L4HandlerResponse Proto_C::handle(const Packet& pkt)
 {
 	if (! pkt.params().has("C")) {
 		// does not request to be confirmed
-		return HandlerResponse();
+		return L4HandlerResponse();
 	}
 	if (pkt.params().has("CO")) {
 		// do not confirm a confirmation
-		return HandlerResponse();
+		return L4HandlerResponse();
 	}
 	if (pkt.to().is_bcast()) {
 		// do not confirm broadcast packets
-		return HandlerResponse();
+		return L4HandlerResponse();
 	}
 
 	Params co = Params();
@@ -33,5 +33,5 @@ HandlerResponse Proto_C::handle(const Packet& pkt)
 	co.put_naked("CO");
 	Buffer msg = Buffer("confirm #") + pkt.params().s_ident();
 	auto np = new Packet(pkt.from(), net->me(), co, msg);
-	return HandlerResponse(Ptr<Packet>(np), false);
+	return L4HandlerResponse(Ptr<Packet>(np), false);
 }

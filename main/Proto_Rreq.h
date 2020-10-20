@@ -8,12 +8,12 @@
 #ifndef __PROTO_RREQ_H
 #define __PROTO_RREQ_H
 
-#include "Protocol.h"
+#include "L7Protocol.h"
 
-class Proto_Rreq: public Protocol {
+class Proto_Rreq: public L7Protocol {
 public:
 	Proto_Rreq(Network* net);
-	virtual HandlerResponse handle(const Packet&);
+	virtual L7HandlerResponse handle(const Packet&);
 
 	Proto_Rreq() = delete;
 	Proto_Rreq(const Proto_Rreq&) = delete;

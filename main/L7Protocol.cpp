@@ -37,31 +37,31 @@
  * disabled.
  */ 
 
-#include "Protocol.h"
+#include "L7Protocol.h"
 #include "Network.h"
 #include "Packet.h"
 
-HandlerResponse::HandlerResponse(Ptr<Packet> pkt, bool hide_from_user):
+L7HandlerResponse::L7HandlerResponse(Ptr<Packet> pkt, bool hide_from_user):
 	pkt(pkt), hide_from_user(hide_from_user)
 {}
 
-HandlerResponse::HandlerResponse():
+L7HandlerResponse::L7HandlerResponse():
 	pkt(Ptr<Packet>(0)), hide_from_user(false)
 {}
 
-Protocol::Protocol(Network *net): net(net)
+L7Protocol::L7Protocol(Network *net): net(net)
 {
 	// Network becomes the owner
-	net->add_protocol(this);
+	net->add_l7protocol(this);
 }
 
-Protocol::~Protocol()
+L7Protocol::~L7Protocol()
 {
 	net = 0;
 }
 
-HandlerResponse Protocol::handle(const Packet&)
+L7HandlerResponse L7Protocol::handle(const Packet&)
 {
 	// by default, does not handle upon receiving
-	return HandlerResponse();
+	return L7HandlerResponse();
 }

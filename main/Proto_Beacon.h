@@ -8,11 +8,11 @@
 #ifndef __PROTO_BEACON_H
 #define __PROTO_BEACON_H
 
-#include "Protocol.h"
+#include "L7Protocol.h"
 
 class BeaconTask;
 
-class Proto_Beacon: public Protocol {
+class Proto_Beacon: public L7Protocol {
 public:
 	Proto_Beacon(Network* net);
 private:

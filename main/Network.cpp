@@ -152,15 +152,22 @@ Network::~Network()
 {
 	// makes sure tasks stop before protocols
 	task_mgr.stop();
-	protocols.clear();
+	l4protocols.clear();
+	l7protocols.clear();
+	modifiers.clear();
 }
 
 // Add a protocol to stack. Called by Protocol class itself,
 // so it never has to be called explicitly when stantiating 
 // a protocol.
-void Network::add_protocol(Protocol* p)
+void Network::add_l7protocol(L7Protocol* p)
 {
-	protocols.push_back(Ptr<Protocol>(p));
+	l7protocols.push_back(Ptr<L7Protocol>(p));
+}
+
+void Network::add_l4protocol(L4Protocol* p)
+{
+	l4protocols.push_back(Ptr<L4Protocol>(p));
 }
 
 // Add a modifier to stack. Called by Modifier class itself,
@@ -207,9 +214,20 @@ void Network::recv(Ptr<Packet> pkt)
 {
 	logs("Received pkt", pkt->encode_l3());
 
-	// check if packet can be handled automatically
-	for (size_t i = 0; i < protocols.size(); ++i) {
-		auto response = protocols[i]->handle(*pkt);
+	// handle L4 protocols
+	for (size_t i = 0; i < l4protocols.size(); ++i) {
+		auto response = l4protocols[i]->handle(*pkt);
+		if (response.pkt) {
+			sendmsg(response.pkt);
+		}
+		if (response.error) {
+			return;
+		}
+	}
+
+	// check if packet can be handled automatically by L7 protocol
+	for (size_t i = 0; i < l7protocols.size(); ++i) {
+		auto response = l7protocols[i]->handle(*pkt);
 		if (response.pkt) {
 			sendmsg(response.pkt);
 			if (response.hide_from_user) {

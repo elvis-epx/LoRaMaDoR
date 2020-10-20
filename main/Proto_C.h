@@ -8,12 +8,12 @@
 #ifndef __PROTO_C_H
 #define __PROTO_C_H
 
-#include "Protocol.h"
+#include "L4Protocol.h"
 
-class Proto_C: public Protocol {
+class Proto_C: public L4Protocol {
 public:
 	Proto_C(Network* net);
-	virtual HandlerResponse handle(const Packet&);
+	virtual L4HandlerResponse handle(const Packet&);
 
 	Proto_C() = delete;
 	Proto_C(const Proto_C&) = delete;

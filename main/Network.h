@@ -19,7 +19,8 @@
 #define SECONDS 1000
 #define MINUTES 60000
 
-class Protocol;
+class L7Protocol;
+class L4Protocol;
 class Modifier;
 class Packet;
 
@@ -54,12 +55,13 @@ public:
 	size_t get_last_pkt_id() const;
 	size_t get_next_pkt_id();
 
-	// publicised to be called by Protocols
+	// publicised to be called by protocols
 	void schedule(Task*);
 
 	// Called by each Protocol or Modifier subclass constructor.
 	// Never call this yourself.
-	void add_protocol(Protocol*);
+	void add_l7protocol(L7Protocol*);
+	void add_l4protocol(L4Protocol*);
 	void add_modifier(Modifier*);
 
 	// publicised to be called by Tasks
@@ -87,7 +89,8 @@ private:
 	Dict<Peer> peerlist;
 	Dict<RecvLogItem> recv_log;
 	size_t last_pkt_id;
-	Vector< Ptr<Protocol> > protocols;
+	Vector< Ptr<L7Protocol> > l7protocols;
+	Vector< Ptr<L4Protocol> > l4protocols;
 	Vector< Ptr<Modifier> > modifiers;
 };
 
