@@ -56,7 +56,7 @@ public:
 	// publicised to be called by Protocols
 	void schedule(Task*);
 
-	// Called by Protocol base class constructor.
+	// Called by each Protocol subclass constructor.
 	// Never call this yourself.
 	void add_protocol(Protocol*);
 

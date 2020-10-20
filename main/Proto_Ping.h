@@ -3,7 +3,7 @@
  * Copyright (c) 2019 PU5EPX
  */
 
-// Implementation of PING protocol
+// Implementation of PING protocol responder
 
 #ifndef __PROTO_PING_H
 #define __PROTO_PING_H

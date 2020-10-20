@@ -3,7 +3,7 @@
  * Copyright (c) 2019 PU5EPX
  */
 
-// Implementation of R earmarking of forwarded packets
+// Implementation of packet confirmation (C,CO options)
 
 #ifndef __PROTO_C_H
 #define __PROTO_C_H

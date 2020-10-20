@@ -3,7 +3,7 @@
  * Copyright (c) 2019 PU5EPX
  */
 
-// Implementation of confirmed request (C parameer)
+// Implementation of confirmed request (C parameter)
 
 #include "Proto_C.h"
 #include "Network.h"
