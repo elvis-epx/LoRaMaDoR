@@ -84,16 +84,9 @@ void Sha256::push(uint8_t data) {
   }
 }
 
-#if defined(ARDUINO) && ARDUINO >= 100
-size_t Sha256::write(uint8_t data) {
-#else
 void Sha256::write(uint8_t data) {
-#endif
   ++byteCount;
   push(data);
-#if defined(ARDUINO) && ARDUINO >= 100
-  return 1;
-#endif
 }
 
 void Sha256::padBlock() {
