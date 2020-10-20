@@ -3,7 +3,6 @@ Change README, add section about remote control/non-amateur uses
 L4 HMAC protocol
 	- test in target
 	- unit test: simulate failure
-	- unit test: simulate L7 break x hide_from_user
 
 Add example of application (try some sensor and LED control)
 	- enable/disable protocols in build

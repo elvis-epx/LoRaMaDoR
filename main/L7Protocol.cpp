@@ -41,12 +41,12 @@
 #include "Network.h"
 #include "Packet.h"
 
-L7HandlerResponse::L7HandlerResponse(Ptr<Packet> pkt, bool hide_from_user):
-	pkt(pkt), hide_from_user(hide_from_user)
+L7HandlerResponse::L7HandlerResponse(Ptr<Packet> pkt):
+	pkt(pkt)
 {}
 
 L7HandlerResponse::L7HandlerResponse():
-	pkt(Ptr<Packet>(0)), hide_from_user(false)
+	pkt(Ptr<Packet>(0))
 {}
 
 L7Protocol::L7Protocol(Network *net): net(net)

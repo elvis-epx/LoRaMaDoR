@@ -17,9 +17,8 @@ class Packet;
 
 struct L7HandlerResponse {
 	L7HandlerResponse();
-	L7HandlerResponse(Ptr<Packet>, bool);
+	L7HandlerResponse(Ptr<Packet>);
 	Ptr<Packet> pkt;
-	bool hide_from_user;
 };
 
 class L7Protocol {

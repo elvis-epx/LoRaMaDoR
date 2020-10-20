@@ -22,7 +22,7 @@ L7HandlerResponse Proto_Ping::handle(const Packet& pkt)
 		pong.set_ident(net->get_next_pkt_id());
 		pong.put_naked("PONG");
 		auto np = new Packet(pkt.from(), net->me(), pong, pkt.msg());
-		return L7HandlerResponse(Ptr<Packet>(np), true);
+		return L7HandlerResponse(Ptr<Packet>(np));
 	}
 
 	return L7HandlerResponse();

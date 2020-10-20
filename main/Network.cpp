@@ -248,9 +248,6 @@ void Network::recv(Ptr<Packet> pkt)
 		auto response = l7protocols[i]->handle(*pkt);
 		if (response.pkt) {
 			_send(response.pkt);
-			if (response.hide_from_user) {
-				return;
-			}
 			break;
 		}
 	}
