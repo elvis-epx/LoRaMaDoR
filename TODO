@@ -1,4 +1,36 @@
-Add example of application (try some sensor)
+Change README, add section about remote control/non-amateur uses
+
+L4 HMAC protocol
+	- generate
+	- check
+	- store my key, store peers' keys, PSK generic key
+	- https://github.com/simonratner/Arduino-SHA-256
+
+Add example of application (try some sensor and LED control)
+	- enable/disable protocols in build
+
+No-replay mixin protocol
+	- report error to higher level?
+
+Confirmed mixin protocol
+	- use C or create a separete impl?
+	- report error to higher level?
+	- retransmission
+	- exponential backoff
+
+Log/debug x interfacing with PC over serial
+	- allow to autom. distinguish packets from debug messages
+	- allow for a PC to implement one side of the L7 protocol
+	- autonomous x PC stack
+	- test collaborated Python code against changes
+
+Telnet, serial x security
+	- cases: Telnet login/sniffing, stolen device
+	- do not show keys once stored?
+	- Telnet password?
+
+Cryptography support
+
 Possibility of remote, NAT-piercing access
 Add !version command
 Gateway via Internet, IP router
