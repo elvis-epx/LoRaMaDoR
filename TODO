@@ -1,10 +1,9 @@
 Change README, add section about remote control/non-amateur uses
 
 L4 HMAC protocol
-	- generate
-	- check
-	- store my key, store peers' keys, PSK generic key
-	- https://github.com/simonratner/Arduino-SHA-256
+	- test in target
+	- unit test: simulate failure
+	- unit test: simulate L7 break x hide_from_user
 
 Add example of application (try some sensor and LED control)
 	- enable/disable protocols in build
@@ -30,6 +29,8 @@ Telnet, serial x security
 	- Telnet password?
 
 Cryptography support
+
+HMAC - multiple keys
 
 Possibility of remote, NAT-piercing access
 Add !version command

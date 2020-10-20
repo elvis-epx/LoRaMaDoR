@@ -6,11 +6,10 @@
 // Implementation of confirmed request (C parameter)
 
 #include "Proto_HMAC.h"
+#include "HMACKeys.h"
 #include "Network.h"
 #include "Packet.h"
 #include "sha256.h"
-
-static const char* hex = "0123456789abcdef";
 
 Proto_HMAC::Proto_HMAC(Network *net): L4Protocol(net)
 {
@@ -18,14 +17,14 @@ Proto_HMAC::Proto_HMAC(Network *net): L4Protocol(net)
 
 Buffer Proto_HMAC_hmac(const Buffer& key, const Buffer& data)
 {
+	static const char* hex = "0123456789abcdef";
 	Sha256 hmac;
 	hmac.initHmac((uint8_t*) key.c_str(), key.length());
 	for (size_t i = 0; i < data.length(); ++i) {
 		hmac.write(data.charAt(i));
 	}
 	uint8_t* res = hmac.resultHmac();
-	// convert the first 48 bits of HMAC (6 octets)
-	// to 12 'base16' characters
+	// convert the first 48 bits of HMAC (6 octets) to hex
 	char b64[13];
 	for (size_t i = 0; i < 6; ++i) {
 		b64[i*2+0] = hex[(res[i] >> 4) & 0xf];
@@ -37,10 +36,11 @@ Buffer Proto_HMAC_hmac(const Buffer& key, const Buffer& data)
 
 L4rxHandlerResponse Proto_HMAC::rx(const Packet& orig_pkt)
 {
-	// FIXME implement handling
-	// FIXME check if key exists, recover key
-
-	return Proto_HMAC_rx("abracadabra", orig_pkt);
+	Buffer key = HMACKeys::get_key_for(orig_pkt.from());
+	if (key.empty()) {
+		return L4rxHandlerResponse();
+	}
+	return Proto_HMAC_rx(key, orig_pkt);
 }
 
 L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
@@ -74,8 +74,11 @@ L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
 
 L4txHandlerResponse Proto_HMAC::tx(const Packet& orig_pkt)
 {
-	// FIXME check if key exists, recover key
-	return Proto_HMAC_tx("abracadabra", orig_pkt);
+	Buffer key = HMACKeys::get_key_for(orig_pkt.from());
+	if (key.empty()) {
+		return L4txHandlerResponse();
+	}
+	return Proto_HMAC_tx(key, orig_pkt);
 }
 
 L4txHandlerResponse Proto_HMAC_tx(const Buffer& key, const Packet& orig_pkt)

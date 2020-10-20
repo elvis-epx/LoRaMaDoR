@@ -104,8 +104,8 @@ void sendm()
 
 int main(int argc, char* argv[])
 {
-	if (argc < 4) {
-		printf("Specify, callsign, repeater mode and coverage bitmask\n");
+	if (argc < 5) {
+		printf("Specify, callsign, repeater mode, coverage bitmask and PSK\n");
 		return 1;
 	}
 
@@ -127,11 +127,25 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
+	char psk_cmd[32];
+	sprintf(psk_cmd, "!psk %s\r", argv[4]);
+
 	cli_simtype("!beacon1st\r");
 	cli_simtype("!beacon1st 0\r");
 	cli_simtype("!beacon1st 1\r");
+	cli_simtype("!psk None\r");
+	assert(arduino_nvram_psk_load() == "");
+	cli_simtype("!psk abracadabra\r");
+	assert(arduino_nvram_psk_load() == "abracadabra");
+	cli_simtype("!psk \r");
+	assert(arduino_nvram_psk_load() == "abracadabra");
+	cli_simtype("!psk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
+	assert(arduino_nvram_psk_load() == "abracadabra");
+	cli_simtype("!psk None\r");
+	assert(arduino_nvram_psk_load() == "");
 	Net = Ptr<Network>(new Network(Callsign("INV"), repeater));
 	Net = Ptr<Network>(new Network(cs, repeater));
+	cli_simtype(psk_cmd);
 	cli_simtype("!callsi\bgn\r");
 	cli_simtype("!callsj\bign\r");
 	cli_simtype("!callsign 5\r");

@@ -137,6 +137,24 @@ void arduino_nvram_callsign_save(const Callsign &new_callsign)
 	prefs.end();
 }
 
+Buffer arduino_nvram_psk_load()
+{
+	char candidate[33];
+	prefs.begin("LoRaMaDoR");
+	// len includes \0
+	size_t len = prefs.getString("psk", candidate, 32);
+	prefs.end();
+
+	return Buffer(candidate, len);
+}
+
+void arduino_nvram_psk_save(const Buffer &b)
+{
+	prefs.begin("LoRaMaDoR", false);
+	prefs.putString("psk", b.c_str());
+	prefs.end();
+}
+
 void arduino_nvram_save(const char *key, const Buffer& value)
 {
 	prefs.begin("LoRaMaDoR", false);

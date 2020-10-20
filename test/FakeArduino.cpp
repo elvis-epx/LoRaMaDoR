@@ -22,6 +22,7 @@ static Dict<Buffer> nvram;
 static uint32_t repeater = 0;
 static uint32_t beacon = 0;
 static uint32_t beacon_first = 0;
+static Buffer psk;
 
 static void init_things()
 {
@@ -211,6 +212,16 @@ uint32_t arduino_nvram_repeater_load()
 void arduino_nvram_repeater_save(uint32_t r)
 {
 	repeater = r;
+}
+
+Buffer arduino_nvram_psk_load()
+{
+	return psk;
+}
+
+void arduino_nvram_psk_save(const Buffer &b)
+{
+	psk = b;
 }
 
 uint32_t arduino_nvram_beacon_load()

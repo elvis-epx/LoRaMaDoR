@@ -118,6 +118,24 @@ static void cli_parse_beacon(const Buffer &candidate)
 	console_println("Beacon interval saved. Effective after next beacon.");
 }
 
+// Configure pre-shared key (PSK) for HMAC packet authentication
+static void cli_parse_psk(Buffer candidate)
+{
+	if (candidate.length() < 1 || candidate.length() > 32) {
+		console_println("Pre-shared key must have between 1 and 32 ASCII chars.");
+		return;
+	}
+
+	if (candidate == "None") {
+		candidate = "";
+	}
+	
+	arduino_nvram_psk_save(candidate);
+	console_println("Pre-shared key saved, effective immediately.");
+	console_println("Make sure your peers are using the same key.");
+	console_println("Activate !debug mode to check HMAC-related issues.");
+}
+
 // Configure or print beacon first interval time in seconds
 static void cli_parse_beacon_first(const Buffer &candidate)
 {
@@ -235,6 +253,7 @@ static void cli_parse_help()
 	console_println("  !repeater [0 or 1]     Get/set repeater function switch");
 	console_println("  !beacon [10..600]      Get/set beacon average time (in seconds)");
 	console_println("  !beacon1st [10..300]   Get/set first beacon avg time");
+	console_println("  !psk KEY               Set optional HMAC pre-shared key (None to disable)");
 	console_println("  !wifi                  Show Wi-Fi/network status");
 	console_println("  !debug                 Enable debug/verbose mode");
 	console_println("  !nodebug               Disable debug mode");
@@ -262,6 +281,9 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd.startsWith("beacon ")) {
 		cmd.cut(7);
 		cli_parse_beacon(cmd);
+	} else if (cmd.startsWith("psk ")) {
+		cmd.cut(4);
+		cli_parse_psk(cmd);
 	} else if (cmd == "beacon") {
 		cli_parse_beacon("");
 	} else if (cmd.startsWith("beacon1st ")) {
