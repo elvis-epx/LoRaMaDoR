@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "Packet.h"
+#include "sha256.h"
+#include "Proto_HMAC.h"
+#include "Network.h"
+
+// dummy
+Ptr<Network> Net(0);
 
 void test2() {
 	Buffer tm = "a";
@@ -202,6 +208,37 @@ void test5()
 
 int main()
 {
+	Buffer hmac = Proto_HMAC_hmac("abracadabra", "BBBBAAAA23Ola");
+	assert(hmac == "4f32644cc359"); // calculated with test_hmac.py
+	Params d23;
+	d23.set_ident(23);
+	Packet p23(Callsign(Buffer("BBBB")), Callsign(Buffer("AAAA")), d23, Buffer("Ola"));
+	// printf("%s\n", p23.encode_l3().c_str());
+	auto p23a = Proto_HMAC_tx("abracadabra", p23);
+	assert(!!p23a.pkt);
+	// printf("%s\n", p23a.pkt->encode_l3().c_str());
+	assert(p23a.pkt->params().get("H") == "4f32644cc359");
+	assert(Proto_HMAC_rx("abracadabra", p23).error);
+	assert(!Proto_HMAC_rx("abracadabra", *p23a.pkt).error);
+	
+	d23 = p23a.pkt->params();
+
+	d23.put("H", "");
+	auto p23e = p23a.pkt->change_params(d23);
+	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+
+	d23.put("H", "0123456789ab");
+	p23e = p23a.pkt->change_params(d23);
+	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+
+	d23.put("H", "0123456789abcdefg");
+	p23e = p23a.pkt->change_params(d23);
+	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+
+	d23.put("H", "4f32644cc359");
+	p23e = p23a.pkt->change_params(d23);
+	assert(!Proto_HMAC_rx("abracadabra", *p23e).error);
+
 	assert (!Callsign("Q").is_valid());
 	assert (Callsign("QB").is_valid());
 	assert (Callsign("QB").is_q());

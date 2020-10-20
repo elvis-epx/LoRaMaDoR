@@ -17,10 +17,10 @@ Proto_HMAC::Proto_HMAC(Network *net): L4Protocol(net)
 {
 }
 
-static Buffer calc_hmac(const Buffer& data)
+Buffer Proto_HMAC_hmac(const Buffer& key, const Buffer& data)
 {
 	Sha256 hmac;
-	hmac.initHmac((uint8_t*) "abracadabra", 11);
+	hmac.initHmac((uint8_t*) key.c_str(), key.length());
 	for (size_t i = 0; i < data.length(); ++i) {
 		hmac.write(data.charAt(i));
 	}
@@ -29,8 +29,8 @@ static Buffer calc_hmac(const Buffer& data)
 	// to 12 'base16' characters
 	char b64[13];
 	for (size_t i = 0; i < 6; ++i) {
-		b64[i*2+0] = hex[(res[i] & 0xf)];
-		b64[i*2+1] = hex[((res[i] >> 4) & 0xf)];
+		b64[i*2+0] = hex[(res[i] >> 4) & 0xf];
+		b64[i*2+1] = hex[res[i] & 0xf];
 	}
 
 	return Buffer(b64, 12);
@@ -41,6 +41,11 @@ L4rxHandlerResponse Proto_HMAC::rx(const Packet& orig_pkt)
 	// FIXME implement handling
 	// FIXME check if key exists, recover key
 
+	return Proto_HMAC_rx("abracadabra", orig_pkt);
+}
+
+L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
+{
 	auto p = orig_pkt.params();
 
 	if (p.has("RREQ") || p.has("RRSP")) {
@@ -61,7 +66,7 @@ L4rxHandlerResponse Proto_HMAC::rx(const Packet& orig_pkt)
 	// recalculate HMAC locally and compare
 	auto data = Buffer(orig_pkt.to()) + orig_pkt.from() +
 		orig_pkt.params().s_ident() + orig_pkt.msg();
-	auto hmac = calc_hmac(data);
+	auto hmac = Proto_HMAC_hmac(key, data);
 
 	if (hmac != recv_hmac) {
 		logs("HMAC: inconsistent", "");
@@ -75,6 +80,11 @@ L4rxHandlerResponse Proto_HMAC::rx(const Packet& orig_pkt)
 L4txHandlerResponse Proto_HMAC::tx(const Packet& orig_pkt)
 {
 	// FIXME check if key exists, recover key
+	return Proto_HMAC_tx("abracadabra", orig_pkt);
+}
+
+L4txHandlerResponse Proto_HMAC_tx(const Buffer& key, const Packet& orig_pkt)
+{
 	auto p = orig_pkt.params();
 	if (p.has("RREQ") || p.has("RRSP")) {
 		return L4txHandlerResponse();
@@ -82,7 +92,7 @@ L4txHandlerResponse Proto_HMAC::tx(const Packet& orig_pkt)
 
 	auto data = Buffer(orig_pkt.to()) + orig_pkt.from() +
 		orig_pkt.params().s_ident() + orig_pkt.msg();
-	auto hmac = calc_hmac(data);
+	auto hmac = Proto_HMAC_hmac(key, data);
 
 	p.put("H", hmac);
 	return L4txHandlerResponse(orig_pkt.change_params(p));
