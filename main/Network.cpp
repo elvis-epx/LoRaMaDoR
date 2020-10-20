@@ -199,6 +199,15 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 	uint32_t id = get_next_pkt_id();
 	params.set_ident(id);
 	Ptr<Packet> pkt(new Packet(to, me(), params, msg));
+
+	// handle L4 protocols
+	for (size_t i = 0; i < l4protocols.size(); ++i) {
+		auto response = l4protocols[i]->tx(*pkt);
+		if (response.pkt) {
+			pkt = response.pkt;
+		}
+	}
+
 	sendmsg(pkt);
 	return id;
 }
@@ -216,7 +225,7 @@ void Network::recv(Ptr<Packet> pkt)
 
 	// handle L4 protocols
 	for (size_t i = 0; i < l4protocols.size(); ++i) {
-		auto response = l4protocols[i]->handle(*pkt);
+		auto response = l4protocols[i]->rx(*pkt);
 		if (response.pkt) {
 			sendmsg(response.pkt);
 		}

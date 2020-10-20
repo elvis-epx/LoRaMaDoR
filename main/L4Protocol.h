@@ -15,17 +15,24 @@
 class Network;
 class Packet;
 
-struct L4HandlerResponse {
-	L4HandlerResponse();
-	L4HandlerResponse(Ptr<Packet>, bool);
+struct L4rxHandlerResponse {
+	L4rxHandlerResponse();
+	L4rxHandlerResponse(Ptr<Packet>, bool);
 	Ptr<Packet> pkt;
 	bool error;
+};
+
+struct L4txHandlerResponse {
+	L4txHandlerResponse();
+	L4txHandlerResponse(Ptr<Packet>);
+	Ptr<Packet> pkt;
 };
 
 class L4Protocol {
 public:
 	L4Protocol(Network*);
-	virtual L4HandlerResponse handle(const Packet&) = 0;
+	virtual L4rxHandlerResponse rx(const Packet&);
+	virtual L4txHandlerResponse tx(const Packet&);
 	virtual ~L4Protocol();
 protected:
 	Network *net;

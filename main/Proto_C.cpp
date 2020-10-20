@@ -13,19 +13,19 @@ Proto_C::Proto_C(Network *net): L4Protocol(net)
 {
 }
 
-L4HandlerResponse Proto_C::handle(const Packet& pkt)
+L4rxHandlerResponse Proto_C::rx(const Packet& pkt)
 {
 	if (! pkt.params().has("C")) {
 		// does not request to be confirmed
-		return L4HandlerResponse();
+		return L4rxHandlerResponse();
 	}
 	if (pkt.params().has("CO")) {
 		// do not confirm a confirmation
-		return L4HandlerResponse();
+		return L4rxHandlerResponse();
 	}
 	if (pkt.to().is_bcast()) {
 		// do not confirm broadcast packets
-		return L4HandlerResponse();
+		return L4rxHandlerResponse();
 	}
 
 	Params co = Params();
@@ -33,5 +33,5 @@ L4HandlerResponse Proto_C::handle(const Packet& pkt)
 	co.put_naked("CO");
 	Buffer msg = Buffer("confirm #") + pkt.params().s_ident();
 	auto np = new Packet(pkt.from(), net->me(), co, msg);
-	return L4HandlerResponse(Ptr<Packet>(np), false);
+	return L4rxHandlerResponse(Ptr<Packet>(np), false);
 }
