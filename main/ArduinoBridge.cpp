@@ -111,9 +111,6 @@ void arduino_nvram_beacon_first_save(uint32_t b)
 Callsign arduino_nvram_callsign_load()
 {
 	char candidate[12];
-Callsign arduino_nvram_callsign_load()
-{
-	char candidate[12];
 	prefs.begin("LoRaMaDoR");
 	// len includes \0
 	size_t len = prefs.getString("callsign", candidate, 11);

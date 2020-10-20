@@ -22,8 +22,8 @@ void setup()
 
 	Callsign cs = arduino_nvram_callsign_load();
 	uint32_t is_repeater = arduino_nvram_repeater_load();
-	Net = Ptr<Network>(new Network(cs), is_repeater);
-	oled_show("Net configured", Buffer(cs).c_str(), "", "");
+	Net = Ptr<Network>(new Network(cs, is_repeater));
+	oled_show("Net up!", Buffer(cs).c_str(), "", "");
 
 	console_setup(Net);
 	wifi_setup(Net);

@@ -84,7 +84,7 @@ static void cli_parse_repeater(const Buffer &candidate)
 {
 	if (candidate.empty()) {
 		console_print("Repeater function is ");
-		console_println(arduino_nvram_repeater_load());
+		console_println(arduino_nvram_repeater_load() ? "1 (on)" : "0 (off)");
 		return;
 	}
 	
@@ -94,8 +94,7 @@ static void cli_parse_repeater(const Buffer &candidate)
 	}
 	
 	arduino_nvram_repeater_save(candidate.charAt(0) - '0');
-	console_println("Repeater config saved, restarting...");
-	arduino_restart();
+	console_println("Repeater config saved. Effective next restart.");
 }
 
 // Configure or print beacon interval time in seconds
@@ -103,7 +102,7 @@ static void cli_parse_beacon(const Buffer &candidate)
 {
 	if (candidate.empty()) {
 		console_print("Beacon average interval is ");
-		console_print(arduino_nvram_beacon_load());
+		console_print(Buffer::itoa(arduino_nvram_beacon_load()));
 		console_println("s");
 		return;
 	}
@@ -124,7 +123,7 @@ static void cli_parse_beacon_first(const Buffer &candidate)
 {
 	if (candidate.empty()) {
 		console_print("Beacon 1st average interval is ");
-		console_print(arduino_nvram_beacon_first_load());
+		console_print(Buffer::itoa(arduino_nvram_beacon_first_load()));
 		console_println("s");
 		return;
 	}
@@ -137,7 +136,7 @@ static void cli_parse_beacon_first(const Buffer &candidate)
 	}
 	
 	arduino_nvram_beacon_first_save(b);
-	console_println("Beacon 1st interval saved. Effective next reboot.");
+	console_println("Beacon 1st interval saved. Effective next restart.");
 }
 
 // Wi-Fi network name (SSID) configuration
