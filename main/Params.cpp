@@ -245,6 +245,12 @@ void Params::put_naked(const char *key)
 	items.put(ukey, naked);
 }
 
+// Remove a parameter
+void Params::remove(const char *key)
+{
+	items.remove(key);
+}
+
 // Returns whether the parameter is naked (key w/o value).
 // Undefined if key does not exist at all.
 bool Params::is_key_naked(const char* key) const

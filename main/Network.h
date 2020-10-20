@@ -66,7 +66,7 @@ public:
 
 	// publicised to be called by Tasks
 	uint32_t tx(const Buffer&);
-	void forward(Ptr<Packet>, bool, uint32_t);
+	void route(Ptr<Packet>, bool, uint32_t);
 	uint32_t clean_recv_log(uint32_t);
 	uint32_t clean_neigh(uint32_t);
 
@@ -78,7 +78,7 @@ public:
 
 private:
 	void recv(Ptr<Packet> pkt);
-	void sendmsg(const Ptr<Packet> pkt);
+	void _send(Ptr<Packet> pkt);
 	void update_peerlist(uint32_t, const Ptr<Packet> &);
 
 	Callsign my_callsign;

@@ -63,7 +63,7 @@ private:
 	const Buffer encoded_packet;
 };
 
-// Packet forwarding task.
+// Packet routing task.
 class PacketFwd: public Task {
 public:
 	PacketFwd(Network* net, const Ptr<Packet> packet, bool we_are_origin):
@@ -73,7 +73,7 @@ public:
 protected:
 	virtual uint32_t run2(uint32_t now)
 	{
-		net->forward(packet, we_are_origin, now);
+		net->route(packet, we_are_origin, now);
 		// forces this task to be one-off
 		return 0;
 	}
@@ -138,6 +138,7 @@ Network::Network(const Callsign &callsign, uint32_t repeater)
 	schedule(new CleanNeighTask(this, NEIGH_CLEAN));
 
 	// Core L7 protocols
+	// (should come before others, since e.g. RREQ does not check HMAC)
 	new Proto_Beacon(this);
 	new Proto_Ping(this);
 	new Proto_Rreq(this);
@@ -200,12 +201,19 @@ size_t Network::get_last_pkt_id() const
 }
 
 // Called from application layer to send a packet
+// (i.e. originate a packet)
 uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 {
 	uint32_t id = get_next_pkt_id();
 	params.set_ident(id);
 	Ptr<Packet> pkt(new Packet(to, me(), params, msg));
+	_send(pkt);
+	return id;
+}
 
+// Second phase of packet origination
+void Network::_send(Ptr<Packet> pkt)
+{
 	// handle L4 protocols, in reverse order of RX
 	for (size_t i = l4protocols.size(); i > 0; --i) {
 		auto response = l4protocols[i-1]->tx(*pkt);
@@ -214,13 +222,7 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 		}
 	}
 
-	sendmsg(pkt);
-	return id;
-}
-
-// schedule radio transmission
-void Network::sendmsg(const Ptr<Packet> pkt)
-{
+	// schedule radio routing/transmission
 	schedule(new PacketFwd(this, pkt, true));
 }
 
@@ -233,7 +235,7 @@ void Network::recv(Ptr<Packet> pkt)
 	for (size_t i = 0; i < l4protocols.size(); ++i) {
 		auto response = l4protocols[i]->rx(*pkt);
 		if (response.pkt) {
-			sendmsg(response.pkt);
+			_send(response.pkt);
 		}
 		if (response.error) {
 			return;
@@ -244,7 +246,7 @@ void Network::recv(Ptr<Packet> pkt)
 	for (size_t i = 0; i < l7protocols.size(); ++i) {
 		auto response = l7protocols[i]->handle(*pkt);
 		if (response.pkt) {
-			sendmsg(response.pkt);
+			_send(response.pkt);
 			if (response.hide_from_user) {
 				return;
 			}
@@ -363,7 +365,7 @@ void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
 }
 
 // handle packet received from radio or from application layer
-void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
+void Network::route(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 {
 	if (we_are_origin) {
 		if (me() == pkt->to() || pkt->to().is_lo()) {

@@ -27,6 +27,7 @@ public:
 	bool has(const char *) const;
 	void put(const char *, const Buffer&);
 	void put_naked(const char *);
+	void remove(const char *);
 	bool is_key_naked(const char *) const;
 	void set_ident(uint32_t);
 private:
