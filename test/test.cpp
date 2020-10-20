@@ -227,6 +227,10 @@ int main()
 	auto p23e = p23a.pkt->change_params(d23);
 	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
 
+	d23.remove("H");
+	p23e = p23a.pkt->change_params(d23);
+	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+
 	d23.put("H", "0123456789ab");
 	p23e = p23a.pkt->change_params(d23);
 	assert(Proto_HMAC_rx("abracadabra", *p23e).error);

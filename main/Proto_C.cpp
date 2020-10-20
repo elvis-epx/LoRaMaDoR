@@ -33,5 +33,5 @@ L4rxHandlerResponse Proto_C::rx(const Packet& pkt)
 	co.put_naked("CO");
 	Buffer msg = Buffer("confirm #") + pkt.params().s_ident();
 	auto np = new Packet(pkt.from(), net->me(), co, msg);
-	return L4rxHandlerResponse(Ptr<Packet>(np), false);
+	return L4rxHandlerResponse(Ptr<Packet>(np), false, "");
 }

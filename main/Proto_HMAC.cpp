@@ -8,7 +8,6 @@
 #include "Proto_HMAC.h"
 #include "Network.h"
 #include "Packet.h"
-#include "CLI.h"
 #include "sha256.h"
 
 static const char* hex = "0123456789abcdef";
@@ -53,14 +52,12 @@ L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
 	}
 
 	if (! p.has("H")) {
-		logs("HMAC not in packet", "");
-		return L4rxHandlerResponse(Ptr<Packet>(0), true);
+		return L4rxHandlerResponse(Ptr<Packet>(0), true, "Packet w/o HMAC");
 	}
 
 	Buffer recv_hmac = p.get("H");
 	if (recv_hmac.length() != 12) {
-		logs("HMAC of invalid size", "");
-		return L4rxHandlerResponse(Ptr<Packet>(0), true);
+		return L4rxHandlerResponse(Ptr<Packet>(0), true, "Invalid HMAC size");
 	}
 
 	// recalculate HMAC locally and compare
@@ -69,9 +66,7 @@ L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
 	auto hmac = Proto_HMAC_hmac(key, data);
 
 	if (hmac != recv_hmac) {
-		logs("HMAC: inconsistent", "");
-		logs(hmac.c_str(), recv_hmac.c_str());
-		return L4rxHandlerResponse(Ptr<Packet>(0), true);
+		return L4rxHandlerResponse(Ptr<Packet>(0), true, "Bad HMAC");
 	}
 
 	return L4rxHandlerResponse();

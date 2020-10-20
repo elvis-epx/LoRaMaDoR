@@ -238,6 +238,7 @@ void Network::recv(Ptr<Packet> pkt)
 			_send(response.pkt);
 		}
 		if (response.error) {
+			logs("L4 error", response.error_msg);
 			return;
 		}
 	}

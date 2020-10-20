@@ -24,12 +24,12 @@
 #include "Network.h"
 #include "Packet.h"
 
-L4rxHandlerResponse::L4rxHandlerResponse(Ptr<Packet> pkt, bool error):
-	pkt(pkt), error(error)
+L4rxHandlerResponse::L4rxHandlerResponse(Ptr<Packet> pkt, bool error, Buffer error_msg):
+	pkt(pkt), error(error), error_msg(error_msg)
 {}
 
 L4rxHandlerResponse::L4rxHandlerResponse():
-	pkt(Ptr<Packet>(0)), error(false)
+	pkt(Ptr<Packet>(0)), error(false), error_msg("")
 {}
 
 L4txHandlerResponse::L4txHandlerResponse(Ptr<Packet> pkt):
@@ -44,10 +44,6 @@ L4Protocol::L4Protocol(Network *net): net(net)
 {
 	// Network becomes the owner
 	net->add_l4protocol(this);
-}
-L4rxHandlerResponse L4Protocol::rx(const Packet&)
-{
-	return L4rxHandlerResponse();
 }
 
 L4txHandlerResponse L4Protocol::tx(const Packet&)

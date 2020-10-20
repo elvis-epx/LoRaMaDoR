@@ -11,15 +11,17 @@
 #include <cstddef>
 #include <cstdint>
 #include "Pointer.h"
+#include "Buffer.h"
 
 class Network;
 class Packet;
 
 struct L4rxHandlerResponse {
 	L4rxHandlerResponse();
-	L4rxHandlerResponse(Ptr<Packet>, bool);
+	L4rxHandlerResponse(Ptr<Packet>, bool, Buffer);
 	Ptr<Packet> pkt;
 	bool error;
+	Buffer error_msg;
 };
 
 struct L4txHandlerResponse {
@@ -31,7 +33,7 @@ struct L4txHandlerResponse {
 class L4Protocol {
 public:
 	L4Protocol(Network*);
-	virtual L4rxHandlerResponse rx(const Packet&);
+	virtual L4rxHandlerResponse rx(const Packet&) = 0;
 	virtual L4txHandlerResponse tx(const Packet&);
 	virtual ~L4Protocol();
 protected:
