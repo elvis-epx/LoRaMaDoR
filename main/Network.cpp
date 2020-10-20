@@ -15,6 +15,7 @@
 #include "Proto_Beacon.h"
 #include "Modf_R.h"
 #include "Proto_C.h"
+#include "Proto_HMAC.h"
 #include "Proto_Rreq.h"
 #include "Modf_Rreq.h"
 
@@ -136,13 +137,18 @@ Network::Network(const Callsign &callsign, uint32_t repeater)
 	schedule(new CleanRecvLogTask(this, RECV_LOG_CLEAN));
 	schedule(new CleanNeighTask(this, NEIGH_CLEAN));
 
-	// Core protocols
+	// Core L7 protocols
 	new Proto_Beacon(this);
 	new Proto_Ping(this);
-	new Modf_R(this);
 	new Proto_Rreq(this);
-	new Modf_Rreq(this);
+
+	// Core L4 protocols
+	new Proto_HMAC(this); // must be the first to handle rx
 	new Proto_C(this);
+
+	// Core L3 modifiers
+	new Modf_R(this);
+	new Modf_Rreq(this);
 
 	trampoline_target = this;
 	lora_start(radio_recv_trampoline);
@@ -200,9 +206,9 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 	params.set_ident(id);
 	Ptr<Packet> pkt(new Packet(to, me(), params, msg));
 
-	// handle L4 protocols
-	for (size_t i = 0; i < l4protocols.size(); ++i) {
-		auto response = l4protocols[i]->tx(*pkt);
+	// handle L4 protocols, in reverse order of RX
+	for (size_t i = l4protocols.size(); i > 0; --i) {
+		auto response = l4protocols[i-1]->tx(*pkt);
 		if (response.pkt) {
 			pkt = response.pkt;
 		}

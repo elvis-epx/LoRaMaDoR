@@ -11,7 +11,7 @@ clean:
 test: test.cpp Packet.o Buffer.o Callsign.o Params.o *.h
 	gcc $(CFLAGS) -o test test.cpp Packet.o Buffer.o Callsign.o Params.o -lstdc++
 
-testnet: testnet.cpp Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o *.h
+testnet: testnet.cpp Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o Proto_HMAC.o sha256.o *.h
 	gcc $(CFLAGS) -o testnet testnet.cpp *.o -lstdc++
 
 recov:

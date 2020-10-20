@@ -136,7 +136,7 @@ Predefined parameters available for any application:
 0:00 UTC) subtracted by 1552265462. If sub-second precision is required, the number
 may have decimal places.
 
-`S=chars` is an optional digital signature of the payload.
+`H=chars` is an optional digital signature (HMAC) of the payload.
 
 ## Routing and forwarding
 
