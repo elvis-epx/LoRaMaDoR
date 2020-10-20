@@ -5,15 +5,15 @@
 
 // Implementation of R earmarking of forwarded packets
 
-#include "Proto_R.h"
+#include "Modf_R.h"
 #include "Network.h"
 #include "Packet.h"
 
-Proto_R::Proto_R(Network *net): Protocol(net)
+Modf_R::Modf_R(Network *net): Modifier(net)
 {
 }
 
-Ptr<Packet> Proto_R::modify(const Packet& pkt)
+Ptr<Packet> Modf_R::modify(const Packet& pkt)
 {
 	// earmarks all forwarded packets
 	Params new_params = pkt.params();

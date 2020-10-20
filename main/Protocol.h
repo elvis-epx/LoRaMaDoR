@@ -26,7 +26,6 @@ class Protocol {
 public:
 	Protocol(Network*);
 	virtual HandlerResponse handle(const Packet&);
-	virtual Ptr<Packet> modify(const Packet&);
 	virtual ~Protocol();
 protected:
 	Network *net;

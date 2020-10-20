@@ -20,6 +20,7 @@
 #define MINUTES 60000
 
 class Protocol;
+class Modifier;
 class Packet;
 
 struct Peer {
@@ -56,9 +57,10 @@ public:
 	// publicised to be called by Protocols
 	void schedule(Task*);
 
-	// Called by each Protocol subclass constructor.
+	// Called by each Protocol or Modifier subclass constructor.
 	// Never call this yourself.
 	void add_protocol(Protocol*);
+	void add_modifier(Modifier*);
 
 	// publicised to be called by Tasks
 	uint32_t tx(const Buffer&);
@@ -86,6 +88,7 @@ private:
 	Dict<RecvLogItem> recv_log;
 	size_t last_pkt_id;
 	Vector< Ptr<Protocol> > protocols;
+	Vector< Ptr<Modifier> > modifiers;
 };
 
 #endif

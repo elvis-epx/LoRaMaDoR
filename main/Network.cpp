@@ -13,9 +13,10 @@
 #include "Radio.h"
 #include "Proto_Ping.h"
 #include "Proto_Beacon.h"
-#include "Proto_R.h"
+#include "Modf_R.h"
 #include "Proto_C.h"
 #include "Proto_Rreq.h"
+#include "Modf_Rreq.h"
 
 static const uint32_t TX_BUSY_RETRY_TIME = 1 * SECONDS;
 
@@ -136,11 +137,12 @@ Network::Network(const Callsign &callsign, uint32_t repeater)
 	schedule(new CleanNeighTask(this, NEIGH_CLEAN));
 
 	// Core protocols
-	new Proto_Ping(this);
-	new Proto_Rreq(this);
-	new Proto_R(this);
-	new Proto_C(this);
 	new Proto_Beacon(this);
+	new Proto_Ping(this);
+	new Modf_R(this);
+	new Proto_Rreq(this);
+	new Modf_Rreq(this);
+	new Proto_C(this);
 
 	trampoline_target = this;
 	lora_start(radio_recv_trampoline);
@@ -159,6 +161,14 @@ Network::~Network()
 void Network::add_protocol(Protocol* p)
 {
 	protocols.push_back(Ptr<Protocol>(p));
+}
+
+// Add a modifier to stack. Called by Modifier class itself,
+// so it never has to be called explicitly when stantiating 
+// a protocol.
+void Network::add_modifier(Modifier * p)
+{
+	modifiers.push_back(Ptr<Modifier>(p));
 }
 
 // Gets next packet ID and saves to NVRAM
@@ -369,8 +379,8 @@ void Network::forward(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 
 	// Forward packet modifiers
 	// They can add params and/or change msg
-	for (size_t i = 0; i < protocols.size(); ++i) {
-		auto modified_pkt = protocols[i]->modify(*pkt);
+	for (size_t i = 0; i < modifiers.size(); ++i) {
+		auto modified_pkt = modifiers[i]->modify(*pkt);
 		if (modified_pkt) {
 			pkt = modified_pkt;
 		}

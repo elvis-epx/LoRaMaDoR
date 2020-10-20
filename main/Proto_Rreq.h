@@ -14,7 +14,6 @@ class Proto_Rreq: public Protocol {
 public:
 	Proto_Rreq(Network* net);
 	virtual HandlerResponse handle(const Packet&);
-	virtual Ptr<Packet> modify(const Packet&);
 
 	Proto_Rreq() = delete;
 	Proto_Rreq(const Proto_Rreq&) = delete;

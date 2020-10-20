@@ -5,7 +5,7 @@
 
 /* Abstract class for application protocols.
  *
- * A protocol class may have up to three main elements:
+ * A protocol class may have one or two elements:
  *
  * 1) a handler (concrete implementation of a handler()).
  * This method is called when a packet is received by the station,
@@ -21,21 +21,7 @@
  * See Proto_Ping.cpp for a concrete example. This class answers
  * PONG to PING packets.
  *
- * 2) A modifier (concrete impl. of modify()). This method is called
- * when a packet is to be forwarded by the station, that is, this
- * station is not the *sole* final destination (therefore, QC and QB
- * packets will be offered to handle() and modify(), in this order).
- *
- * The modifier may return a modified packet, or 0 to pass it on.
- * More than one Protocol can modify a packet. The order is not
- * guaranteed, so implementations must take care not to disrupt
- * other protocols' work.
- *
- * See Proto_Rreq.cpp for a concrete example. This class adds our
- * callsign to the payload of a forwarded RREQ or RRSP packet
- * (and also handles a RREQ request).
- *
- * 3) It can generate packets. In order to do this, it must subclass,
+ * 2) It can generate packets. In order to do this, it must subclass,
  * instantiate and schedule a Task that calls asynchronously some
  * tx method.
  *
@@ -78,10 +64,4 @@ HandlerResponse Protocol::handle(const Packet&)
 {
 	// by default, does not handle upon receiving
 	return HandlerResponse();
-}
-
-Ptr<Packet> Protocol::modify(const Packet&)
-{
-	// by default, does not modify upon forwarding
-	return Ptr<Packet>(0);
 }
