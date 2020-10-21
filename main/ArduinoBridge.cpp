@@ -145,7 +145,10 @@ Buffer arduino_nvram_psk_load()
 	size_t len = prefs.getString("psk", candidate, 32);
 	prefs.end();
 
-	return Buffer(candidate, len);
+	if (len < 1) {
+		return "";
+	}
+	return Buffer(candidate, len - 1);
 }
 
 void arduino_nvram_psk_save(const Buffer &b)
@@ -164,9 +167,9 @@ void arduino_nvram_save(const char *key, const Buffer& value)
 
 Buffer arduino_nvram_load(const char *key)
 {
-  prefs.begin("LoRaMaDoR", false);
+	prefs.begin("LoRaMaDoR", false);
 	String svalue = prefs.getString(key, String("None"));
-  prefs.end();
+	prefs.end();
 	return Buffer(svalue.c_str());
 }
 
