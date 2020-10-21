@@ -16,7 +16,7 @@ Proto_C::Proto_C(Network *net): L4Protocol(net)
 L4rxHandlerResponse Proto_C::rx(const Packet& pkt)
 {
 	if (! pkt.params().has("C")) {
-		// does not request to be confirmed
+		// does not request confirmation
 		return L4rxHandlerResponse();
 	}
 	if (pkt.params().has("CO")) {

@@ -1,9 +1,5 @@
 Change README, add section about remote control/non-amateur uses
 
-L4 HMAC protocol
-	- test in target
-	- unit test: simulate failure
-
 Add example of application (try some sensor and LED control)
 	- enable/disable protocols in build
 
@@ -24,7 +20,7 @@ Log/debug x interfacing with PC over serial
 
 Telnet, serial x security
 	- cases: Telnet login/sniffing, stolen device
-	- do not show keys once stored?
+	- do not show PSK, keys once stored?
 	- Telnet password?
 
 Cryptography support
