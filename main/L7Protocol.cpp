@@ -41,12 +41,13 @@
 #include "Network.h"
 #include "Packet.h"
 
-L7HandlerResponse::L7HandlerResponse(Ptr<Packet> pkt):
-	pkt(pkt)
+L7HandlerResponse::L7HandlerResponse(bool has_packet, const Callsign& to,
+		const Params& params, const Buffer& msg):
+	has_packet(has_packet), to(to), params(params), msg(msg)
 {}
 
 L7HandlerResponse::L7HandlerResponse():
-	pkt(Ptr<Packet>(0))
+	has_packet(false), to(Callsign()), params(Params()), msg("")
 {}
 
 L7Protocol::L7Protocol(Network *net): net(net)

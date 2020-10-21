@@ -12,14 +12,19 @@
 #include <cstdint>
 #include "Pointer.h"
 #include "Buffer.h"
+#include "Callsign.h"
+#include "Params.h"
 
 class Network;
 class Packet;
 
 struct L4rxHandlerResponse {
 	L4rxHandlerResponse();
-	L4rxHandlerResponse(Ptr<Packet>, bool, Buffer);
-	Ptr<Packet> pkt;
+	L4rxHandlerResponse(bool, const Callsign &, const Params&, const Buffer&, bool, const Buffer&);
+	bool has_packet;
+	Callsign to;
+	Params params;
+	Buffer msg;
 	bool error;
 	Buffer error_msg;
 };

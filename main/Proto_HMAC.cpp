@@ -52,12 +52,14 @@ L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
 	}
 
 	if (! p.has("H")) {
-		return L4rxHandlerResponse(Ptr<Packet>(0), true, "Packet w/o HMAC");
+		return L4rxHandlerResponse(false, Callsign(), Params(), "",
+			true, "Packet w/o HMAC");
 	}
 
 	Buffer recv_hmac = p.get("H");
 	if (recv_hmac.length() != 12) {
-		return L4rxHandlerResponse(Ptr<Packet>(0), true, "Invalid HMAC size");
+		return L4rxHandlerResponse(false, Callsign(), Params(), "",
+			true, "Invalid HMAC size");
 	}
 
 	// recalculate HMAC locally and compare
@@ -66,7 +68,8 @@ L4rxHandlerResponse Proto_HMAC_rx(const Buffer& key, const Packet& orig_pkt)
 	auto hmac = Proto_HMAC_hmac(key, data);
 
 	if (hmac != recv_hmac) {
-		return L4rxHandlerResponse(Ptr<Packet>(0), true, "Bad HMAC");
+		return L4rxHandlerResponse(false, Callsign(), Params(), "",
+			true, "Bad HMAC");
 	}
 
 	return L4rxHandlerResponse();

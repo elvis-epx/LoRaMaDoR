@@ -207,13 +207,7 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 	uint32_t id = get_next_pkt_id();
 	params.set_ident(id);
 	Ptr<Packet> pkt(new Packet(to, me(), params, msg));
-	_send(pkt);
-	return id;
-}
 
-// Second phase of packet origination
-void Network::_send(Ptr<Packet> pkt)
-{
 	// handle L4 protocols, in reverse order of RX
 	for (size_t i = l4protocols.size(); i > 0; --i) {
 		auto response = l4protocols[i-1]->tx(*pkt);
@@ -224,6 +218,8 @@ void Network::_send(Ptr<Packet> pkt)
 
 	// schedule radio routing/transmission
 	schedule(new PacketFwd(this, pkt, true));
+
+	return id;
 }
 
 // Receive packet targeted to this station
@@ -234,8 +230,8 @@ void Network::recv(Ptr<Packet> pkt)
 	// handle L4 protocols
 	for (size_t i = 0; i < l4protocols.size(); ++i) {
 		auto response = l4protocols[i]->rx(*pkt);
-		if (response.pkt) {
-			_send(response.pkt);
+		if (response.has_packet) {
+			send(response.to, response.params, response.msg);
 		}
 		if (response.error) {
 			logs("L4 error", response.error_msg);
@@ -246,8 +242,8 @@ void Network::recv(Ptr<Packet> pkt)
 	// check if packet can be handled automatically by L7 protocol
 	for (size_t i = 0; i < l7protocols.size(); ++i) {
 		auto response = l7protocols[i]->handle(*pkt);
-		if (response.pkt) {
-			_send(response.pkt);
+		if (response.has_packet) {
+			send(response.to, response.params, response.msg);
 			break;
 		}
 	}

@@ -11,14 +11,21 @@
 #include <cstddef>
 #include <cstdint>
 #include "Pointer.h"
+#include "Callsign.h"
+#include "Buffer.h"
+#include "Params.h"
 
 class Network;
 class Packet;
 
 struct L7HandlerResponse {
 	L7HandlerResponse();
-	L7HandlerResponse(Ptr<Packet>);
-	Ptr<Packet> pkt;
+	L7HandlerResponse(bool, const Callsign &, const Params&, const Buffer&);
+
+	bool has_packet;
+	Callsign to;
+	Params params;
+	Buffer msg;
 };
 
 class L7Protocol {

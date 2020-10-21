@@ -24,12 +24,16 @@
 #include "Network.h"
 #include "Packet.h"
 
-L4rxHandlerResponse::L4rxHandlerResponse(Ptr<Packet> pkt, bool error, Buffer error_msg):
-	pkt(pkt), error(error), error_msg(error_msg)
+L4rxHandlerResponse::L4rxHandlerResponse(bool has_packet, const Callsign& to,
+		const Params& params, const Buffer& msg, bool error,
+		const Buffer& error_msg):
+	has_packet(has_packet), to(to), params(params), msg(msg),
+		error(error), error_msg(error_msg)
 {}
 
 L4rxHandlerResponse::L4rxHandlerResponse():
-	pkt(Ptr<Packet>(0)), error(false), error_msg("")
+	has_packet(false), to(Callsign()), params(Params()), msg(""),
+		error(false), error_msg("")
 {}
 
 L4txHandlerResponse::L4txHandlerResponse(Ptr<Packet> pkt):

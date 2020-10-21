@@ -135,8 +135,10 @@ int main(int argc, char* argv[])
 	cli_simtype("!beacon1st 1\r");
 	cli_simtype("!psk None\r");
 	assert(arduino_nvram_psk_load() == "");
+	cli_simtype("!psk\r");
 	cli_simtype("!psk abracadabra\r");
 	assert(arduino_nvram_psk_load() == "abracadabra");
+	cli_simtype("!psk\r");
 	cli_simtype("!psk \r");
 	assert(arduino_nvram_psk_load() == "abracadabra");
 	cli_simtype("!psk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");

@@ -28,10 +28,10 @@ L4rxHandlerResponse Proto_C::rx(const Packet& pkt)
 		return L4rxHandlerResponse();
 	}
 
+	Buffer msg = Buffer("confirm ") + pkt.params().s_ident();
+
 	Params co = Params();
-	co.set_ident(net->get_next_pkt_id());
 	co.put_naked("CO");
-	Buffer msg = Buffer("confirm #") + pkt.params().s_ident();
-	auto np = new Packet(pkt.from(), net->me(), co, msg);
-	return L4rxHandlerResponse(Ptr<Packet>(np), false, "");
+
+	return L4rxHandlerResponse(true, pkt.from(), co, msg, false, "");
 }

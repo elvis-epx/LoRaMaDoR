@@ -53,7 +53,6 @@ public:
 	// publicised to bridge with uncoupled code
 	void radio_recv(const char *recv_area, size_t plen, int rssi);
 	size_t get_last_pkt_id() const;
-	size_t get_next_pkt_id();
 
 	// publicised to be called by protocols
 	void schedule(Task*);
@@ -78,7 +77,7 @@ public:
 
 private:
 	void recv(Ptr<Packet> pkt);
-	void _send(Ptr<Packet> pkt);
+	size_t get_next_pkt_id();
 	void update_peerlist(uint32_t, const Ptr<Packet> &);
 
 	Callsign my_callsign;

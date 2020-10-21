@@ -20,11 +20,11 @@ L7HandlerResponse Proto_Rreq::handle(const Packet& pkt)
 		Buffer msg = pkt.msg();
 		msg += '|';
 		msg += net->me();
+
 		Params rrsp = Params();
-		rrsp.set_ident(net->get_next_pkt_id());
 		rrsp.put_naked("RRSP");
-		auto np = new Packet(pkt.from(), net->me(), rrsp, msg);
-		return L7HandlerResponse(Ptr<Packet>(np));
+
+		return L7HandlerResponse(true, pkt.from(), rrsp, msg);
 	}
 	return L7HandlerResponse();
 }
