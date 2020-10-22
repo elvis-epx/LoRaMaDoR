@@ -13,6 +13,7 @@ Confirmed mixin protocol
 	- exponential backoff
 
 Log/debug x interfacing with PC over serial
+	- secure packet and cmd exchange (character escaping, etc.)
 	- allow to autom. distinguish packets from debug messages
 	- allow for a PC to implement one side of the L7 protocol
 	- autonomous x PC stack

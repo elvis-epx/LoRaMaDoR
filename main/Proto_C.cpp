@@ -35,3 +35,9 @@ L4rxHandlerResponse Proto_C::rx(const Packet& pkt)
 
 	return L4rxHandlerResponse(true, pkt.from(), co, msg, false, "");
 }
+
+L4txHandlerResponse Proto_C::tx(const Packet& pkt)
+{
+	// Do not act upon packets sent with C flag
+	return L4txHandlerResponse();
+}

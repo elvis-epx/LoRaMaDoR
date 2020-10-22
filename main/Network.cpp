@@ -212,6 +212,7 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 	for (size_t i = l4protocols.size(); i > 0; --i) {
 		auto response = l4protocols[i-1]->tx(*pkt);
 		if (response.pkt) {
+			// more than one L4 protocol can tweak the packet
 			pkt = response.pkt;
 		}
 	}

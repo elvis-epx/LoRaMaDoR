@@ -13,6 +13,7 @@
 class Proto_C: public L4Protocol {
 public:
 	Proto_C(Network* net);
+	virtual L4txHandlerResponse tx(const Packet&);
 	virtual L4rxHandlerResponse rx(const Packet&);
 
 	Proto_C() = delete;

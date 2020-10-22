@@ -7,7 +7,7 @@
  *
  * A protocol class may have one or two elements:
  *
- * 1) a handler (concrete implementation of a handler()).
+ * 1) a handler (concrete implementation of rx()).
  * This method is called when a packet is received by the station,
  * that is, this station is the final destination. This is true
  * even for QC, QB packets (in which this station is not the *only*

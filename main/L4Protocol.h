@@ -39,7 +39,7 @@ class L4Protocol {
 public:
 	L4Protocol(Network*);
 	virtual L4rxHandlerResponse rx(const Packet&) = 0;
-	virtual L4txHandlerResponse tx(const Packet&);
+	virtual L4txHandlerResponse tx(const Packet&) = 0;
 	virtual ~L4Protocol();
 protected:
 	Network *net;
