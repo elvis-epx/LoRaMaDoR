@@ -17,6 +17,7 @@
 #include "Proto_C.h"
 #include "Proto_HMAC.h"
 #include "Proto_Rreq.h"
+#include "Proto_Switch.h"
 #include "Modf_Rreq.h"
 
 static const uint32_t TX_BUSY_RETRY_TIME = 1 * SECONDS;
@@ -142,6 +143,7 @@ Network::Network(const Callsign &callsign, uint32_t repeater)
 	new Proto_Beacon(this);
 	new Proto_Ping(this);
 	new Proto_Rreq(this);
+	new Proto_Switch(this); // FIXME make it optional in top-level code
 
 	// Core L4 protocols
 	new Proto_HMAC(this); // must be the first to handle rx
