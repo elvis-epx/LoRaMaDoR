@@ -48,6 +48,20 @@ uint32_t Network::fudge(uint32_t avg, double fudge)
 	return arduino_random(avg * (1.0 - fudge), avg * (1.0 + fudge));
 }
 
+// Generates a random string with safe characters (~5 bits per char)
+Buffer Network::gen_random_token(int len)
+{
+	char *s = new char[len + 1];
+	for (int i = 0; i < len; ++i) {
+		int n = arduino_random(0, 36);
+		s[i] = "0123456789abcdefghijklmnopqrstuvwxyz_"[n];
+	}
+	s[len] = 0;
+	Buffer b(s, len);
+	delete[] s;
+	return b;
+}
+
 // Packet transmission task.
 class PacketTx: public Task {
 public:

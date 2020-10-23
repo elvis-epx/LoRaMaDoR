@@ -22,7 +22,8 @@
  * 
  * The challenge should be a random string (or number). The client must
  * guarantee that different transactions have different challenges, since
- * the server may use this challenge as transaction ID.
+ * the server may use this challenge as transaction ID. Minimum challenge
+ * size is 8 chars.
  *
  * The server knows the challenge came from the client station since the
  * packet is HMAC-signed.
@@ -47,6 +48,9 @@
  * pair in memory for a limited time after the command to handle any client
  * retransmissions idempotently.
  *
+ * Target and value are numbers from 0 to 65535.
+ * Target must be a non-zero number.
+ *
  * The command cannot be replay-attacked since the challenge/response pair
  * is spent as soon as the command is received. The only thing the attacker
  * can get is the idempotent response (packet D), during the time window
@@ -56,29 +60,93 @@
  *
  * Confirmation for the client. 
  */
- 
-
 
 #include "Proto_Switch.h"
 #include "Network.h"
 #include "Packet.h"
-
-namespace {
-	struct Req {
-		Callsign from;
-		Buffer challenge;
-		Buffer response;
-		int age;
-		bool applied;
-	};
-};
+#include "CLI.h"
+#include "ArduinoBridge.h"
 
 // FIXME Task subclass
 
 Proto_Switch::Proto_Switch(Network *net): L7Protocol(net)
 {
-	// FIXME list of ongoing requests
 	// FIXME start handler of ongoing requests
+}
+
+// FIXME method to clean old transactions
+
+static bool parse(Buffer msg, char &type, Buffer &challenge,
+			Buffer &response, int &target, int &value,
+			Buffer &err)
+{
+	int pos = msg.indexOf(',');
+	if (pos != 1) {
+		err = "type should be a single char";
+		return false;
+	}
+	type = msg.charAt(0);
+	if ((type != 'A') && (type != 'C')) {
+		err = "invalid type";
+		return false;
+	}
+	msg.cut(2);
+
+	pos = msg.indexOf(',');
+	if (type == 'A') {
+		if (pos >= 0) {
+			err = "packet A should have a single field";
+			return false;
+		}
+		if (msg.length() < 8) {
+			err = "challenge must have at least 8 chars";
+			return false;
+		}
+		challenge = msg;
+		return true;
+	}
+
+	// type C from this point on
+	if (pos < 8) {
+		err = "challenge should be at least 8 chars long";
+		return false;
+	}
+	challenge = msg.substr(0, pos);
+	msg.cut(pos + 1);
+
+	pos = msg.indexOf(',');
+	if (pos < 8) {
+		err = "response should be at least 8 chars long";
+		return false;
+	}
+	response = msg.substr(0, pos);
+	msg.cut(pos + 1);
+
+	pos = msg.indexOf(',');
+	if (pos <= 0) {
+		err = "target number not found";
+		return false;
+	}
+	target = msg.substr(0, pos).toInt();
+	if (target < 1 || target > 65535) {
+		err = "target number should be 1..65535";
+		return false;
+	}
+	msg.cut(pos + 1);
+
+	pos = msg.indexOf(',');
+	if (pos < 0) {
+		// all that's left is the value
+		value = msg.toInt();
+	} else if (pos == 0) {
+		// empty value, tolerate
+		value = 0;
+	} else {
+		// ignore further fields
+		value = msg.substr(0, pos).toInt();
+	}
+
+	return true;
 }
 
 L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
@@ -92,51 +160,63 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		return L7HandlerResponse();
 	}
 
-	Buffer type, challenge, response;
+	char type;
+	Buffer challenge, response, err;
+	int target, value;
 
-	if (!parse(pkt.msg(), &type, &challenge, &response, &target, &value)) {
-		logs("SW packet parsing error", "");
+	if (!parse(pkt.msg(), type, challenge, response, target, value, err)) {
+		logs("SW packet parsing error", err);
 		return L7HandlerResponse();
 	}
 
-	if (type == "A") {
+	Buffer key = Buffer(pkt.from()) + challenge;
+
+	if (type == 'A') {
 		// got challenge
-		if (station_challenge_in_list) {
-			// reset age
-			// recover response
+		if (transactions.has(key)) {
+			// return the same response
+			response = transactions[key].response;
 		} else {
-			// create item in list
-			// FIXME generate response
-			response = "3";
+			// generate response token and add transaction to table
+			response = Network::gen_random_token(8);
+			auto trans = SwitchTransaction();
+			trans.from = pkt.from();
+			trans.challenge = challenge;
+			trans.response = response;
+			trans.timestamp = arduino_millis();
+			trans.done = false;
+			transactions[key] = trans;
 		}
 
 		// send packet B
 		Params swb = Params();
 		swb.put_naked("SW");
-		msg = Buffer("B,") + challenge + "," + response;
+		Buffer msg = Buffer("B,") + challenge + "," + response;
 		return L7HandlerResponse(true, pkt.from(), swb, msg);
 
-	} else if (type == "C") {
+	} else if (type == 'C') {
 		// got challenge + response + command
-		if (!station_challenge_in_list) {
+		if (! transactions.has(key)) {
 			logs("SW type C unknown challenge", "");
 			return L7HandlerResponse();
-		{
+		}
+		auto trans = transactions[key];
 
-		if (!station_response_tallies) {
+		if (trans.response != response) {
 			logs("SW type C mismatched response", "");
 			return L7HandlerResponse();
 		}
 
-		if (!applied) {
-			// apply command in hardware
+		if (!trans.done) {
+			// FIXME apply command in hardware
+			trans.done = true;
 		}
-		applied = true;
 
 		// send packet D
 		Params swd = Params();
 		swd.put_naked("SW");
-		msg = Buffer("D,") + challenge + "," + response + "," + target + "," + value;
+		Buffer msg = Buffer("D,") + challenge + "," + response + "," +
+				target + "," + value;
 		return L7HandlerResponse(true, pkt.from(), swd, msg);
 	}
 

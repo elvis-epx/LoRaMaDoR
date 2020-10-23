@@ -9,6 +9,16 @@
 #define __PROTO_SWITCH_H
 
 #include "L7Protocol.h"
+#include "Callsign.h"
+#include "Dict.h"
+
+struct SwitchTransaction {
+	Callsign from;
+	Buffer challenge;
+	Buffer response;
+	uint32_t timestamp;
+	bool done;
+};
 
 class Proto_Switch: public L7Protocol {
 public:
@@ -20,6 +30,8 @@ public:
 	Proto_Switch(Proto_Switch&&) = delete;
 	Proto_Switch& operator=(const Proto_Switch&) = delete;
 	Proto_Switch& operator=(Proto_Switch&&) = delete;
+private:
+	Dict<SwitchTransaction> transactions;
 };
 
 #endif

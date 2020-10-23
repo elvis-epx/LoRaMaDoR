@@ -49,6 +49,7 @@ public:
 	const Dict<Peer>& neighbors() const;
 	const Dict<Peer>& peers() const;
 	static uint32_t fudge(uint32_t avg, double fudge);
+	static Buffer gen_random_token(int);
 
 	// publicised to bridge with uncoupled code
 	void radio_recv(const char *recv_area, size_t plen, int rssi);
