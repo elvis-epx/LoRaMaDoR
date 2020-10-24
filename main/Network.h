@@ -25,17 +25,17 @@ class Modifier;
 class Packet;
 
 struct Peer {
-	Peer(int rssi, int32_t timestamp);
+	Peer(int rssi, int64_t timestamp);
 	Peer();
 	int rssi;
-	int32_t timestamp;
+	int64_t timestamp;
 };
 
 struct RecvLogItem {
-	RecvLogItem(int rssi, int32_t timestamp);
+	RecvLogItem(int rssi, int64_t timestamp);
 	RecvLogItem();
 	int rssi;
-	int32_t timestamp;
+	int64_t timestamp;
 };
 
 class Network {
@@ -45,7 +45,7 @@ public:
 
 	Callsign me() const;
 	uint32_t send(const Callsign &to, Params params, const Buffer& msg);
-	void run_tasks(uint32_t);
+	void run_tasks(int64_t);
 	const Dict<Peer>& neighbors() const;
 	const Dict<Peer>& peers() const;
 	static uint32_t fudge(uint32_t avg, double fudge);
@@ -65,10 +65,10 @@ public:
 	void add_modifier(Modifier*);
 
 	// publicised to be called by Tasks
-	uint32_t tx(const Buffer&);
-	void route(Ptr<Packet>, bool, uint32_t);
-	uint32_t clean_recv_log(uint32_t);
-	uint32_t clean_neigh(uint32_t);
+	int64_t tx(const Buffer&);
+	void route(Ptr<Packet>, bool, int64_t);
+	int64_t clean_recv_log(int64_t);
+	int64_t clean_neigh(int64_t);
 
 	// publicised for testing purposes
 	TaskManager& _task_mgr();
@@ -79,7 +79,7 @@ public:
 private:
 	void recv(Ptr<Packet> pkt);
 	size_t get_next_pkt_id();
-	void update_peerlist(uint32_t, const Ptr<Packet> &);
+	void update_peerlist(int64_t, const Ptr<Packet> &);
 
 	Callsign my_callsign;
 	uint32_t repeater_function_activated;

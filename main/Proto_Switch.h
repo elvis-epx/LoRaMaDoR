@@ -16,7 +16,7 @@ struct SwitchTransaction {
 	Callsign from;
 	Buffer challenge;
 	Buffer response;
-	uint32_t timeout;
+	int64_t timeout;
 	bool done;
 };
 
@@ -34,6 +34,7 @@ public:
 	Proto_Switch& operator=(Proto_Switch&&) = delete;
 private:
 	friend class SwitchTimeoutTask;
+	void process_timeouts(int64_t);
 	Dict<SwitchTransaction> transactions;
 };
 

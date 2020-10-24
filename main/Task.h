@@ -18,24 +18,24 @@ class TaskManager;
 
 class Task {
 public:
-	Task(const char *name, uint32_t offset);
+	Task(const char *name, int64_t offset);
 	virtual ~Task();
-	uint32_t next_run() const;
+	int64_t next_run() const;
 	Buffer get_name() const;
 
 protected:
 	// overridden by concrete task subclasses
-	virtual uint32_t run2(uint32_t now) = 0;
+	virtual int64_t run2(int64_t now) = 0;
 
 private:
-	bool run(uint32_t now);
-	void set_timebase(uint32_t timebase);
-	bool should_run(uint32_t now) const;
+	bool run(int64_t now);
+	void set_timebase(int64_t timebase);
+	bool should_run(int64_t now) const;
 	bool cancelled() const;
 
 	Buffer name;
-	uint32_t offset;
-	uint32_t timebase;
+	int64_t offset;
+	int64_t timebase;
 
 	// Tasks must be manipulated through (smart) pointers,
 	// the pointer is the ID, no copies allowed
@@ -53,7 +53,7 @@ public:
 	TaskManager();
 	~TaskManager();
 	void stop();
-	void run(uint32_t);
+	void run(int64_t);
 	void schedule(Ptr<Task> task);
 	void cancel(const Task* task);
 	// for testing purposes

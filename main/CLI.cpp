@@ -213,7 +213,7 @@ static void cli_lastid()
 // System uptime
 static void cli_uptime()
 {
-	Buffer hms = Buffer::millis_to_hms(arduino_millis());
+	Buffer hms = Buffer::millis_to_hms(arduino_millis_nw());
 	console_println(Buffer("Uptime ") + hms);
 }
 
@@ -223,12 +223,12 @@ static void cli_neigh()
 	console_println("---------------------------");
 	console_println(Buffer("Neighborhood of ") + Net->me() + ":");
 
-	auto now = arduino_millis();
+	auto now = arduino_millis_nw();
 	auto neigh = Net->neighbors();
 	for (auto i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
 		int rssi = neigh[cs].rssi;
-		int32_t since = now - neigh[cs].timestamp;
+		int64_t since = now - neigh[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
 		auto b = Buffer("    ") + cs + " last seen " + ssince +
 			" ago, rssi " + Buffer::itoa(rssi);
@@ -240,7 +240,7 @@ static void cli_neigh()
 		if (neigh.has(cs)) {
 			continue;
 		}
-		int32_t since = now - peers[cs].timestamp;
+		int64_t since = now - peers[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
 		auto b = Buffer("    ") + cs + " last seen " + ssince +
 			" ago, non adjacent";

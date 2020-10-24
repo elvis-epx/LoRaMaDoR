@@ -30,7 +30,7 @@ void oled_init()
 void oled_show(const char *ma, const char *mb, const char *mc, const char *md)
 {
 	char ms[20];
-	Buffer uptime = Buffer::millis_to_hms(arduino_millis());
+	Buffer uptime = Buffer::millis_to_hms(arduino_millis_nw());
 	sprintf(ms, "%s", uptime.c_str());
 	display.clear();
 	display.drawString(0, 0, ma);

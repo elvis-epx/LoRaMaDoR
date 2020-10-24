@@ -13,7 +13,7 @@
 #include "Packet.h"
 #include "Callsign.h"
 
-uint32_t arduino_millis();
+int64_t arduino_millis_nw();
 int32_t arduino_random(int32_t min, int32_t max);
 
 uint32_t arduino_nvram_repeater_load();

@@ -335,7 +335,7 @@ bool Buffer::startsWith(const Buffer &cmp) const
 	return true;
 }
 
-Buffer Buffer::millis_to_hms(int32_t t)
+Buffer Buffer::millis_to_hms(int64_t t)
 {
 	if (t < 0) return "???";
 	t /= 1000;
@@ -348,7 +348,7 @@ Buffer Buffer::millis_to_hms(int32_t t)
 	int32_t h = t % 24;
 	t -= h;
 	t /= 24;
-	int32_t d = t;
+	int64_t d = t;
 
 	if (d > 0) return BufferImpl::sprintf("%d:%02d:%02d:%02d", d, h, m, s);
 	if (h > 0) return BufferImpl::sprintf("%d:%02d:%02d", h, m, s);

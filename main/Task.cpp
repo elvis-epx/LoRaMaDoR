@@ -6,9 +6,9 @@
 /* Abstract class for Task classes: delayed code execution
  *
  * The scheme assumes the existence of a monotonic clock like
- * Arduino's millis(). Each task is associated with a future
+ * Arduino's millis_nw(). Each task is associated with a future
  * clock value (timebase + offset) All tasks whose value is
- * less than millis() * are run.
+ * less than millis_nw() * are run.
  *
  * Concrete Task classes implement run2(). This method may
  * return 0 (meaning the task is finished) or a positive offset
@@ -22,7 +22,7 @@
 #include "Task.h"
 #include "ArduinoBridge.h"
 
-Task::Task(const char *name, uint32_t offset):
+Task::Task(const char *name, int64_t offset):
 	name(name), offset(offset), timebase(0)
 {
 }
@@ -32,7 +32,7 @@ Task::~Task()
 	this->timebase = 0;
 }
 
-void Task::set_timebase(uint32_t now)
+void Task::set_timebase(int64_t now)
 {
 	this->timebase = now;
 }
@@ -42,20 +42,19 @@ bool Task::cancelled() const
 	return this->timebase == 0;
 }
 
-uint32_t Task::next_run() const
+int64_t Task::next_run() const
 {
 	// logi("Timebase", this->timebase);
 	// logi("Offset", this->offset);
 	return this->timebase + this->offset;
 }
 
-// FIXME check wrap? In all other places that wrap may happen?
-bool Task::should_run(uint32_t now) const
+bool Task::should_run(int64_t now) const
 {
-	return ! this->cancelled() && this->next_run() <= now;
+	return ! this->cancelled() && this->next_run() < now;
 }
 
-bool Task::run(uint32_t now)
+bool Task::run(int64_t now)
 {
 	// concrete routine returns new timeout (which could be random)
 	this->offset = this->run2(now);
@@ -85,17 +84,17 @@ void TaskManager::schedule(Ptr<Task> task)
 {
 	Ptr<Task> etask = task;
 	tasks.push_back(etask);
-	etask->set_timebase(arduino_millis());
+	etask->set_timebase(arduino_millis_nw());
 }
 
 Ptr<Task> TaskManager::next_task() const
 {
 	Ptr<Task> ret(0);
-	uint32_t task_time = 0x7fffffff;
+	int64_t task_time = arduino_millis_nw() + 60 * 1000;
 	for (size_t i = 0 ; i < tasks.size(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (! t->cancelled()) {
-			uint32_t nr = t->next_run();
+			int64_t nr = t->next_run();
 			if (nr < task_time) {
 				task_time = nr;
 				ret = t;
@@ -117,7 +116,7 @@ void TaskManager::cancel(const Task* task)
 }
 */
 
-void TaskManager::run(uint32_t now)
+void TaskManager::run(int64_t now)
 {
 	bool dirty = false;
 
@@ -127,7 +126,7 @@ void TaskManager::run(uint32_t now)
 			bool stay = t->run(now);
 			if (stay) {
 				// reschedule
-				t->set_timebase(arduino_millis());
+				t->set_timebase(arduino_millis_nw());
 			} else {
 				// task list must be pruned
 				dirty = true;

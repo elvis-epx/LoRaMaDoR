@@ -72,7 +72,7 @@
 class SwitchTimeoutTask: public Task
 {
 public:
-	SwitchTimeoutTask(Proto_Switch *p, uint32_t offset):
+	SwitchTimeoutTask(Proto_Switch *p, int64_t offset):
 		Task("switch", offset), p(p)
 	{
 	}
@@ -80,7 +80,7 @@ public:
 		p = 0;
 	}
 protected:
-	virtual uint32_t run2(uint32_t now)
+	virtual int64_t run2(int64_t now)
 	{
 		p->process_timeouts(now);
 		return now + 10 * SECONDS;
@@ -91,7 +91,7 @@ private:
 
 Proto_Switch::Proto_Switch(Network *net): L7Protocol(net)
 {
-	net->schedule(new SwitchTransactionTask(this, 10 * SECONDS));
+	net->schedule(new SwitchTimeoutTask(this, 10 * SECONDS));
 } 
 
 static bool parse(Buffer msg, char &type, Buffer &challenge,
@@ -201,7 +201,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			trans.from = pkt.from();
 			trans.challenge = challenge;
 			trans.response = response;
-			trans.timeout = arduino_millis() + 60 * SECONDS;
+			trans.timeout = arduino_millis_nw() + 60 * SECONDS;
 			trans.done = false;
 			transactions[key] = trans;
 		}
@@ -229,7 +229,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			// FIXME apply command in hardware
 		}
 		trans.done = true;
-		trans.timeout = arduino_millis() + 60 * SECONDS;
+		trans.timeout = arduino_millis_nw() + 60 * SECONDS;
 
 		// send packet D
 		Params swd = Params();
@@ -242,14 +242,14 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 	return L7HandlerResponse();
 }
 
-void Proto_Switch::process_timeouts(uint32_t now)
+void Proto_Switch::process_timeouts(int64_t now)
 {
 	Vector<Buffer> remove_list;
 
 	for (size_t i = 0; i < transactions.keys().size(); ++i) {
 		const Buffer key = transactions.keys()[i];
 		const auto trans = transactions[key];
-		if Task::older_than(trans.timeout, now) {
+		if (trans.timeout < now) {
 			remove_list.push_back(key);
 		}
 	}

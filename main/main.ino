@@ -33,5 +33,5 @@ void loop()
 {
 	wifi_handle();
 	console_handle();
-	Net->run_tasks(millis());
+	Net->run_tasks(arduino_millis_nw());
 }

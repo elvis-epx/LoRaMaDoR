@@ -24,7 +24,7 @@ public:
 	~Buffer();
 
 	static Buffer itoa(int32_t);
-	static Buffer millis_to_hms(int32_t);
+	static Buffer millis_to_hms(int64_t);
 	Buffer substr(size_t start) const;
 	Buffer substr(size_t start, size_t end) const;
 

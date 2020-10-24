@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
 
-	while (arduino_millis() < 180*1000) {
+	while (arduino_millis_nw() < 180*1000) {
 		if (arduino_random(0, 100) == 0) {
 			ping();
 		} else if (arduino_random(0, 100) == 0) {
@@ -207,9 +207,9 @@ int main(int argc, char* argv[])
 		struct timeval timeout;
 		struct timeval* ptimeout = 0;
 		if (tsk) {
-			int32_t now = arduino_millis();
-			int32_t to = tsk->next_run() - now;
-			printf("Timeout: %s %d\n", tsk->get_name().c_str(), to);
+			int64_t now = arduino_millis_nw();
+			int64_t to = tsk->next_run() - now;
+			printf("Timeout: %s %ld\n", tsk->get_name().c_str(), to);
 			if (to < 0) {
 				to = 0;
 			}
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 		if (FD_ISSET(s, &set)) {
 			lora_emu_rx();
 		} else {
-			Net->run_tasks(arduino_millis());
+			Net->run_tasks(arduino_millis_nw());
 		}
 	}
 }

@@ -16,7 +16,7 @@ class Proto_Beacon: public L7Protocol {
 public:
 	Proto_Beacon(Network* net);
 private:
-	uint32_t beacon() const;
+	int64_t beacon() const;
 	friend class BeaconTask;
 
 	Proto_Beacon() = delete;

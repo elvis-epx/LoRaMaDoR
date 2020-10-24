@@ -15,7 +15,7 @@ static Buffer ssid;
 static Buffer password;
 static WiFiServer wifiServer(23);
 static int wifi_status = 0;
-static uint32_t wifi_timeout = 0;
+static int64_t wifi_timeout = 0;
 static WiFiClient telnet_client;
 static Buffer output_buffer;
 static bool is_telnet = false;
@@ -34,7 +34,7 @@ void wifi_setup(Ptr<Network> net)
 
 	if (ssid != "None") {
 		wifi_status = 1;
-		wifi_timeout = millis() + 1000; 
+		wifi_timeout = arduino_millis_nw() + 1000; 
 	}
 }
 
@@ -68,7 +68,7 @@ Buffer get_wifi_status()
 void wifi_handle()
 {
 	if (wifi_status == 1) {
-		if (millis() > wifi_timeout) {
+		if (arduino_millis_nw() > wifi_timeout) {
 			WiFi.mode(WIFI_STA);
 			if (password == "None") {
 				WiFi.begin(ssid.c_str());
@@ -77,7 +77,7 @@ void wifi_handle()
 			}
 			serial_println("Connecting to WiFi...");
 			wifi_status = 2;
-			wifi_timeout = millis() + 20000;
+			wifi_timeout = arduino_millis_nw() + 20000;
 		}
 	} else if (wifi_status == 2) {
 		int ws = WiFi.status();
@@ -96,16 +96,16 @@ void wifi_handle()
 				mdns = true;
 			}
 			wifi_status = 3;
-		} else if (millis() > wifi_timeout) {
+		} else if (arduino_millis_nw() > wifi_timeout) {
 			serial_println("Failed to connect to WiFi");
 			wifi_status = 1;
-			wifi_timeout = millis() + 1000;
+			wifi_timeout = arduino_millis_nw() + 1000;
 		}
 	} else if (wifi_status == 3) {
 		if (WiFi.status() != WL_CONNECTED) {
 			serial_println("Disconnected from WiFi.");
 			wifi_status = 1;
-			wifi_timeout = millis() + 1000;
+			wifi_timeout = arduino_millis_nw() + 1000;
 			telnet_client.stop();
 			ip = "(none)";
 			mdns = false;

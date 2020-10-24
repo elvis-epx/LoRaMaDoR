@@ -20,22 +20,22 @@
 #include "Proto_Switch.h"
 #include "Modf_Rreq.h"
 
-static const uint32_t TX_BUSY_RETRY_TIME = 1 * SECONDS;
+static const int64_t TX_BUSY_RETRY_TIME = 1 * SECONDS;
 
-static const uint32_t NEIGH_PERSIST = 60 * MINUTES;
-static const uint32_t NEIGH_CLEAN = 1 * MINUTES;
+static const int64_t NEIGH_PERSIST = 60 * MINUTES;
+static const int64_t NEIGH_CLEAN = 1 * MINUTES;
 
-static const uint32_t RECV_LOG_PERSIST = 10 * MINUTES;
-static const uint32_t RECV_LOG_CLEAN = 1 * MINUTES;
+static const int64_t RECV_LOG_PERSIST = 10 * MINUTES;
+static const int64_t RECV_LOG_CLEAN = 1 * MINUTES;
 
-Peer::Peer(int rssi, int32_t timestamp):
+Peer::Peer(int rssi, int64_t timestamp):
 	rssi(rssi), timestamp(timestamp)
 {}
 
 Peer::Peer()
 {}
 
-RecvLogItem::RecvLogItem(int rssi, int32_t timestamp):
+RecvLogItem::RecvLogItem(int rssi, int64_t timestamp):
 	rssi(rssi), timestamp(timestamp)
 {}
 
@@ -65,12 +65,12 @@ Buffer Network::gen_random_token(int len)
 // Packet transmission task.
 class PacketTx: public Task {
 public:
-	PacketTx(Network* net, const Buffer& encoded_packet, uint32_t offset): 
+	PacketTx(Network* net, const Buffer& encoded_packet, int64_t offset): 
 			Task("tx", offset), net(net), encoded_packet(encoded_packet)
 	{
 	}
 protected:
-	virtual uint32_t run2(uint32_t now) {
+	virtual int64_t run2(int64_t now) {
 		return net->tx(encoded_packet);
 	}
 private:
@@ -86,7 +86,7 @@ public:
 	{
 	}
 protected:
-	virtual uint32_t run2(uint32_t now)
+	virtual int64_t run2(int64_t now)
 	{
 		net->route(packet, we_are_origin, now);
 		// forces this task to be one-off
@@ -101,12 +101,12 @@ private:
 // Prune neighborhood table task.
 class CleanNeighTask: public Task {
 public:
-	CleanNeighTask(Network* net, uint32_t offset):
+	CleanNeighTask(Network* net, int64_t offset):
 		Task("neigh", offset), net(net)
 	{
 	}
 protected:
-	virtual uint32_t run2(uint32_t now)
+	virtual int64_t run2(int64_t now)
 	{
 		return net->clean_neigh(now);
 	}
@@ -118,12 +118,12 @@ private:
 // Prune packet rx log task.
 class CleanRecvLogTask: public Task {
 public:
-	CleanRecvLogTask(Network* net, uint32_t offset):
+	CleanRecvLogTask(Network* net, int64_t offset):
 		Task("recvlog", offset), net(net)
 	{
 	}
 protected:
-	virtual uint32_t run2(uint32_t now)
+	virtual int64_t run2(int64_t now)
 	{
 		return net->clean_recv_log(now);
 	}
@@ -289,14 +289,13 @@ void Network::radio_recv(const char *recv_area, size_t plen, int rssi)
 }
 
 // purge old packet IDs from recv log
-uint32_t Network::clean_recv_log(uint32_t now)
+int64_t Network::clean_recv_log(int64_t now)
 {
 	Vector<Buffer> remove_list;
-	int32_t cutoff = now - RECV_LOG_PERSIST;
 
 	const Vector<Buffer>& keys = recv_log.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
-		if (recv_log[keys[i]].timestamp < cutoff) {
+		if ((recv_log[keys[i]].timestamp + RECV_LOG_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
@@ -310,15 +309,14 @@ uint32_t Network::clean_recv_log(uint32_t now)
 }
 
 // purge neighbors that have been silent for a while
-uint32_t Network::clean_neigh(uint32_t now)
+int64_t Network::clean_neigh(int64_t now)
 {
 	Vector<Buffer> remove_list;
-	int32_t cutoff = now - NEIGH_PERSIST;
 
 	{
 	const Vector<Buffer>& keys = neigh.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
-		if (neigh[keys[i]].timestamp < cutoff) {
+		if ((neigh[keys[i]].timestamp + NEIGH_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
@@ -332,7 +330,7 @@ uint32_t Network::clean_neigh(uint32_t now)
 	{
 	const Vector<Buffer>& keys = peerlist.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
-		if (peerlist[keys[i]].timestamp < cutoff) {
+		if ((peerlist[keys[i]].timestamp + NEIGH_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
@@ -347,7 +345,7 @@ uint32_t Network::clean_neigh(uint32_t now)
 }
 
 // execute packet transmission
-uint32_t Network::tx(const Buffer& encoded_packet)
+int64_t Network::tx(const Buffer& encoded_packet)
 {
 	if (! lora_tx(encoded_packet)) {
 		return TX_BUSY_RETRY_TIME;
@@ -357,7 +355,7 @@ uint32_t Network::tx(const Buffer& encoded_packet)
 
 /* Update neighbor and peer lists based on a packet that
    was sent to us, either unicast or QB/QC */
-void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
+void Network::update_peerlist(int64_t now, const Ptr<Packet> &pkt)
 {
 	Buffer from = pkt->from();
 
@@ -376,7 +374,7 @@ void Network::update_peerlist(uint32_t now, const Ptr<Packet> &pkt)
 }
 
 // handle packet received from radio or from application layer
-void Network::route(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
+void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 {
 	if (we_are_origin) {
 		if (me() == pkt->to() || pkt->to().is_lo()) {
@@ -435,12 +433,12 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, uint32_t now)
 	Buffer encoded_pkt = pkt->encode_l2();
 
 	// TX delay in bits: packet size x stations nearby x 2
-	uint32_t bit_delay = encoded_pkt.length() * 8;
+	int64_t bit_delay = encoded_pkt.length() * 8;
 	bit_delay *= 2 * (1 + neigh.count());
 
 	// convert delay in bits to milisseconds
 	// e.g. 900 bits @ 600 bps = 1500 ms
-	uint32_t delay = bit_delay * SECONDS / lora_speed_bps();
+	int64_t delay = bit_delay * SECONDS / lora_speed_bps();
 
 	logi("relaying w/ delay", delay);
 
@@ -455,7 +453,7 @@ void Network::schedule(Task *task)
 }
 
 // Run pending tasks. Called by system may loop.
-void Network::run_tasks(uint32_t millis)
+void Network::run_tasks(int64_t millis)
 {
 	task_mgr.run(millis);
 }
