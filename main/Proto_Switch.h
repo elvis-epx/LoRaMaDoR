@@ -16,9 +16,11 @@ struct SwitchTransaction {
 	Callsign from;
 	Buffer challenge;
 	Buffer response;
-	uint32_t timestamp;
+	uint32_t timeout;
 	bool done;
 };
+
+class SwitchTimeoutTask;
 
 class Proto_Switch: public L7Protocol {
 public:
@@ -31,6 +33,7 @@ public:
 	Proto_Switch& operator=(const Proto_Switch&) = delete;
 	Proto_Switch& operator=(Proto_Switch&&) = delete;
 private:
+	friend class SwitchTimeoutTask;
 	Dict<SwitchTransaction> transactions;
 };
 

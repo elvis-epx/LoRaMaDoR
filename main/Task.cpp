@@ -49,6 +49,7 @@ uint32_t Task::next_run() const
 	return this->timebase + this->offset;
 }
 
+// FIXME check wrap? In all other places that wrap may happen?
 bool Task::should_run(uint32_t now) const
 {
 	return ! this->cancelled() && this->next_run() <= now;
