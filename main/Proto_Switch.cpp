@@ -51,6 +51,9 @@
  * Target and value are numbers from 0 to 65535.
  * Target must be a non-zero number.
  *
+ * This packet can also query the status of a switch, replacing 'value'
+ * with "?".
+ *
  * The command cannot be replay-attacked since the challenge/response pair
  * is spent as soon as the command is received. The only thing the attacker
  * can get is the idempotent response (packet D), during the time window
@@ -152,16 +155,25 @@ static bool parse(Buffer msg, char &type, Buffer &challenge,
 	}
 	msg.cut(pos + 1);
 
+	Buffer svalue;
 	pos = msg.indexOf(',');
 	if (pos < 0) {
 		// all that's left is the value
-		value = msg.toInt();
+		svalue = msg;
 	} else if (pos == 0) {
 		// empty value, tolerate
 		value = 0;
 	} else {
 		// ignore further fields
-		value = msg.substr(0, pos).toInt();
+		svalue = msg.substr(0, pos);
+	}
+
+	if (svalue == "?") {
+		// query
+		value = -1;
+	} else {
+		// set
+		value = svalue.toInt();
 	}
 
 	return true;
@@ -225,9 +237,17 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			return L7HandlerResponse();
 		}
 
-		if (!trans.done) {
-			// FIXME apply command in hardware
+		if (value >= 0) {
+			// set switch
+			if (!trans.done) {
+				// FIXME apply command in hardware
+			}
+		} else {
+			// query switch
+			// FIXME get value from hardware or impl
+			value = 9;
 		}
+
 		trans.done = true;
 		trans.timeout = arduino_millis_nw() + 60 * SECONDS;
 
