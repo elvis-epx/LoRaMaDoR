@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "Packet.h"
 #include "sha256.h"
 #include "Proto_HMAC.h"
 #include "Network.h"
+#include "CLI.h"
 
 // dummy
 Ptr<Network> Net(0);
@@ -18,6 +20,7 @@ void test2() {
 	assert(!tm.startsWith("ac"));
 	assert(tm.startsWith(Buffer("ab")));
 	assert(tm.startsWith(Buffer("ab ")));
+	assert(!tm.startsWith(Buffer("ac")));
 	assert(! tm.startsWith(Buffer("ab cd ")));
 
 	tm = tm + tm + "ef" + 'g';
@@ -149,6 +152,16 @@ void test3()
 	assert (!Params("AC$c=d").is_valid_without_ident());
 	assert (Params("999999,ac=d").is_valid_with_ident());
 	assert (!Params("9999999,ac=d").is_valid_with_ident());
+
+	Buffer t1 = Network::gen_random_token(8);
+	Buffer t2 = Network::gen_random_token(8);
+	assert(t1.length() == 8);
+	assert(t2.length() == 8);
+	assert(t1 != t2);
+	for (int i = 0; i < 8; ++i) {
+		assert(isalpha(t1.charAt(i)) || isdigit(t1.charAt(i)));
+		assert(isalpha(t2.charAt(i)) || isdigit(t2.charAt(i)));
+	}
 }
 
 void test4()

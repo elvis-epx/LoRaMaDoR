@@ -54,6 +54,7 @@ public:
 	Buffer& strip();
 	int indexOf(const char) const;
 	int charAt(int) const;
+	int charAt(size_t) const;
 	int toInt() const;
 
 	friend class BufferImpl;

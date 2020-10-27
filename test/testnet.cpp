@@ -39,7 +39,7 @@ void ping()
 		return;
 	}
 
-	Buffer scs = neigh_cs[arduino_random(0, n)];
+	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
@@ -56,11 +56,11 @@ void rreq()
 	printf("$$$$$ CLI RREQ\n");
 	const Dict<Peer> neigh = Net->peers();
 	const Vector<Buffer> neigh_cs = neigh.keys();
-	unsigned int n = neigh.count();
+	auto n = neigh.count();
 	if (!n) {
 		return;
 	}
-	Buffer scs = neigh_cs[arduino_random(0, n)];
+	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
@@ -72,16 +72,21 @@ void rreq()
 	free(cmd);
 }
 
+void sendm_bad()
+{
+	cli_simtype("QB ola\r");
+}
+
 void sendm()
 {
 	printf("$$$$$ CLI send msg\n");
 	const Dict<Peer> neigh = Net->peers();
 	const Vector<Buffer> neigh_cs = neigh.keys();
-	unsigned int n = neigh.count();
+	auto n = neigh.count();
 	if (!n) {
 		return;
 	}
-	Buffer scs = neigh_cs[arduino_random(0, n)];
+	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
@@ -176,6 +181,8 @@ int main(int argc, char* argv[])
 	cli_simtype("\r!wifi\r");
 	cli_simtype("\r!help\r");
 
+	logs("test", "test");
+
 	// Add a couple of old data to exercise cleanup run paths
 	Net->_recv_log()["UNKNOWN:1234"] = RecvLogItem(-50, -90 * 60 * 1000);
 	Net->_neighbors()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
@@ -193,6 +200,8 @@ int main(int argc, char* argv[])
 			rreq();
 		} else if (arduino_random(0, 100) == 0) {
 			sendm();
+		} else if (arduino_random(0, 1000) == 0) {
+			sendm_bad();
 		} else if (arduino_random(0, 100) == 0) {
 			cli_simtype("!neigh\r");
 			cli_simtype("!uptime\r");

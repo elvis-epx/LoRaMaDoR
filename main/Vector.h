@@ -33,8 +33,8 @@ public:
 	}
 	
 	void clear();
-	T& operator[](int n) { return *elem[n]; }
-	const T& operator[](int n) const { return *elem[n]; }
+	T& operator[](size_t n) { return *elem[n]; }
+	const T& operator[](size_t n) const { return *elem[n]; }
 	
 	size_t size() const { return sz; }
 	size_t capacity() const { return space; }

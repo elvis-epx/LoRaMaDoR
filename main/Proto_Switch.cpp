@@ -103,7 +103,7 @@ static bool parse(Buffer msg, char &type, Buffer &challenge,
 		err = "type should be a single char";
 		return false;
 	}
-	type = msg.charAt(0);
+	type = (char) msg.charAt(0);
 	if ((type != 'A') && (type != 'C')) {
 		err = "invalid type";
 		return false;
@@ -235,7 +235,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		Params swd = Params();
 		swd.put_naked("SW");
 		Buffer msg = Buffer("D,") + challenge + "," + response + "," +
-				target + "," + value;
+				Buffer::itoa(target) + "," + Buffer::itoa(value);
 		return L7HandlerResponse(true, pkt.from(), swd, msg);
 	}
 

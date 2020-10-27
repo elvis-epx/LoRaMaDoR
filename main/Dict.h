@@ -101,7 +101,7 @@ public:
 		return new_key;
 	}
 
-	int count() const {
+	size_t count() const {
 		return _keys.size();
 	}
 
@@ -116,21 +116,21 @@ public:
 				int cmp = _keys[i].compareTo(key);
 				if (cmp == 0) {
 					// good for exact and non-exact queriers
-					return i;
+					return (int) i;
 				} else if ((! exact) && (cmp > 0)) {
 					// non-exact, looks for insertion point
-					return i;
+					return (int) i;
 				}
 			}
 
-			return exact ? -1 : to;
+			return exact ? -1 : (int) to;
 		}
 
 		// recursive binary search
 		size_t middle = (from + to) / 2;
 		int cmp = _keys[middle].compareTo(key);
 		if (cmp == 0) {
-			return middle;
+			return (int) middle;
 		} else if (cmp > 0) {
 			// middle key > our key, look into left
 			return indexOf(key, from, middle, exact);

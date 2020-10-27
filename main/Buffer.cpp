@@ -207,6 +207,10 @@ int Buffer::charAt(int i) const
 	return this->buf[i];
 }
 
+int Buffer::charAt(size_t i) const
+{
+	return charAt((int) i);
+}
 
 int Buffer::indexOf(char c) const
 {

@@ -21,7 +21,7 @@ Buffer Proto_HMAC_hmac(const Buffer& key, const Buffer& data)
 	Sha256 hmac;
 	hmac.initHmac((uint8_t*) key.c_str(), key.length());
 	for (size_t i = 0; i < data.length(); ++i) {
-		hmac.write(data.charAt(i));
+		hmac.write((uint8_t) data.charAt(i));
 	}
 	uint8_t* res = hmac.resultHmac();
 	// convert the first 48 bits of HMAC (6 octets) to hex

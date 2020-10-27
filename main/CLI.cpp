@@ -225,7 +225,7 @@ static void cli_neigh()
 
 	auto now = arduino_millis_nw();
 	auto neigh = Net->neighbors();
-	for (auto i = 0; i < neigh.count(); ++i) {
+	for (size_t i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
 		int rssi = neigh[cs].rssi;
 		int64_t since = now - neigh[cs].timestamp;
@@ -235,7 +235,7 @@ static void cli_neigh()
 		console_println(b);
 	}
 	auto peers = Net->peers();
-	for (auto i = 0; i < peers.count(); ++i) {
+	for (size_t i = 0; i < peers.count(); ++i) {
 		Buffer cs = peers.keys()[i];
 		if (neigh.has(cs)) {
 			continue;
