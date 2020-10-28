@@ -61,7 +61,8 @@
  * 
  * Type D (server -> client): "D,challenge,response,target,value"
  *
- * Confirmation for the client. 
+ * Confirmation for the client. Value can be "?" if the target number
+ * was invalid (e.g. switch 4 if there are only 3 switches).
  */
 
 #include "Proto_Switch.h"
@@ -69,6 +70,10 @@
 #include "Packet.h"
 #include "CLI.h"
 #include "ArduinoBridge.h"
+
+// TODO replace by real hardware switches
+static const int sw_count = 3;
+static int sw[] = {0, 0, 0};
 
 // Task to handle timeout of ongoing transactions
 
@@ -174,6 +179,10 @@ static bool parse(Buffer msg, char &type, Buffer &challenge,
 	} else {
 		// set
 		value = svalue.toInt();
+		if (value < 1 || value > 65535) {
+			err = "value number should be 0..65535";
+			return false;
+		}
 	}
 
 	return true;
@@ -237,15 +246,24 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			return L7HandlerResponse();
 		}
 
-		if (value >= 0) {
-			// set switch
-			if (!trans.done) {
-				// FIXME apply command in hardware
+		Buffer svalue;
+
+		if (target <= sw_count) {
+			if (value >= 0) {
+				// set switch
+				if (!trans.done) {
+					// TODO apply command to hardware switch
+					sw[target - 1] = value;
+				}
+			} else {
+				// query switch
+				// TODO get value from hardware switch
+				value = sw[target - 1];
 			}
+			svalue = Buffer::itoa(value);
 		} else {
-			// query switch
-			// FIXME get value from hardware or impl
-			value = 9;
+			// unknown target
+			svalue = "?";
 		}
 
 		trans.done = true;
@@ -255,7 +273,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		Params swd = Params();
 		swd.put_naked("SW");
 		Buffer msg = Buffer("D,") + challenge + "," + response + "," +
-				Buffer::itoa(target) + "," + Buffer::itoa(value);
+				Buffer::itoa(target) + "," + svalue;
 		return L7HandlerResponse(true, pkt.from(), swd, msg);
 	}
 
