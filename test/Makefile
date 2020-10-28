@@ -1,6 +1,6 @@
 CFLAGS=-DDEBUG -DUNDER_TEST -fsanitize=undefined -fstack-protector-strong -fstack-protector-all -std=c++1y -Wall -g -O0 -fprofile-arcs -ftest-coverage -fno-elide-constructors
 
-OBJ=Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o Proto_HMAC.o sha256.o HMACKeys.o Proto_Switch.o
+OBJ=Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o Proto_HMAC.o sha256.o HMACKeys.o Proto_Switch.o NVRAM.o Preferences.o
 
 all: test testnet
 

@@ -6,7 +6,7 @@
 // Implementation of packet confirmation (C,CO options)
 
 #include "HMACKeys.h"
-#include "ArduinoBridge.h"
+#include "NVRAM.h"
 
 Buffer HMACKeys::get_key_for(const Callsign &c)
 {

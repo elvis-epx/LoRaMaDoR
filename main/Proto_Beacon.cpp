@@ -8,6 +8,7 @@
 #include "Proto_Beacon.h"
 #include "Network.h"
 #include "ArduinoBridge.h"
+#include "NVRAM.h"
 
 // Task for periodic transmission of beacon packet.
 class BeaconTask: public Task

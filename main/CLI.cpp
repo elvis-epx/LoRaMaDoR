@@ -8,6 +8,7 @@
 #endif
 #include "Buffer.h"
 #include "ArduinoBridge.h"
+#include "NVRAM.h"
 #include "Display.h"
 #include "Network.h"
 #include "CLI.h"
@@ -18,37 +19,47 @@
 
 extern Ptr<Network> Net;
 bool debug = false;
+bool tnc = false; // console used by a computer, not a human
 Buffer cli_buf;
 
 // Print a message, and reposition the cursor so any command
 // that was being typed, is not lost.
+// In TNC mode, just print the message.
 static void cli_print(const Buffer &msg)
 {
-	console_println();
+	if (!tnc) console_println();
 	console_println(msg);
-	console_print(cli_buf);
+	if (!tnc) console_print(cli_buf);
 }
 
 // May be called from anywhere, but mostly from network stack.
 void logs(const char* a, const char* b) {
-	if (!debug) return;
-	cli_print(Buffer(a) + " " + b);
+	if (!debug && !tnc) return;
+	cli_print(Buffer("debug: ") + a + " " + b);
 }
 
 void logs(const char* a, const Buffer &b)
 {
-	if (!debug) return;
-	cli_print(Buffer(a) + " " + b);
+	if (!debug && !tnc) return;
+	cli_print(Buffer("debug: ") + a + " " + b);
 }
 
 void logi(const char* a, int32_t b) {
-	if (!debug) return;
-	cli_print(Buffer(a) + " " + Buffer::itoa(b));
+	if (!debug && !tnc) return;
+	cli_print(Buffer("debug: ") + a + " " + Buffer::itoa(b));
 }
 
 // Print a representation of a received packet
 void app_recv(Ptr<Packet> pkt)
 {
+	if (tnc) {
+		Buffer data = pkt->encode_l3();
+		cli_print(Buffer("pkt: ") +
+			Buffer::itoa(data.length()) + " " +
+			data);
+		return;
+	}
+
 	Buffer msg = Buffer(pkt->to()) + " < " + pkt->from() + " " +
 		pkt->msg().c_str() + /* avoid \0s in message */
 		"\r\n(" + pkt->params().serialized() + " rssi " +
@@ -65,13 +76,13 @@ void app_recv(Ptr<Packet> pkt)
 static void cli_parse_callsign(const Buffer &candidate)
 {
 	if (candidate.empty()) {
-		console_print("Callsign is ");
+		console_print("cli: Callsign is ");
 		console_println(Net->me());
 		return;
 	}
 	
 	if (candidate.charAt(0) == 'Q') {
-		console_print("Invalid Q callsign: ");
+		console_print("cli: Invalid Q callsign: ");
 		console_println(candidate);
 		return;
 	}
@@ -79,13 +90,13 @@ static void cli_parse_callsign(const Buffer &candidate)
 	Callsign callsign(candidate);
 
 	if (! callsign.is_valid()) {
-		console_print("Invalid callsign: ");
+		console_print("cli: Invalid callsign: ");
 		console_println(candidate);
 		return;
 	}
 	
 	arduino_nvram_callsign_save(callsign);
-	console_println("Callsign saved, restarting...");
+	console_println("cli: Callsign saved, restarting...");
 	arduino_restart();
 }
 
@@ -93,25 +104,25 @@ static void cli_parse_callsign(const Buffer &candidate)
 static void cli_parse_repeater(const Buffer &candidate)
 {
 	if (candidate.empty()) {
-		console_print("Repeater function is ");
+		console_print("cli: Repeater function is ");
 		console_println(arduino_nvram_repeater_load() ? "1 (on)" : "0 (off)");
 		return;
 	}
 	
 	if (candidate.charAt(0) != '0' && candidate.charAt(0) != '1') {
-		console_println("Invalid new value, should be 0 or 1");
+		console_println("cli: Invalid new value, should be 0 or 1");
 		return;
 	}
 	
 	arduino_nvram_repeater_save(candidate.charAt(0) - '0');
-	console_println("Repeater config saved. Effective next restart.");
+	console_println("cli: Repeater config saved. Effective next restart.");
 }
 
 // Configure or print beacon interval time in seconds
 static void cli_parse_beacon(const Buffer &candidate)
 {
 	if (candidate.empty()) {
-		console_print("Beacon average interval is ");
+		console_print("cli: Beacon average interval is ");
 		console_print(Buffer::itoa(arduino_nvram_beacon_load()));
 		console_println("s");
 		return;
@@ -120,12 +131,12 @@ static void cli_parse_beacon(const Buffer &candidate)
 	int b = candidate.toInt();
 	
 	if (b < 10 || b > 600) {
-		console_println("Invalid value. Beacon interval must be 10..600s.");
+		console_println("cli: Invalid value. Beacon interval must be 10..600s.");
 		return;
 	}
 	
 	arduino_nvram_beacon_save(b);
-	console_println("Beacon interval saved. Effective after next beacon.");
+	console_println("cli: Beacon interval saved. Effective after next beacon.");
 }
 
 // Configure pre-shared key (PSK) for HMAC packet authentication
@@ -134,18 +145,18 @@ static void cli_parse_psk(Buffer candidate)
 	if (candidate.empty()) {
 		Buffer psk = arduino_nvram_psk_load();
 		if (psk.empty()) {
-			console_println("No pre-shared key is configured.");
+			console_println("cli: No pre-shared key is configured.");
 		} else {
-			console_print("Pre-shared key is '");
+			console_print("cli: Pre-shared key is '");
 			console_print(psk);
 			console_println("'");
-			console_println("FIXME scrub the key for security reasons");
+			// console_println("FIXME scrub the key for security reasons");
 		}
 		return;
 	}
 
 	if (candidate.length() > 32) {
-		console_println("Pre-shared key must have between 1 and 32 ASCII chars.");
+		console_println("cli: Pre-shared key must have between 1 and 32 ASCII chars.");
 		return;
 	}
 
@@ -154,16 +165,16 @@ static void cli_parse_psk(Buffer candidate)
 	}
 	
 	arduino_nvram_psk_save(candidate);
-	console_println("Pre-shared key saved, effective immediately.");
-	console_println("Make sure your peers are using the same key.");
-	console_println("Activate !debug mode to check HMAC-related issues.");
+	console_println("cli: Pre-shared key saved, effective immediately.");
+	console_println("cli: Make sure your peers are using the same key.");
+	console_println("cli: Activate !debug mode to check HMAC-related issues.");
 }
 
 // Configure or print beacon first interval time in seconds
 static void cli_parse_beacon_first(const Buffer &candidate)
 {
 	if (candidate.empty()) {
-		console_print("Beacon 1st average interval is ");
+		console_print("cli: Beacon 1st average interval is ");
 		console_print(Buffer::itoa(arduino_nvram_beacon_first_load()));
 		console_println("s");
 		return;
@@ -172,12 +183,12 @@ static void cli_parse_beacon_first(const Buffer &candidate)
 	int b = candidate.toInt();
 	
 	if (b < 1 || b > 300) {
-		console_println("Invalid value. Beacon 1st interval must be 1..300s.");
+		console_println("cli: Invalid value. Beacon 1st interval must be 1..300s.");
 		return;
 	}
 	
 	arduino_nvram_beacon_first_save(b);
-	console_println("Beacon 1st interval saved. Effective next restart.");
+	console_println("cli: Beacon 1st interval saved. Effective next restart.");
 }
 
 // Wi-Fi network name (SSID) configuration
@@ -185,15 +196,20 @@ static void cli_parse_ssid(Buffer candidate)
 {
 	candidate.strip();
 	if (candidate.empty()) {
-		console_print("SSID is '");
+		console_print("cli: SSID is '");
 		console_print(arduino_nvram_load("ssid"));
 		console_println("'");
-		console_println("Set SSID to None to disable Wi-Fi.");
+		console_println("cli: Set SSID to None to disable Wi-Fi.");
+		return;
+	}
+
+	if (candidate.length() > 64) {
+		console_println("cli: maximum SSID length is 64.");
 		return;
 	}
 	
 	arduino_nvram_save("ssid", candidate);
-	console_println("SSID saved, call !restart to apply");
+	console_println("cli: SSID saved, call !restart to apply");
 }
 
 // Wi-Fi network password configuration
@@ -201,21 +217,26 @@ static void cli_parse_password(Buffer candidate)
 {
 	candidate.strip();
 	if (candidate.empty()) {
-		console_print("Wi-Fi password is '");
+		console_print("cli: Wi-Fi password is '");
 		console_print(arduino_nvram_load("password"));
 		console_println("'");
-		console_println("Set password to None for Wi-Fi network without password.");
+		console_println("cli: Set password to None for Wi-Fi network without password.");
+		return;
+	}
+	
+	if (candidate.length() > 64) {
+		console_println("cli: maximum password length is 64.");
 		return;
 	}
 	
 	arduino_nvram_save("password", candidate);
-	console_println("Wi-Fi password saved, call !restart to apply");
+	console_println("cli: Wi-Fi password saved, call !restart to apply");
 }
 
 // ID of the latest packet sent by us
 static void cli_lastid()
 {
-	auto b = Buffer("Last packet ID #");
+	auto b = Buffer("cli: Last packet ID #");
 	b += Buffer::itoa(Net->get_last_pkt_id());
 	console_println(b);
 }
@@ -224,14 +245,14 @@ static void cli_lastid()
 static void cli_uptime()
 {
 	Buffer hms = Buffer::millis_to_hms(arduino_millis_nw());
-	console_println(Buffer("Uptime ") + hms);
+	console_println(Buffer("cli: Uptime ") + hms);
 }
 
 // Print list of detected network neighbors
 static void cli_neigh()
 {
-	console_println("---------------------------");
-	console_println(Buffer("Neighborhood of ") + Net->me() + ":");
+	console_println("cli: ---------------------------");
+	console_println(Buffer("cli: Neighborhood of ") + Net->me() + ":");
 
 	auto now = arduino_millis_nw();
 	auto neigh = Net->neighbors();
@@ -240,7 +261,7 @@ static void cli_neigh()
 		int rssi = neigh[cs].rssi;
 		int64_t since = now - neigh[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
-		auto b = Buffer("    ") + cs + " last seen " + ssince +
+		auto b = Buffer("cli:     ") + cs + " last seen " + ssince +
 			" ago, rssi " + Buffer::itoa(rssi);
 		console_println(b);
 	}
@@ -252,39 +273,39 @@ static void cli_neigh()
 		}
 		int64_t since = now - peers[cs].timestamp;
 		Buffer ssince = Buffer::millis_to_hms(since);
-		auto b = Buffer("    ") + cs + " last seen " + ssince +
+		auto b = Buffer("cli:     ") + cs + " last seen " + ssince +
 			" ago, non adjacent";
 		console_println(b);
 	}
-	console_println("---------------------------");
+	console_println("cli: --------------------------");
 }
 
 // Print Wi-Fi status information
 static void cli_wifi()
 {
-	console_println(get_wifi_status());
+	console_println(Buffer("cli: ") + get_wifi_status());
 }
 
 static void cli_parse_help()
 {
-	console_println();
-	console_println("Available commands:");
-	console_println();
-	console_println("  !callsign [CALLSIGN]   Get/set callsign");
-	console_println("  !ssid [SSID]           Get/set Wi-Fi network (None to disable)");
-	console_println("  !password [PASSWORD]   Get/set Wi-Fi password (None if no password)");
-	console_println("  !repeater [0 or 1]     Get/set repeater function switch");
-	console_println("  !beacon [10..600]      Get/set beacon average time (in seconds)");
-	console_println("  !beacon1st [10..300]   Get/set first beacon avg time");
-	console_println("  !psk [KEY]             Get/Set optional HMAC pre-shared key (None to disable)");
-	console_println("  !wifi                  Show Wi-Fi/network status");
-	console_println("  !debug                 Enable debug/verbose mode");
-	console_println("  !nodebug               Disable debug mode");
-	console_println("  !restart or !reset     Restart controller");
-	console_println("  !neigh                 List known neighbors");
-	console_println("  !lastid                Last sent packet #");
-	console_println("  !uptime                Show uptime");
-	console_println();
+	console_println("cli: ");
+	console_println("cli: Available commands:");
+	console_println("cli: ");
+	console_println("cli:  !callsign [CALLSIGN]   Get/set callsign");
+	console_println("cli:  !ssid [SSID]           Get/set Wi-Fi network (None to disable)");
+	console_println("cli:  !password [PASSWORD]   Get/set Wi-Fi password (None if no password)");
+	console_println("cli:  !repeater [0 or 1]     Get/set repeater function switch");
+	console_println("cli:  !beacon [10..600]      Get/set beacon average time (in seconds)");
+	console_println("cli:  !beacon1st [10..300]   Get/set first beacon avg time");
+	console_println("cli:  !psk [KEY]             Get/Set optional HMAC pre-shared key (None to disable)");
+	console_println("cli:  !wifi                  Show Wi-Fi/network status");
+	console_println("cli:  !debug / !nodebug      Enable/disable debug and verbose mode");
+	console_println("cli:  !tnc / !notnc          Enable/disable TNC mode");
+	console_println("cli:  !restart or !reset     Restart controller");
+	console_println("cli:  !neigh                 List known neighbors");
+	console_println("cli:  !lastid                Last sent packet #");
+	console_println("cli:  !uptime                Show uptime");
+	console_println("cli:");
 }
 
 // !command switchboard
@@ -332,14 +353,20 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd == "help") {
 		cli_parse_help();
 	} else if (cmd == "debug") {
-		console_println("Debug on.");
+		console_println("cli: Debug on.");
 		debug = true;
+	} else if (cmd == "tnc") {
+		console_println("cli: TNC mode on.");
+		tnc = true;
 	} else if (cmd == "restart" || cmd == "reset") {
-		console_println("Restarting...");
+		console_println("cli: Restarting...");
 		arduino_restart();
 	} else if (cmd == "nodebug") {
-		console_println("Debug off.");
+		console_println("cli: Debug off.");
 		debug = false;
+	} else if (cmd == "notnc") {
+		console_println("cli: TNC mode off");
+		tnc = false;
 	} else if (cmd == "neigh") {
 		cli_neigh();
 	} else if (cmd == "lastid") {
@@ -347,7 +374,7 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd == "uptime") {
 		cli_uptime();
 	} else {
-		console_print("Unknown cmd: ");
+		console_print("cli: Unknown cmd: ");
 		console_println(cmd);
 	}
 }
@@ -378,25 +405,25 @@ static void cli_parse_packet(Buffer cmd)
 	Callsign dest(cdest);
 
 	if (! dest.is_valid()) {
-		console_print("Invalid destination: ");
+		console_print("net: Invalid destination: ");
 		console_println(cdest);
 		return;
 	}
 
 	if (dest.is_reserved()) {
-		console_println("QB is reserved to automatic beacon.");
+		console_println("net: QB is reserved to automatic beacon.");
 		return;
 	}
 
 	Params params(sparams);
 	if (! params.is_valid_without_ident()) {
-		console_print("Invalid params: ");
+		console_print("net: Invalid params: ");
 		console_println(sparams);
 		return;
 	}
 
 	uint32_t id = Net->send(dest, params, payload);
-	console_println(Buffer("Sent packet #") + Buffer::itoa(id) + ".");
+	console_println(Buffer("net: Sent packet #") + Buffer::itoa(id) + ".");
 }
 
 // Parse a command or packet typed in CLI
@@ -413,7 +440,7 @@ static void cli_parse(Buffer cmd)
 
 // ENTER pressed in CLI
 static void cli_enter() {
-	console_println();
+	if (!tnc) console_println();
 	if (cli_buf.empty()) {
 		return;
 	}
@@ -460,9 +487,9 @@ void cli_type(char c) {
 	} else if (c == 8 || c == 127) {
 		if (! cli_buf.empty()) {
 			cli_buf.cut(-1);
-			console_print((char) 8);
-			console_print(' ');
-			console_print((char) 8);
+			if (!tnc) console_print((char) 8);
+			if (!tnc) console_print(' ');
+			if (!tnc) console_print((char) 8);
 		}
 	} else if (c < 32) {
 		// ignore non-handled control chars
@@ -470,6 +497,6 @@ void cli_type(char c) {
 		return;
 	} else {
 		cli_buf += c;
-		console_print(c);
+		if (!tnc) console_print(c);
 	}
 }

@@ -5,14 +5,17 @@
 
 // Main LoRaMaDoR network class, plus some auxiliary types
 
+#include <Preferences.h>
 #include "Packet.h"
 #include "Network.h"
 #include "Display.h"
 #include "ArduinoBridge.h"
+#include "NVRAM.h"
 #include "Console.h"
 #include "TCPIP.h"
 
 Ptr<Network> Net;
+Preferences prefs;
 
 void setup()
 {

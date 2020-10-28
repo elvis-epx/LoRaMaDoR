@@ -9,6 +9,7 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include "Console.h"
+#include "NVRAM.h"
 
 static Ptr<Network> Net;
 static Buffer ssid;

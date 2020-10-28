@@ -5,6 +5,7 @@
 
 // Main LoRaMaDoR network class, plus some auxiliary types
 
+#include "NVRAM.h"
 #include "ArduinoBridge.h"
 #include "Network.h"
 #include "Packet.h"

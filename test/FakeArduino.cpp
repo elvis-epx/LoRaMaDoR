@@ -15,14 +15,7 @@
 // Emulation of millis() and random()
 
 static struct timeval tm_first;
-static uint32_t nvram_id = 0;
-static Callsign nvram_cs("FIXMEE-1");
 static bool virgin = true;
-static Dict<Buffer> nvram;
-static uint32_t repeater = 0;
-static uint32_t beacon = 0;
-static uint32_t beacon_first = 0;
-static Buffer psk;
 
 static void init_things()
 {
@@ -191,71 +184,6 @@ void lora_emu_rx()
 	rx_callback(msg, len, -50);
 }
 
-uint32_t arduino_nvram_id_load()
-{
-	if (nvram_id == 0) {
-		nvram_id = arduino_random(9900, 10000);
-	}
-	return nvram_id;
-}
-
-void arduino_nvram_id_save(uint32_t id)
-{
-	nvram_id = id;
-}
-
-uint32_t arduino_nvram_repeater_load()
-{
-	return repeater;
-}
-
-void arduino_nvram_repeater_save(uint32_t r)
-{
-	repeater = r;
-}
-
-Buffer arduino_nvram_psk_load()
-{
-	return psk;
-}
-
-void arduino_nvram_psk_save(const Buffer &b)
-{
-	psk = b;
-}
-
-uint32_t arduino_nvram_beacon_load()
-{
-	if (beacon < 10 || beacon > 600) {
-		beacon = 600;
-	}
-	return beacon;
-}
-
-void arduino_nvram_beacon_save(uint32_t b)
-{
-	beacon = b;
-	if (beacon < 10 || beacon > 600) {
-		beacon = 600;
-	}
-}
-
-uint32_t arduino_nvram_beacon_first_load()
-{
-	if (beacon_first < 1 || beacon_first > 300) {
-		beacon_first = 30;
-	}
-	return beacon_first;
-}
-
-void arduino_nvram_beacon_first_save(uint32_t b)
-{
-	beacon_first = b;
-	if (beacon_first < 1 || beacon_first > 300) {
-		beacon_first = 30;
-	}
-}
-
 void console_print(const Buffer &b) {
 	printf("%s", b.c_str());
 }
@@ -284,27 +212,8 @@ void arduino_restart() {
 	// exit(0);
 }
 
-void arduino_nvram_callsign_save(const Callsign &cs)
-{
-	nvram_cs = cs;
-}
-
 void oled_show(const char *, const char *, const char *, const char*)
 {
-}
-
-void arduino_nvram_save(const char *key, const Buffer& value)
-{
-	printf("key %s value %s\n", key, value.c_str());
-	nvram[key] = value;
-}
-
-Buffer arduino_nvram_load(const char *key)
-{
-	if (!nvram.has(key)) {
-		nvram[key] = "None";
-	}
-	return nvram[key];
 }
 
 Buffer get_wifi_status()

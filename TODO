@@ -1,17 +1,5 @@
 Change README, add section about remote control/non-amateur uses
 
-Add example of application (try some sensor and LED control)
-	- enable/disable protocols in build
-
-No-replay mixin protocol
-	- report error to higher level?
-
-Confirmed mixin protocol
-	- use C or create a separete impl?
-	- report error to higher level?
-	- retransmission
-	- exponential backoff
-
 Log/debug x interfacing with PC over serial
 	- secure packet and cmd exchange (character escaping, etc.)
 	- allow to autom. distinguish packets from debug messages

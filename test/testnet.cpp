@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 #include "Network.h"
 #include "ArduinoBridge.h"
+#include "NVRAM.h"
 #include "CLI.h"
 
 // Radio emulation hooks in FakeArduino.cpp
