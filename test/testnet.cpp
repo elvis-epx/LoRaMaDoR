@@ -13,6 +13,8 @@
 #include "Timestamp.h"
 #include "NVRAM.h"
 #include "CLI.h"
+#include "Serial.h"
+#include "Console.h"
 
 // Radio emulation hooks in FakeArduino.cpp
 int lora_emu_socket();
@@ -220,10 +222,12 @@ int main(int argc, char* argv[])
 		if (tsk) {
 			int64_t now = sys_timestamp();
 			int64_t to = tsk->next_run() - now;
-			printf("Timeout: %s %ld\n", tsk->get_name().c_str(), to);
+			// printf("Timeout: %s %ld\n", tsk->get_name().c_str(), to);
 			if (to < 0) {
 				to = 0;
 			}
+			// 1-second timeout due to call to console_handle()
+			to = 1;
 			timeout.tv_sec = to / 1000;
 			timeout.tv_usec = (to % 1000) * 1000;
 			ptimeout = &timeout;
@@ -246,5 +250,6 @@ int main(int argc, char* argv[])
 		} else {
 			Net->run_tasks(sys_timestamp());
 		}
+		console_handle();
 	}
 }

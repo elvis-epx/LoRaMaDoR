@@ -2,6 +2,8 @@
 #include "Buffer.h"
 #include "Preferences.h"
 
+// Emulation of Arduino ESP32 Preferences class
+
 static Dict<Buffer> nvram;
 
 void Preferences::begin(const char*)

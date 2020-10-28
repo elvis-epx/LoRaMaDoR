@@ -185,30 +185,6 @@ void lora_emu_rx()
 	rx_callback(msg, len, -50);
 }
 
-void console_print(const Buffer &b) {
-	printf("%s", b.c_str());
-}
-
-void console_print(const char *msg) {
-	printf("%s", msg);
-}
-
-void console_print(char msg) {
-	printf("%c", msg);
-}
-
-void console_println(const Buffer& b) {
-	printf("%s\n", b.c_str());
-}
-
-void console_println(const char *msg) {
-	printf("%s\n", msg);
-}
-
-void console_println() {
-	printf("\n");
-}
-
 void arduino_restart() {
 	// exit(0);
 }
@@ -220,4 +196,9 @@ void oled_show(const char *, const char *, const char *, const char*)
 Buffer get_wifi_status()
 {
 	return "Fake Wi-Fi status";
+}
+
+void telnet_print(const char *)
+{
+	// dummy; no Telnet mode in desktop testing mode
 }

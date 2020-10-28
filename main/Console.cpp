@@ -3,7 +3,11 @@
  * Copyright (c) 2019 PU5EPX
  */
 
+#ifdef UNDER_TEST
+#include "Serial.h"
+#else
 #include <Arduino.h>
+#endif
 #include "Network.h"
 #include "CLI.h"
 #include "TCPIP.h"
