@@ -18,6 +18,16 @@
 
 extern Ptr<Network> Net;
 bool debug = false;
+Buffer cli_buf;
+
+// Print a message, and reposition the cursor so any command
+// that was being typed, is not lost.
+static void cli_print(const Buffer &msg)
+{
+	console_println();
+	console_println(msg);
+	console_print(cli_buf);
+}
 
 // May be called from anywhere, but mostly from network stack.
 void logs(const char* a, const char* b) {
@@ -401,8 +411,6 @@ static void cli_parse(Buffer cmd)
 	}
 }
 
-Buffer cli_buf;
-
 // ENTER pressed in CLI
 static void cli_enter() {
 	console_println();
@@ -464,13 +472,4 @@ void cli_type(char c) {
 		cli_buf += c;
 		console_print(c);
 	}
-}
-
-// Print a message, and reposition the cursor so any command
-// that was being typed, is not lost.
-void cli_print(const Buffer &msg)
-{
-	console_println();
-	console_println(msg);
-	console_print(cli_buf);
 }

@@ -14,6 +14,5 @@ void logi(const char*, int32_t);
 void app_recv(Ptr<Packet>);
 void cli_type(const char);
 void cli_simtype(const char *);
-void cli_print(const Buffer &);
 
 #endif
