@@ -24,13 +24,14 @@ static void init_things()
 	srandom(tm_first.tv_sec + tm_first.tv_usec);
 }
 
-int64_t arduino_millis_nw()
+uint32_t _arduino_millis()
 {
 	if (virgin) init_things();
 	struct timeval tm;
 	gettimeofday(&tm, 0);
-	return ((tm.tv_sec * 1000000LL + tm.tv_usec)
-		- (tm_first.tv_sec * 1000000LL + tm_first.tv_usec)) / 1000 + 1;
+	int64_t now_us   = tm.tv_sec       * 1000000LL + tm.tv_usec;
+	int64_t start_us = tm_first.tv_sec * 1000000LL + tm_first.tv_usec;
+	return (now_us - start_us) / 1000 + 1;
 }
 
 int32_t arduino_random(int32_t min, int32_t max)

@@ -10,6 +10,7 @@
 #include "Network.h"
 #include "Display.h"
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 #include "NVRAM.h"
 #include "Console.h"
 #include "TCPIP.h"
@@ -36,5 +37,5 @@ void loop()
 {
 	wifi_handle();
 	console_handle();
-	Net->run_tasks(arduino_millis_nw());
+	Net->run_tasks(sys_timestamp());
 }

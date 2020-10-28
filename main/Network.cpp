@@ -7,6 +7,7 @@
 
 #include "NVRAM.h"
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 #include "Network.h"
 #include "Packet.h"
 #include "Params.h"

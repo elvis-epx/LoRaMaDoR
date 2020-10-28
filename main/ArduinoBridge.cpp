@@ -10,18 +10,9 @@
 
 // Platform-dependent functions. They are faked on Linux to run tests.
 
-static uint32_t epoch = 0;
-static uint32_t last_millis = 0;
-
-int64_t arduino_millis_nw()
+uint32_t _arduino_millis()
 {
-	uint32_t m = millis();
-	if (m < last_millis) {
-		// wrapped around
-		epoch += 1;
-	}
-	last_millis = m;
-	return (((int64_t) epoch) << 32) + m;
+	return millis();
 }
 
 int32_t arduino_random(int32_t min, int32_t max)

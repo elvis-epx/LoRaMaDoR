@@ -4,6 +4,7 @@
  */
 
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 #include "Display.h"
 #include "SSD1306.h"
 #include "Buffer.h"
@@ -30,7 +31,7 @@ void oled_init()
 void oled_show(const char *ma, const char *mb, const char *mc, const char *md)
 {
 	char ms[20];
-	Buffer uptime = Buffer::millis_to_hms(arduino_millis_nw());
+	Buffer uptime = Buffer::millis_to_hms(sys_timestamp());
 	sprintf(ms, "%s", uptime.c_str());
 	display.clear();
 	display.drawString(0, 0, ma);

@@ -70,6 +70,7 @@
 #include "Packet.h"
 #include "CLI.h"
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 
 // TODO replace by real hardware switches
 static const int sw_count = 3;
@@ -222,7 +223,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			trans.from = pkt.from();
 			trans.challenge = challenge;
 			trans.response = response;
-			trans.timeout = arduino_millis_nw() + 60 * SECONDS;
+			trans.timeout = sys_timestamp() + 60 * SECONDS;
 			trans.done = false;
 			transactions[key] = trans;
 		}
@@ -267,7 +268,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		}
 
 		trans.done = true;
-		trans.timeout = arduino_millis_nw() + 60 * SECONDS;
+		trans.timeout = sys_timestamp() + 60 * SECONDS;
 
 		// send packet D
 		Params swd = Params();

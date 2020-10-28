@@ -16,9 +16,6 @@
 #include "Params.h"
 #include "Callsign.h"
 
-#define SECONDS 1000
-#define MINUTES 60000
-
 class L7Protocol;
 class L4Protocol;
 class Modifier;

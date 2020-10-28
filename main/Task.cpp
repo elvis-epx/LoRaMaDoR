@@ -21,6 +21,7 @@
 
 #include "Task.h"
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 
 Task::Task(const char *name, int64_t offset):
 	name(name), offset(offset), timebase(0)
@@ -84,13 +85,13 @@ void TaskManager::schedule(Ptr<Task> task)
 {
 	Ptr<Task> etask = task;
 	tasks.push_back(etask);
-	etask->set_timebase(arduino_millis_nw());
+	etask->set_timebase(sys_timestamp());
 }
 
 Ptr<Task> TaskManager::next_task() const
 {
 	Ptr<Task> ret(0);
-	int64_t task_time = arduino_millis_nw() + 60 * 1000;
+	int64_t task_time = sys_timestamp() + 60 * 1000;
 	for (size_t i = 0 ; i < tasks.size(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (! t->cancelled()) {
@@ -126,7 +127,7 @@ void TaskManager::run(int64_t now)
 			bool stay = t->run(now);
 			if (stay) {
 				// reschedule
-				t->set_timebase(arduino_millis_nw());
+				t->set_timebase(sys_timestamp());
 			} else {
 				// task list must be pruned
 				dirty = true;

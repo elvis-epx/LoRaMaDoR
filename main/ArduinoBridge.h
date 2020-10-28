@@ -10,7 +10,7 @@
 
 #include <cstdint>
 
-int64_t arduino_millis_nw();
+uint32_t _arduino_millis();
 int32_t arduino_random(int32_t min, int32_t max);
 void arduino_restart();
 

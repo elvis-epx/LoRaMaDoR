@@ -9,6 +9,7 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include "Console.h"
+#include "Timestamp.h"
 #include "NVRAM.h"
 
 static Ptr<Network> Net;
@@ -35,7 +36,7 @@ void wifi_setup(Ptr<Network> net)
 
 	if (ssid != "None") {
 		wifi_status = 1;
-		wifi_timeout = arduino_millis_nw() + 1000; 
+		wifi_timeout = sys_timestamp() + 1 * SECONDS; 
 	}
 }
 
@@ -69,7 +70,7 @@ Buffer get_wifi_status()
 void wifi_handle()
 {
 	if (wifi_status == 1) {
-		if (arduino_millis_nw() > wifi_timeout) {
+		if (sys_timestamp() > wifi_timeout) {
 			WiFi.mode(WIFI_STA);
 			if (password == "None") {
 				WiFi.begin(ssid.c_str());
@@ -78,7 +79,7 @@ void wifi_handle()
 			}
 			serial_println("Connecting to WiFi...");
 			wifi_status = 2;
-			wifi_timeout = arduino_millis_nw() + 20000;
+			wifi_timeout = sys_timestamp() + 20 * SECONDS;
 		}
 	} else if (wifi_status == 2) {
 		int ws = WiFi.status();
@@ -97,16 +98,16 @@ void wifi_handle()
 				mdns = true;
 			}
 			wifi_status = 3;
-		} else if (arduino_millis_nw() > wifi_timeout) {
+		} else if (sys_timestamp() > wifi_timeout) {
 			serial_println("Failed to connect to WiFi");
 			wifi_status = 1;
-			wifi_timeout = arduino_millis_nw() + 1000;
+			wifi_timeout = sys_timestamp() + 1 * SECONDS;
 		}
 	} else if (wifi_status == 3) {
 		if (WiFi.status() != WL_CONNECTED) {
 			serial_println("Disconnected from WiFi.");
 			wifi_status = 1;
-			wifi_timeout = arduino_millis_nw() + 1000;
+			wifi_timeout = sys_timestamp() + 1 * SECONDS;
 			telnet_client.stop();
 			ip = "(none)";
 			mdns = false;

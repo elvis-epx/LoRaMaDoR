@@ -8,6 +8,7 @@
 #include "Proto_Beacon.h"
 #include "Network.h"
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 #include "NVRAM.h"
 
 // Task for periodic transmission of beacon packet.
@@ -39,7 +40,7 @@ Proto_Beacon::Proto_Beacon(Network *net): L7Protocol(net)
 
 int64_t Proto_Beacon::beacon() const
 {
-	Buffer uptime = Buffer::millis_to_hms(arduino_millis_nw());
+	Buffer uptime = Buffer::millis_to_hms(sys_timestamp());
 	Buffer msg = Buffer("LoRaMaDoR up ") + uptime;
 	net->send(Callsign("QB"), Params(), msg);
 	uint32_t next = Network::fudge(arduino_nvram_beacon_load() * 1000, 0.5);

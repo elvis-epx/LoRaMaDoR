@@ -8,6 +8,7 @@
 #endif
 #include "Buffer.h"
 #include "ArduinoBridge.h"
+#include "Timestamp.h"
 #include "NVRAM.h"
 #include "Display.h"
 #include "Network.h"
@@ -244,7 +245,7 @@ static void cli_lastid()
 // System uptime
 static void cli_uptime()
 {
-	Buffer hms = Buffer::millis_to_hms(arduino_millis_nw());
+	Buffer hms = Buffer::millis_to_hms(sys_timestamp());
 	console_println(Buffer("cli: Uptime ") + hms);
 }
 
@@ -254,7 +255,7 @@ static void cli_neigh()
 	console_println("cli: ---------------------------");
 	console_println(Buffer("cli: Neighborhood of ") + Net->me() + ":");
 
-	auto now = arduino_millis_nw();
+	auto now = sys_timestamp();
 	auto neigh = Net->neighbors();
 	for (size_t i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
