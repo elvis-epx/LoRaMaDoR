@@ -24,6 +24,22 @@ static bool is_telnet = false;
 Buffer ip = "(none)";
 bool mdns = false;
 
+static void serial_print(const Buffer &msg)
+{
+	serial_print(msg.c_str());
+}
+
+static void serial_println(const char *msg)
+{
+	serial_print(msg);
+	serial_print("\r\n");
+}
+
+static void serial_println(const Buffer &msg)
+{
+	serial_println(msg.c_str());
+}
+
 // called by Arduino setup()
 void wifi_setup(Ptr<Network> net)
 {

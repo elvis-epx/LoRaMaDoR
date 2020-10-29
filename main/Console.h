@@ -35,8 +35,5 @@ void console_println();
 
 // Goes straight to serial
 void serial_print(const char *);
-void serial_print(const Buffer &);
-void serial_println(const char *);
-void serial_println(const Buffer &);
 
 #endif
