@@ -64,10 +64,12 @@ bool Task::run(int64_t now)
 	return this->offset > 0;
 }
 
+/*
 Buffer Task::get_name() const
 {
 	return name;
 }
+*/
 
 TaskManager::TaskManager() {}
 
