@@ -97,8 +97,8 @@ static void cli_parse_callsign(const Buffer &candidate)
 	}
 	
 	arduino_nvram_callsign_save(callsign);
-	console_println("cli: Callsign saved, restarting...");
-	arduino_restart();
+	console_println("cli: Callsign saved. Effective next restart.");
+	console_println("cli: Issue !reset or !restart to apply immediately.");
 }
 
 // Configure or print repeater function status

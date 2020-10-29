@@ -184,8 +184,6 @@ int main(int argc, char* argv[])
 	cli_simtype("!beacon\r");
 	cli_simtype("!password ble\r");
 	cli_simtype("!password\r");
-	cli_simtype("!reset\r");
-	cli_simtype("!restart\r");
 	cli_simtype("!debug\r");
 	cli_simtype("A b\r");
 	cli_simtype("A $=d\r\r\r");

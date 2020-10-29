@@ -186,7 +186,7 @@ void lora_emu_rx()
 }
 
 void arduino_restart() {
-	// exit(0);
+	exit(0);
 }
 
 void oled_show(const char *, const char *, const char *, const char*)
