@@ -14,7 +14,7 @@
 #include "Network.h"
 #include "CLI.h"
 #include "Console.h"
-#include "TCPIP.h"
+#include "Telnet.h"
 
 // Command-line interface implementation.
 

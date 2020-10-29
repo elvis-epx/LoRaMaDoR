@@ -10,6 +10,14 @@
 #include "Serial.h"
 #include "Buffer.h"
 
+// This is an emulation of Arduino Serial module. Connect with Telnet
+// to communicate with the "serial" port.
+
+// Do not confuse this testing device with the Telnet implementation in
+// main/Telnet.h, which only works in Arduino and independently of the
+// serial port (one can be connected to Arduino via serial and via
+// Telnet at the same time).
+
 SerialClass Serial;
 
 static int port = 0;

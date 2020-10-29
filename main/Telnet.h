@@ -5,8 +5,8 @@
 
 // Functions related to Wi-Fi and Telnet server support
 
-#ifndef __TCPIP_H
-#define __TCPIP_H
+#ifndef __TELNET_H
+#define __TELNET_H
 
 class Network;
 

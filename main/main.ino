@@ -11,7 +11,7 @@
 #include "ArduinoBridge.h"
 #include "Timestamp.h"
 #include "Console.h"
-#include "TCPIP.h"
+#include "Telnet.h"
 
 Ptr<Network> Net;
 Preferences prefs;

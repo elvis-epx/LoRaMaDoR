@@ -10,7 +10,7 @@
 #endif
 #include "Network.h"
 #include "CLI.h"
-#include "TCPIP.h"
+#include "Telnet.h"
 #include "Console.h"
 
 // Serial and telnet console. Intermediates communication between
