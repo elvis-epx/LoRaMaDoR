@@ -118,6 +118,8 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	arduino_nvram_id_save(MAX_PACKET_ID - 10);
+
 	int repeater = atoi(argv[2]) ? 1 : 0;
 	int coverage = atoi(argv[3]) & 0xff;
 	int serialemu = atoi(argv[5]);

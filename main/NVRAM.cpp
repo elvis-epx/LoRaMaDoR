@@ -11,6 +11,7 @@
 #endif
 #include "Buffer.h"
 #include "Callsign.h"
+#include "Network.h"
 #include "NVRAM.h"
 
 extern Preferences prefs;
@@ -21,7 +22,7 @@ uint32_t arduino_nvram_id_load()
 	uint32_t id = prefs.getUInt("lastid");
 	prefs.end();
 
-	if (id <= 0 || id > 9999) {
+	if (id <= 0 || id > MAX_PACKET_ID) {
 		id = 1;
 	}
 

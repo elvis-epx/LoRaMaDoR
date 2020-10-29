@@ -16,6 +16,8 @@
 #include "Params.h"
 #include "Callsign.h"
 
+#define MAX_PACKET_ID 9999
+
 class L7Protocol;
 class L4Protocol;
 class Modifier;

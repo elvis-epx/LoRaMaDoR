@@ -203,7 +203,7 @@ void Network::add_modifier(Modifier * p)
 // Gets next packet ID and saves to NVRAM
 size_t Network::get_next_pkt_id()
 {
-	if (++last_pkt_id > 9999) {
+	if (++last_pkt_id > MAX_PACKET_ID) {
 		last_pkt_id = 1;
 	}
 	arduino_nvram_id_save(last_pkt_id);
