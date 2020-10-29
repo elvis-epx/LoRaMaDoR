@@ -92,7 +92,7 @@ protected:
 	virtual int64_t run2(int64_t now)
 	{
 		p->process_timeouts(now);
-		return now + 10 * SECONDS;
+		return 10 * SECONDS;
 	}
 private:
 	Proto_Switch *p;

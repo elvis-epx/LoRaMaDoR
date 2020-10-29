@@ -2,7 +2,9 @@
 test
 test.DSYM
 testnet
+testnet2
 testnet.DSYM
+testnet2.DSYM
 out/
 *.gc*
 *.log

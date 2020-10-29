@@ -1,35 +1,129 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
 #include "Serial.h"
+#include "Buffer.h"
 
 SerialClass Serial;
-static bool telnet_connected = false;
-// FIXME link with Telnet server and fill implementations in
+
+static int port = 0;
+static int listen_socket = -1;
+static int conn_socket = -1;
+static Buffer readbuf;
 
 int SerialClass::available()
 {
-	// FIXME implement Telnet link
-	return 0;
+	return readbuf.length();
 }	
 
 int SerialClass::availableForWrite()
 {
-	// FIXME implement Telnet link
-	return 999999;
+	// IMHO no need for write logic because it is just for testing
+	return 999;
 }	
 
 char SerialClass::read()
 {
-	// FIXME implement Telnet link
-	return 0;
+	char c = 0;
+	if (!readbuf.empty()) {
+		c = readbuf.charAt(0);
+		readbuf.cut(1);
+	}
+	return c;
 }
 
 void SerialClass::write(const uint8_t *data, int len)
 {
-	// FIXME implement Telnet link
-	char *tmp = (char*) calloc(1, len + 1);
-	memcpy(tmp, data, len);
-	printf("%s", tmp);
-	free(tmp);
+	if (conn_socket < 0) {
+		char *tmp = (char*) calloc(1, len + 1);
+		memcpy(tmp, data, len);
+		printf("%s", tmp);
+		free(tmp);
+	} else {
+		printf("fake: emu writing to telnet connection\n");
+		::write(conn_socket, (const void*) data, len);
+	}
+}
+
+int SerialClass::emu_conn_socket()
+{
+	return conn_socket;
+}
+
+int SerialClass::emu_listen_socket()
+{
+	return listen_socket;
+}
+
+void SerialClass::emu_conn_handle()
+{
+	if (conn_socket < 0) return;
+	printf("fake: emu reading from telnet connection\n");
+	char buf[1500];
+	int x = ::read(conn_socket, buf, sizeof(buf));
+	if (x <= 0) {
+		printf("fake: emu closed telnet connection\n");
+		close(conn_socket);
+		conn_socket = -1;
+	}
+	readbuf += Buffer(buf, x);
+}
+
+void SerialClass::emu_listen_handle()
+{
+	if (listen_socket < 0) return;
+	printf("fake: emu accepting telnet connection\n");
+	struct sockaddr_in connaddr;
+	unsigned int len = sizeof(connaddr);
+
+	if (conn_socket >= 0) {
+		printf("fake: emu closed old connection\n");
+		close(conn_socket);
+	}
+
+	conn_socket = accept(listen_socket, (struct sockaddr*) &connaddr, &len);
+	if (conn_socket < 0) {
+		printf("fake: emu server acccept failed...\n");
+		return;
+	}
+}
+
+void SerialClass::emu_port(int p)
+{
+	port = p;
+	struct sockaddr_in servaddr;
+
+	listen_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (listen_socket == -1) {
+		printf("fake: emu socket creation failed\n");
+		return;
+	}
+	bzero(&servaddr, sizeof(servaddr));
+
+	servaddr.sin_family = AF_INET;
+	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	servaddr.sin_port = htons(port);
+
+	if ((bind(listen_socket, (struct sockaddr *)&servaddr, sizeof(servaddr))) != 0) {
+		printf("fake: emu socket bind failed...\n");
+		close(listen_socket);
+		listen_socket = -1;
+		return;
+	}
+
+	if ((listen(listen_socket, 5)) != 0) {
+		printf("fake: emu Listen failed...\n");
+		close(listen_socket);
+		listen_socket = -1;
+		return;
+	}
+
+	signal(SIGPIPE, SIG_IGN);
+	printf("fake: emu telnet ok!\n");
 }

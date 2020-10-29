@@ -2,7 +2,7 @@ CFLAGS=-DDEBUG -DUNDER_TEST -fsanitize=undefined -fstack-protector-strong -fstac
 
 OBJ=Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o Proto_HMAC.o sha256.o HMACKeys.o Proto_Switch.o NVRAM.o Preferences.o Timestamp.o Console.o Serial.o
 
-all: test testnet
+all: test testnet testnet2
 
 clean:
 	rm -rf *.o test testnet *.gcda *.gcno *.info out *.dSYM *.log *.val
@@ -15,6 +15,9 @@ test: test.cpp $(OBJ) *.h
 
 testnet: testnet.cpp $(OBJ) *.h
 	gcc $(CFLAGS) -o testnet testnet.cpp $(OBJ) -lstdc++
+
+testnet2: testnet2.cpp $(OBJ) *.h
+	gcc $(CFLAGS) -o testnet2 testnet2.cpp $(OBJ) -lstdc++
 
 recov:
 	rm *.gcda

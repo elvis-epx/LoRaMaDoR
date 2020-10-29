@@ -113,13 +113,14 @@ void sendm()
 
 int main(int argc, char* argv[])
 {
-	if (argc < 5) {
-		printf("Specify, callsign, repeater mode, coverage bitmask and PSK\n");
+	if (argc < 6) {
+		printf("Specify, callsign, repeater mode, coverage bitmask, HMAC PSK and serial emulation port\n");
 		return 1;
 	}
 
 	int repeater = atoi(argv[2]) ? 1 : 0;
 	int coverage = atoi(argv[3]) & 0xff;
+	int serialemu = atoi(argv[5]);
 	if (repeater < 0 || repeater > 1) {
 		printf("repeater mode must be 0 or 1\n");
 	}
@@ -128,6 +129,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	Serial.emu_port(serialemu);
 	lora_emu_socket_coverage(coverage);
 
 	Callsign cs(argv[1]);
@@ -194,6 +196,7 @@ int main(int argc, char* argv[])
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
+	int s2 = Serial.emu_listen_socket();
 
 	while (sys_timestamp() < 180*1000) {
 		if (arduino_random(0, 100) == 0) {
@@ -216,6 +219,14 @@ int main(int argc, char* argv[])
 		fd_set set;
 		FD_ZERO(&set);
 		FD_SET(s, &set);
+		if (s2 >= 0) {
+			FD_SET(s2, &set);
+		}
+		// may change because this is the conn socket
+		int s3 = Serial.emu_conn_socket();
+		if (s3 >= 0) {
+			FD_SET(s3, &set);
+		}
 
 		struct timeval timeout;
 		struct timeval* ptimeout = 0;
@@ -239,7 +250,7 @@ int main(int argc, char* argv[])
 		}
 		ptimeout = &timeout;
 
-		int sel = select(s + 1, &set, NULL, NULL, ptimeout);
+		int sel = select(FD_SETSIZE, &set, NULL, NULL, ptimeout);
 		if (sel < 0) {
 			perror("select() failure");
 			return 1;
@@ -249,6 +260,12 @@ int main(int argc, char* argv[])
 			lora_emu_rx();
 		} else {
 			Net->run_tasks(sys_timestamp());
+		}
+		if (s2 >= 0 && FD_ISSET(s2, &set)) {
+			Serial.emu_listen_handle();
+		}
+		if (s3 >= 0 && FD_ISSET(s3, &set)) {
+			Serial.emu_conn_handle();
 		}
 		console_handle();
 	}

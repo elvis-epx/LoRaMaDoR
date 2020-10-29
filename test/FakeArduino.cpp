@@ -68,7 +68,7 @@ static void setup_lora()
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock < 0) {
-		perror("socket");
+		perror("fake: socket");
 		exit(1);
 	}
 
@@ -76,14 +76,14 @@ static void setup_lora()
 	// on the same machine
 	int loop = 1;
 	if (setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop)) < 0) {
-		perror("setsockopt loop");
+		perror("fake: setsockopt loop");
 		exit(1);
 	}
 
 	// Allow multiple listeners to the same port
 	int optval = 1;
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
-		perror("setsockopt reuseport");
+		perror("fake: setsockopt reuseport");
 		exit(1);
 	}
 
@@ -92,7 +92,7 @@ static void setup_lora()
 	mreq.imr_interface.s_addr = INADDR_ANY;
 	if (setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP,
 					&mreq, sizeof(mreq)) < 0) {
-		perror("setsockopt mreq");
+		perror("fake: setsockopt mreq");
 		exit(1);
 	}
 
@@ -104,7 +104,7 @@ static void setup_lora()
 	addr.sin_port = htons(PORT);
 
 	if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		perror("bind");
+		perror("fake: bind");
 		exit(1);
 	}
 }
@@ -117,7 +117,7 @@ uint32_t lora_speed_bps()
 bool lora_tx(const Buffer& b)
 {
 	if (arduino_random(0, 10) == 0) {
-		printf("Simulate send pkt fail\n");
+		printf("fake: Simulate send pkt fail\n");
 		return false;
 	}
 
@@ -135,10 +135,10 @@ bool lora_tx(const Buffer& b)
 
 	int sent = sendto(sock, c.c_str(), c.length(), 0, (struct sockaddr *) &addr, sizeof(addr));
 	if (sent < 0) {
-		perror("sendto");
+		perror("fake: sendto");
 		exit(1);
 	}
-	printf("Sent packet\n");
+	printf("fake: Sent packet\n");
 	return 1;
 }
 
@@ -158,28 +158,28 @@ void lora_emu_rx()
 	socklen_t fromlen = sizeof(from);
 	int len = recvfrom(sock, rawmsg, sizeof(rawmsg), 0, (struct sockaddr *) &from, &fromlen);
 	if (len < 0) {
-		perror("recvfrom");
+		perror("fake: recvfrom");
 		exit(1);
 	}
-	printf("Packet received, coverage %d\n", rawmsg[0]);
+	printf("fake: Packet received, coverage %d\n", rawmsg[0]);
 	if (! (coverage & rawmsg[0])) {
-		printf("\tDiscarding packet out of simulated coverage.\n");
+		printf("fake: Discarding packet out of simulated coverage.\n");
 		return;
 	}
 
 	len -= 1;
 	if (arduino_random(0, 3) == 0) {
-		printf("Received packet, corrupt it a little\n");
+		printf("fake: Received packet, corrupt it a little\n");
 		for (int i = 0; i < 3; ++i) {
 			msg[arduino_random(0, len)] = arduino_random(0, 256);
 		}
 	} else if (arduino_random(0, 100) == 0) {
-		printf("Received packet, corrupt it a lot\n");
+		printf("fake: Received packet, corrupt it a lot\n");
 		for (int i = 0; i < 30; ++i) {
 			msg[arduino_random(0, len)] = arduino_random(0, 256);
 		}
 	} else {
-		printf("Received packet, not corrupting\n");
+		printf("fake: Received packet, not corrupting\n");
 	}
 
 	rx_callback(msg, len, -50);
