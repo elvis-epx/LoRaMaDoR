@@ -140,14 +140,11 @@ Network* trampoline_target = 0;
 
 //////////////////////////// Network class proper
 
-Network::Network(const Callsign &callsign, uint32_t repeater)
+Network::Network()
 {
-	if (! callsign.is_valid()) {
-		return;
-	}
-
-	my_callsign = callsign;
-	repeater_function_activated = repeater;
+	my_callsign = arduino_nvram_callsign_load();
+	if (! my_callsign.is_valid()) return;
+	repeater_function_activated = arduino_nvram_repeater_load();
 	last_pkt_id = arduino_nvram_id_load();
 
 	// Periodic housecleaning tasks

@@ -37,7 +37,7 @@ struct RecvLogItem {
 
 class Network {
 public:
-	Network(const Callsign &callsign, uint32_t repeater);
+	Network();
 	virtual ~Network();
 
 	Callsign me() const;

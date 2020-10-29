@@ -138,8 +138,7 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
-	char psk_cmd[32];
-	sprintf(psk_cmd, "!psk %s\r", argv[4]);
+	char cli_cmd[100];
 
 	cli_simtype("!beacon1st\r");
 	cli_simtype("!beacon1st 0\r");
@@ -156,10 +155,17 @@ int main(int argc, char* argv[])
 	assert(arduino_nvram_psk_load() == "abracadabra");
 	cli_simtype("!psk None\r");
 	assert(arduino_nvram_psk_load() == "");
-	Net = Ptr<Network>(new Network(Callsign("INV"), repeater));
-	Net = Ptr<Network>(new Network(cs, repeater));
+
+	sprintf(cli_cmd, "!repeater %d\r", repeater);
+	cli_simtype(cli_cmd);
+	sprintf(cli_cmd, "!callsign %s\r", argv[1]);
+	cli_simtype(cli_cmd);
+	sprintf(cli_cmd, "!psk %s\r", argv[4]);
+	cli_simtype(cli_cmd);
+
+	Net = Ptr<Network>(new Network());
 	console_setup(Net);
-	cli_simtype(psk_cmd);
+
 	cli_simtype("!callsi\bgn\r");
 	cli_simtype("!callsj\bign\r");
 	cli_simtype("!callsign 5\r");

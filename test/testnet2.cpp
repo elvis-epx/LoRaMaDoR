@@ -50,11 +50,17 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
-	char psk_cmd[32];
-	sprintf(psk_cmd, "!psk %s\r", argv[4]);
-	Net = Ptr<Network>(new Network(cs, repeater));
+	char cli_cmd[100];
+
+	sprintf(cli_cmd, "!psk %s\r", argv[4]);
+	cli_simtype(cli_cmd);
+	sprintf(cli_cmd, "!repeater %d\r", repeater);
+	cli_simtype(cli_cmd);
+	sprintf(cli_cmd, "!callsign %s\r", argv[1]);
+	cli_simtype(cli_cmd);
+
+	Net = Ptr<Network>(new Network());
 	console_setup(Net);
-	cli_simtype(psk_cmd);
 	cli_simtype("!beacon 30\r");
 	cli_simtype("!debug\r");
 	cli_simtype("!beacon1st 10\r");
