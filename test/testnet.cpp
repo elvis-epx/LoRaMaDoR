@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
 	int s = lora_emu_socket();
 	int s2 = Serial.emu_listen_socket();
 
-	while (sys_timestamp() < 180*1000) {
+	while (true) {
 		if (arduino_random(0, 100) == 0) {
 			ping();
 		} else if (arduino_random(0, 100) == 0) {

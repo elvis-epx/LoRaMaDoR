@@ -30,6 +30,23 @@ for eee in AAAA:0:1:somekey:6000 BBBB:1:1:somekey:6001 CCCC:1:3:somekey:6002 DDD
 	fi
 done
 
+sleep 120
+for eee in 6000 6001 6002 6003 6004 6005 6006; do
+	# needs to retry because testnet also emulates typing internally
+	# and it may intermingle with the reset command
+	if [ $(($eee % 2)) -eq 0 ]; then
+		while echo -e '\r!reset\r' >/dev/tcp/localhost/$eee; do
+			echo "Killing port $eee with reset"
+			sleep 1
+		done
+	else
+		while echo -e '\r!defconfig\r' >/dev/tcp/localhost/$eee; do
+			echo "Killing port $eee with defconfig"
+			sleep 1
+		done
+	fi
+done
+
 ERR=0
 for P in $PIDS; do
 	if ! wait $P; then

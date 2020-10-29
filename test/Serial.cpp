@@ -110,7 +110,7 @@ void SerialClass::emu_port(int p)
 	listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_socket == -1) {
 		printf("fake: emu socket creation failed\n");
-		return;
+		exit(1);
 	}
 	bzero(&servaddr, sizeof(servaddr));
 
@@ -118,18 +118,17 @@ void SerialClass::emu_port(int p)
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(port);
 
+	int x = 1;
+	setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &x, sizeof(x));
+
 	if ((bind(listen_socket, (struct sockaddr *)&servaddr, sizeof(servaddr))) != 0) {
 		printf("fake: emu socket bind failed...\n");
-		close(listen_socket);
-		listen_socket = -1;
-		return;
+		exit(1);
 	}
 
 	if ((listen(listen_socket, 5)) != 0) {
 		printf("fake: emu Listen failed...\n");
-		close(listen_socket);
-		listen_socket = -1;
-		return;
+		exit(1);
 	}
 
 	signal(SIGPIPE, SIG_IGN);

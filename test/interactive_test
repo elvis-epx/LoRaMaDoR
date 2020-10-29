@@ -5,6 +5,7 @@ if [ "$1" = "-v" ]; then
 	VALGRIND=0
 fi
 
+PIDS=""
 for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
 	sta=$(echo $eee | cut -f 1 -d ':')
 	rep=$(echo $eee | cut -f 2 -d ':')
@@ -14,7 +15,21 @@ for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
 	if [ $VALGRIND = 1 ]; then
 		valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
 			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+		PIDS+=" $!"
 	else
 		./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+		PIDS+=" $!"
 	fi
 done
+
+ERR=0
+for P in $PIDS; do
+	if ! wait $P; then
+		ERR=1
+	fi
+done
+if [ "$ERR" != 0 ]; then
+	echo
+	echo Erro de execução, checar logs.
+	echo
+fi
