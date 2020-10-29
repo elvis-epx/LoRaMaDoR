@@ -158,6 +158,7 @@ int main(int argc, char* argv[])
 	assert(arduino_nvram_psk_load() == "");
 	Net = Ptr<Network>(new Network(Callsign("INV"), repeater));
 	Net = Ptr<Network>(new Network(cs, repeater));
+	console_setup(Net);
 	cli_simtype(psk_cmd);
 	cli_simtype("!callsi\bgn\r");
 	cli_simtype("!callsj\bign\r");

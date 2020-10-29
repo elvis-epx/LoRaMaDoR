@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
 	char psk_cmd[32];
 	sprintf(psk_cmd, "!psk %s\r", argv[4]);
 	Net = Ptr<Network>(new Network(cs, repeater));
+	console_setup(Net);
 	cli_simtype(psk_cmd);
 	cli_simtype("!beacon 30\r");
 	cli_simtype("!debug\r");
