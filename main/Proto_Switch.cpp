@@ -16,7 +16,10 @@
  * idempotent.
  *
  * Setting a switch involves exchanging four packet types: A, B, C and D. The
- * payload * in any case is a comma-separate list of values.
+ * payload * in any case is a comma-separate list of values. The client-to-server
+ * packets have a param SW. The server-to-client packets have a SWC
+ * naked param. This allow for both sides to implement switches and still be
+ * clients independently.
  * 
  * Type A (client -> server): "A,challenge"
  * 
@@ -230,7 +233,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 
 		// send packet B
 		Params swb = Params();
-		swb.put_naked("SW");
+		swb.put_naked("SWC");
 		Buffer msg = Buffer("B,") + challenge + "," + response;
 		return L7HandlerResponse(true, pkt.from(), swb, msg);
 
@@ -272,7 +275,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 
 		// send packet D
 		Params swd = Params();
-		swd.put_naked("SW");
+		swd.put_naked("SWC");
 		Buffer msg = Buffer("D,") + challenge + "," + response + "," +
 				Buffer::itoa(target) + "," + svalue;
 		return L7HandlerResponse(true, pkt.from(), swd, msg);
