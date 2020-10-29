@@ -13,6 +13,8 @@
 #include "Packet.h"
 #include "Callsign.h"
 
+void arduino_nvram_clear_all();
+
 uint32_t arduino_nvram_repeater_load();
 void arduino_nvram_repeater_save(uint32_t);
 

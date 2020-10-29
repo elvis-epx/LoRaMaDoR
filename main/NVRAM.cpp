@@ -16,9 +16,11 @@
 
 extern Preferences prefs;
 
+static const char* chapter = "LoRaMaDoR";
+
 uint32_t arduino_nvram_id_load()
 {
-	prefs.begin("LoRaMaDoR");
+	prefs.begin(chapter);
 	uint32_t id = prefs.getUInt("lastid");
 	prefs.end();
 
@@ -31,7 +33,7 @@ uint32_t arduino_nvram_id_load()
 
 void arduino_nvram_id_save(uint32_t id)
 {
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putUInt("lastid", id);
 	prefs.end();
 
@@ -39,7 +41,7 @@ void arduino_nvram_id_save(uint32_t id)
 
 uint32_t arduino_nvram_repeater_load()
 {
-	prefs.begin("LoRaMaDoR");
+	prefs.begin(chapter);
 	uint32_t r = prefs.getUInt("repeater");
 	prefs.end();
 
@@ -48,14 +50,14 @@ uint32_t arduino_nvram_repeater_load()
 
 void arduino_nvram_repeater_save(uint32_t r)
 {
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putUInt("repeater", r);
 	prefs.end();
 }
 
 uint32_t arduino_nvram_beacon_load()
 {
-	prefs.begin("LoRaMaDoR");
+	prefs.begin(chapter);
 	uint32_t b = prefs.getUInt("beacon");
 	prefs.end();
 
@@ -72,14 +74,14 @@ void arduino_nvram_beacon_save(uint32_t b)
 		b = 600;
 	}
 
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putUInt("beacon", b);
 	prefs.end();
 }
 
 uint32_t arduino_nvram_beacon_first_load()
 {
-	prefs.begin("LoRaMaDoR");
+	prefs.begin(chapter);
 	uint32_t b = prefs.getUInt("beacon1");
 	prefs.end();
 
@@ -96,7 +98,7 @@ void arduino_nvram_beacon_first_save(uint32_t b)
 		b = 30;
 	}
 
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putUInt("beacon1", b);
 	prefs.end();
 }
@@ -104,7 +106,7 @@ void arduino_nvram_beacon_first_save(uint32_t b)
 Callsign arduino_nvram_callsign_load()
 {
 	char candidate[12];
-	prefs.begin("LoRaMaDoR");
+	prefs.begin(chapter);
 	// len includes \0
 	size_t len = prefs.getString("callsign", candidate, 11);
 	prefs.end();
@@ -125,7 +127,7 @@ Callsign arduino_nvram_callsign_load()
 
 void arduino_nvram_callsign_save(const Callsign &new_callsign)
 {
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putString("callsign", Buffer(new_callsign).c_str());
 	prefs.end();
 }
@@ -133,7 +135,7 @@ void arduino_nvram_callsign_save(const Callsign &new_callsign)
 Buffer arduino_nvram_psk_load()
 {
 	char candidate[33];
-	prefs.begin("LoRaMaDoR");
+	prefs.begin(chapter);
 	// len includes \0
 	size_t len = prefs.getString("psk", candidate, 33);
 	prefs.end();
@@ -146,7 +148,7 @@ Buffer arduino_nvram_psk_load()
 
 void arduino_nvram_psk_save(const Buffer &b)
 {
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putString("psk", b.c_str());
 	prefs.end();
 }
@@ -154,7 +156,7 @@ void arduino_nvram_psk_save(const Buffer &b)
 // used by Wi-Fi SSID and password
 void arduino_nvram_save(const char *key, const Buffer& value)
 {
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter, false);
 	prefs.putString(key, value.c_str());
 	prefs.end();
 }
@@ -163,7 +165,7 @@ void arduino_nvram_save(const char *key, const Buffer& value)
 Buffer arduino_nvram_load(const char *key)
 {
 	char candidate[65];
-	prefs.begin("LoRaMaDoR", false);
+	prefs.begin(chapter);
 	// len includes \0
 	size_t len = prefs.getString(key, candidate, 65);
 	prefs.end();
@@ -172,4 +174,11 @@ Buffer arduino_nvram_load(const char *key)
 		return "None";
 	}
 	return Buffer(candidate, len - 1);
+}
+
+void arduino_nvram_clear_all()
+{
+	prefs.begin(chapter, false);
+	prefs.clear();
+	prefs.end();
 }

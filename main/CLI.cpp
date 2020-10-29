@@ -300,6 +300,7 @@ static void cli_parse_help()
 	console_println("cli:  !beacon1st [10..300]   Get/set first beacon avg time");
 	console_println("cli:  !psk [KEY]             Get/Set optional HMAC pre-shared key (None to disable)");
 	console_println("cli:  !wifi                  Show Wi-Fi/network status");
+	console_println("cli:  !defconfig             Reset all configurations saved in NVRAM");
 	console_println("cli:  !debug / !nodebug      Enable/disable debug and verbose mode");
 	console_println("cli:  !tnc / !notnc          Enable/disable TNC mode");
 	console_println("cli:  !restart or !reset     Restart controller");
@@ -361,6 +362,10 @@ static void cli_parse_meta(Buffer cmd)
 		tnc = true;
 	} else if (cmd == "restart" || cmd == "reset") {
 		console_println("cli: Restarting...");
+		arduino_restart();
+	} else if (cmd == "defconfig") {
+		console_println("cli: cleaning NVRAM...");
+		arduino_nvram_clear_all();
 		arduino_restart();
 	} else if (cmd == "nodebug") {
 		console_println("cli: Debug off.");

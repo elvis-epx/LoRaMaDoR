@@ -11,6 +11,7 @@ struct Preferences {
 	static void putUInt(const char*, uint32_t);
 	static size_t getString(const char*, char*, size_t);
 	static void putString(const char*, const char*);
+	static void clear();
 };
 
 #endif // __PREFERENCES_H

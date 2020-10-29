@@ -18,6 +18,11 @@ void Preferences::end()
 {
 }
 
+void Preferences::clear()
+{
+	nvram = Dict<Buffer>();
+}
+
 uint32_t Preferences::getUInt(const char* key)
 {
 	if (!nvram.has(key)) {
