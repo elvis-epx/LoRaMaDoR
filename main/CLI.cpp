@@ -56,6 +56,7 @@ void app_recv(Ptr<Packet> pkt)
 	if (tnc) {
 		Buffer data = pkt->encode_l3();
 		cli_print(Buffer("pkt: ") +
+			Buffer::itoa(pkt->rssi()) + " " +
 			Buffer::itoa(data.length()) + " " +
 			data);
 		return;
