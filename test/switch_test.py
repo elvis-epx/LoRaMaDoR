@@ -13,7 +13,7 @@ def schedule(task, to):
 	tasks[task_counter] = (task, time.time() + to)
 	task_counter += 1
 
-def handle(*conns):
+def service_event_loop(*conns):
 	global task_counter, tasks
 	rd = []
 	wr = []
@@ -62,6 +62,13 @@ class Connection:
 		self.readbuf = b''
 		self.writebuf = b''
 		self.EOL = b'\r\n'
+		self.handlers = {
+			"debug: ": self.interpret_debug,
+			"cli: ": self.interpret_cli,
+			"net: ": self.interpret_net,
+			"callsign: ": self.interpret_callsign,
+			"pkt: ": self.interpret_packet,
+		}
 
 	def send(self, data):
 		self.writebuf += data.encode("utf-8")
@@ -109,9 +116,68 @@ class Connection:
 		while self.readbuf:
 			line = self.readline()
 			if line is None:
-				print("No EOL yet %d" % self.port)
 				break
-			print("%d line: %s" % (self.port, line))
+			if not line:
+				continue
+			# print("%d line: %s" % (self.port, line))
+			if not self.interpret_line(line):
+				# not complete; put back
+				self.readbuf = line + self.EOL + self.readbuf
+
+	def interpret_line(self, line):
+		for header, handler in self.handlers.items():
+			header = header.encode("utf-8")
+			if line.startswith(header):
+				return handler(line[len(header):])
+		print("Unrecognized line %d: %s" % (self.port, line))
+		return True
+
+	def interpret_debug(self, line):
+		print("%d debug %s" % (self.port, line.decode('utf-8')))
+		return True
+
+	def interpret_cli(self, line):
+		print("%d cli %s" % (self.port, line.decode('utf-8')))
+		return True
+
+	def interpret_net(self, line):
+		print("%d net %s" % (self.port, line.decode('utf-8')))
+		return True
+	
+	def interpret_callsign(self, line):
+		print("%d callsign %s" % (self.port, line.decode('utf-8')))
+		return True
+	
+	def interpret_packet(self, line):
+		print("%d packet %s" % (self.port, line))
+		i = line.find(b' ')
+		if i < 0:
+			print("%d invalid packet header, no size delim" % self.port)
+			return True
+		if i >= 3:
+			print("%d invalid packet header, delim size too big" % self.port)
+			return True
+		try:
+			size = int(line[:i], 10)
+		except ValueError:
+			print("%d invalid packet delim" % self.port)
+			return True
+		line = line[i+1:]
+		if len(line) > size:
+			print("%d packet bigger than expected" % self.port)
+			return True
+		needs = size - len(line)
+		if needs > 0:
+			# packet may contain EOL in payload; fetch the rest
+			if len(self.readbuf) < needs:
+				print("%d packet not complete yet, returning to buffer" % self.port)
+				return False
+			line += self.readbuf[:needs]
+			self.readbuf = self.readbuf[needs:]
+		print("%d unwrapped packet %s" % (self.port, line))
+			
+		return True
+	
 	
 client = Connection(client_port)
 server = Connection(server_port)
@@ -125,6 +191,6 @@ def rst():
 
 schedule(rst, 60.0)
 
-while handle(client, server):
-	# print("handled")
+while service_event_loop(client, server):
+	# print("loop")
 	pass
