@@ -431,18 +431,13 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 
 	Buffer encoded_pkt = pkt->encode_l2();
 
-	// TX delay in bits: packet size x stations nearby x 2
-	int64_t bit_delay = encoded_pkt.length() * 8;
-	bit_delay *= 2 * (1 + neigh.count());
-
-	// convert delay in bits to milisseconds
-	// e.g. 900 bits @ 600 bps = 1500 ms
-	int64_t delay = bit_delay * SECONDS / lora_speed_bps();
+	// Average TX delay: from 3x to 6x the packet airtime
+	double packet_len = SECONDS * encoded_pkt.length() * 8
+				/ lora_speed_bps();
+	int64_t delay = Network::fudge(packet_len * 4.5, 0.333);
 
 	logi("relaying w/ delay", delay);
-
 	schedule(new PacketTx(this, encoded_pkt, delay));
-	logs("relay ", pkt->encode_l3());
 }
 
 // Schedule a Task. Run later via run_tasks().
