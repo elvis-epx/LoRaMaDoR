@@ -43,9 +43,11 @@ public:
 	virtual ~Network();
 
 	Callsign me() const;
+	bool am_i_repeater() const;
 	uint32_t send(const Callsign &to, Params params, const Buffer& msg);
 	void run_tasks(int64_t);
 	const Dict<Peer>& neighbors() const;
+	const Dict<Peer>& repeaters() const;
 	const Dict<Peer>& peers() const;
 	static uint32_t fudge(uint32_t avg, double fudge);
 	static Buffer gen_random_token(int);
@@ -72,6 +74,7 @@ public:
 	// publicised for testing purposes
 	TaskManager& _task_mgr();
 	Dict<Peer>& _neighbors();
+	Dict<Peer>& _repeaters();
 	Dict<Peer>& _peers();
 	Dict<RecvLogItem>& _recv_log();
 
@@ -85,6 +88,7 @@ private:
 
 	TaskManager task_mgr;
 	Dict<Peer> neigh;
+	Dict<Peer> reptr;
 	Dict<Peer> peerlist;
 	Dict<RecvLogItem> recv_log;
 	size_t last_pkt_id;

@@ -7,8 +7,8 @@
  *
  * A modifier (concrete impl. of modify()). This method is called
  * when a packet is to be forwarded by the station, that is, this
- * station is not the *sole* final destination (therefore, QC and QB
- * packets will be offered to modify()).
+ * station is not the *sole* final destination (therefore, packets
+ * from Q* will be offered to modify()).
  *
  * The modifier may return a modified packet, or 0 to pass it on.
  * More than one Modifier can modify a packet. The order is not

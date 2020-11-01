@@ -43,16 +43,21 @@ bool Callsign::is_lo() const
 	return valid && name == "QL";
 }
 
-/* QB, QC are broadcast pseudo-callsigns, QB is used by beacon */
+/* QB, QR, QC are broadcast pseudo-callsigns, QB/QR are used by beacon */
 bool Callsign::is_bcast() const
 {
-	return valid && (name == "QB" || name == "QC");
+	return valid && (name == "QB" || name == "QC" || name == "QR");
 }
 
-/* QB is reserved for automatic beaconing */
+bool Callsign::is_repeater() const
+{
+	return valid && name == "QR";
+}
+
+/* QB/QR is reserved for automatic beaconing */
 bool Callsign::is_reserved() const
 {
-	return valid && name == "QB";
+	return valid && (name == "QB" || name == "QR");
 }
 
 bool Callsign::is_q() const

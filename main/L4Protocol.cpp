@@ -9,7 +9,7 @@
  * 1) a handler (concrete implementation of rx()).
  * This method is called when a packet is received by the station,
  * that is, this station is the final destination. This is true
- * even for QC, QB packets (in which this station is not the *only*
+ * even for QC/QB/QR packets (in which this station is not the *only*
  * destination).
  *
  * The class may choose to handle the packet and return a response.

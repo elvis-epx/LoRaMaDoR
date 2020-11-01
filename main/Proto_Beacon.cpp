@@ -3,7 +3,7 @@
  * Copyright (c) 2019 PU5EPX
  */
 
-// Implementation of periodic beacon (sent to QB).
+// Implementation of periodic beacon (sent to QB/QR).
 
 #include "Proto_Beacon.h"
 #include "Network.h"
@@ -42,7 +42,11 @@ int64_t Proto_Beacon::beacon() const
 {
 	Buffer uptime = Buffer::millis_to_hms(sys_timestamp());
 	Buffer msg = Buffer("LoRaMaDoR up ") + uptime;
-	net->send(Callsign("QB"), Params(), msg);
+	if (net->am_i_repeater()) {
+		net->send(Callsign("QR"), Params(), msg);
+	} else {
+		net->send(Callsign("QB"), Params(), msg);
+	}
 	uint32_t next = Network::fudge(arduino_nvram_beacon_load() * 1000, 0.5);
 	// logi("Next beacon in ", next);
 	return next;

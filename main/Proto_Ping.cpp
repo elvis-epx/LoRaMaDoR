@@ -15,7 +15,7 @@ Proto_Ping::Proto_Ping(Network *net): L7Protocol(net)
 
 L7HandlerResponse Proto_Ping::handle(const Packet& pkt)
 {
-	// We don't allow broadcast PING to QC or QB because many stations would
+	// We don't allow broadcast PING to Q* because many stations would
 	// transmit at the same time, corrupting each other's messages.
 	if (!pkt.to().is_bcast() && pkt.params().has("PING")) {
 		Params pong = Params();

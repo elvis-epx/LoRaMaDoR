@@ -310,9 +310,8 @@ int64_t Network::clean_recv_log(int64_t now)
 // purge neighbors that have been silent for a while
 int64_t Network::clean_neigh(int64_t now)
 {
-	Vector<Buffer> remove_list;
-
 	{
+	Vector<Buffer> remove_list;
 	const Vector<Buffer>& keys = neigh.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
 		if ((neigh[keys[i]].timestamp + NEIGH_PERSIST) < now) {
@@ -327,6 +326,22 @@ int64_t Network::clean_neigh(int64_t now)
 	}
 
 	{
+	Vector<Buffer> remove_list;
+	const Vector<Buffer>& keys = reptr.keys();
+	for (size_t i = 0; i < keys.size(); ++i) {
+		if ((reptr[keys[i]].timestamp + NEIGH_PERSIST) < now) {
+			remove_list.push_back(keys[i]);
+		}
+	}
+
+	for (size_t i = 0; i < remove_list.size(); ++i) {
+		reptr.remove(remove_list[i]);
+		logs("Forgotten repeater", remove_list[i]);
+	}
+	}
+
+	{
+	Vector<Buffer> remove_list;
 	const Vector<Buffer>& keys = peerlist.keys();
 	for (size_t i = 0; i < keys.size(); ++i) {
 		if ((peerlist[keys[i]].timestamp + NEIGH_PERSIST) < now) {
@@ -353,7 +368,7 @@ int64_t Network::tx(const Buffer& encoded_packet)
 }
 
 /* Update neighbor and peer lists based on a packet that
-   was sent to us, either unicast or QB/QC */
+   was sent to us, either unicast or QB/QR/QC */
 void Network::update_peerlist(int64_t now, const Ptr<Packet> &pkt)
 {
 	Buffer from = pkt->from();
@@ -369,6 +384,13 @@ void Network::update_peerlist(int64_t now, const Ptr<Packet> &pkt)
 			logs("discovered neighbor", from);
 		}
 		neigh[from] = Peer(pkt->rssi(), now);
+
+		if (pkt->to().is_repeater()) {
+			if (! reptr.has(from)) {
+				logs("discovered repeater", from);
+			}
+			reptr[from] = Peer(pkt->rssi(), now);
+		}
 	}
 }
 
@@ -409,7 +431,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		return;
 	}
 
-	if (pkt->to() == "QB" || pkt->to() == "QC") {
+	if (pkt->to().is_bcast()) {
 		// We are just one of the destinations
 		update_peerlist(now, pkt);
 		recv(pkt);
@@ -461,6 +483,11 @@ const Dict<Peer>& Network::neighbors() const
 	return neigh;
 }
 
+const Dict<Peer>& Network::repeaters() const
+{
+	return reptr;
+}
+
 const Dict<Peer>& Network::peers() const
 {
 	return peerlist;
@@ -479,6 +506,12 @@ Dict<Peer>& Network::_neighbors()
 }
 
 /* For testing purposes only! */
+Dict<Peer>& Network::_repeaters()
+{
+	return reptr;
+}
+
+/* For testing purposes only! */
 Dict<Peer>& Network::_peers()
 {
 	return peerlist;
@@ -488,4 +521,9 @@ Dict<Peer>& Network::_peers()
 Dict<RecvLogItem>& Network::_recv_log()
 {
 	return recv_log;
+}
+
+bool Network::am_i_repeater() const
+{
+	return repeater_function_activated;
 }

@@ -200,6 +200,7 @@ int main(int argc, char* argv[])
 	Net->_recv_log()["UNKNOWN:1234"] = RecvLogItem(-50, -90 * 60 * 1000);
 	Net->_neighbors()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
 	Net->_peers()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
+	Net->_repeaters()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
 
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();

@@ -257,6 +257,18 @@ static void cli_neigh()
 	console_println(Buffer("cli: Neighborhood of ") + Net->me() + ":");
 
 	auto now = sys_timestamp();
+
+	auto repeat = Net->repeaters();
+	for (size_t i = 0; i < repeat.count(); ++i) {
+		Buffer cs = repeat.keys()[i];
+		int rssi = repeat[cs].rssi;
+		int64_t since = now - repeat[cs].timestamp;
+		Buffer ssince = Buffer::millis_to_hms(since);
+		auto b = Buffer("cli:     ") + cs + " Repeater last seen " + ssince +
+			" ago, rssi " + Buffer::itoa(rssi);
+		console_println(b);
+	}
+
 	auto neigh = Net->neighbors();
 	for (size_t i = 0; i < neigh.count(); ++i) {
 		Buffer cs = neigh.keys()[i];
@@ -267,6 +279,7 @@ static void cli_neigh()
 			" ago, rssi " + Buffer::itoa(rssi);
 		console_println(b);
 	}
+
 	auto peers = Net->peers();
 	for (size_t i = 0; i < peers.count(); ++i) {
 		Buffer cs = peers.keys()[i];
@@ -279,6 +292,7 @@ static void cli_neigh()
 			" ago, non adjacent";
 		console_println(b);
 	}
+
 	console_println("cli: --------------------------");
 }
 
@@ -418,7 +432,7 @@ static void cli_parse_packet(Buffer cmd)
 	}
 
 	if (dest.is_reserved()) {
-		console_println("net: QB is reserved to automatic beacon.");
+		console_println("net: QB/QR are reserved to automatic beacons.");
 		return;
 	}
 

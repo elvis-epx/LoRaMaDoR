@@ -93,8 +93,8 @@ in its own section later on.
 
 Stations shall have 4 to 7 octets, shall not start with "Q", and may be suffixed
 by an SSID. Special or pseudo-callsigns are: QB (beacon) for automatic broadcast
-sent every 10 minutes, QC (think "CQ") for human broadcasting, and QL ("loopback")
-for debugging/testing.
+sent every 10 minutes, QR (beacon of repeater), QC (think "CQ") for human
+broadcasting, and QL ("loopback") for debugging/testing.
 
 Parameters are a set of comma-separated list of items, for example:
 

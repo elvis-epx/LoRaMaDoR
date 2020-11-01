@@ -17,7 +17,7 @@ Ptr<Packet> Modf_Rreq::modify(const Packet& pkt)
 {
 	// Add ourselves to chain in forwarded RREQ and RRSP pkts
 	if (! pkt.to().is_q()) {
-		// not QB, QC, etc.
+		// not QB, QR, QC, etc.
 		if (pkt.params().has("RREQ") || pkt.params().has("RRSP")) {
 			Buffer new_msg = pkt.msg();
 			new_msg += '>';

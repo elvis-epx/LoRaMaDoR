@@ -19,6 +19,7 @@ public:
 	operator Buffer() const;
 	bool is_valid() const;
 	bool is_bcast() const;
+	bool is_repeater() const;
 	bool is_q() const;
 	bool is_lo() const;
 	bool is_reserved() const;

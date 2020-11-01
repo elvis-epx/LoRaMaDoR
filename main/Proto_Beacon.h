@@ -3,7 +3,7 @@
  * Copyright (c) 2019 PU5EPX
  */
 
-// Implementation of periodic beacon (sent to QB).
+// Implementation of periodic beacon (sent to QB/QR).
 
 #ifndef __PROTO_BEACON_H
 #define __PROTO_BEACON_H
