@@ -79,6 +79,7 @@ void SerialClass::emu_conn_handle()
 		printf("fake: emu closed telnet connection\n");
 		close(conn_socket);
 		conn_socket = -1;
+		return;
 	}
 	readbuf += Buffer(buf, x);
 }
