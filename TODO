@@ -1,5 +1,7 @@
 Change README, add section about remote control/non-amateur uses
 
+Make protocols optional in top-level initialization
+
 Log/debug x interfacing with PC over serial
 	- secure packet and cmd exchange (character escaping, etc.)
 	- allow to autom. distinguish packets from debug messages
