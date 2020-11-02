@@ -81,7 +81,15 @@ done
 
 # uses 6000 (client) as TNC and uses port 6001 just to stop the server
 sleep 1
-./switch_test.py 6000 6001 BBBB
+TNCERR=0
+./switch_test.py 6000 6001 BBBB || TNCERR=1
+
+for eee in 6000 6001; do
+	while echo -e '\r!reset\r' >/dev/tcp/localhost/$eee; do
+		echo "Killing port $eee with reset"
+		sleep 1
+	done
+done
 
 ERR=0
 for P in $PIDS; do
@@ -89,6 +97,12 @@ for P in $PIDS; do
 		ERR=1
 	fi
 done
+if [ "$TNCERR" != 0 ]; then
+	echo
+	echo Execution error in TNC client script, check logs
+	echo
+	exit 1
+fi
 if [ "$ERR" != 0 ]; then
 	echo
 	echo Execution error, check logs

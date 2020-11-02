@@ -175,6 +175,8 @@ int main(int argc, char* argv[])
 	cli_simtype("!callsign QC\r");
 	cli_simtype("!nodebug\r");
 	cli_simtype("!ssid bla\r");
+	cli_simtype("!ssid 012345678901234567890123456789012345678901234567890123456789012345\r");
+	assert(arduino_nvram_load("ssid") == "bla");
 	cli_simtype("!ssid\r");
 	cli_simtype("!repeater\r");
 	cli_simtype("!repeater a\r");
@@ -183,6 +185,8 @@ int main(int argc, char* argv[])
 	cli_simtype("!beacon 10\r");
 	cli_simtype("!beacon\r");
 	cli_simtype("!password ble\r");
+	cli_simtype("!password 012345678901234567890123456789012345678901234567890123456789012345\r");
+	assert(arduino_nvram_load("password") == "ble");
 	cli_simtype("!password\r");
 	cli_simtype("!debug\r");
 	cli_simtype("A b\r");
@@ -193,6 +197,7 @@ int main(int argc, char* argv[])
 	cli_simtype("\xff\xff\xff\xf0\x01");
 	cli_simtype("\r!wifi\r");
 	cli_simtype("\r!help\r");
+	cli_simtype("\r!notnc\r");
 
 	logs("test", "test");
 
