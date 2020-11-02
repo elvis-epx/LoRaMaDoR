@@ -80,7 +80,7 @@ for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
 done
 
 # uses 6000 (client) as TNC and uses port 6001 just to stop the server
-sleep 1
+sleep 2
 TNCERR=0
 ./switch_test.py 6000 6001 BBBB || TNCERR=1
 

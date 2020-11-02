@@ -31,7 +31,11 @@ uint32_t _arduino_millis()
 	gettimeofday(&tm, 0);
 	int64_t now_us   = tm.tv_sec       * 1000000LL + tm.tv_usec;
 	int64_t start_us = tm_first.tv_sec * 1000000LL + tm_first.tv_usec;
-	return (now_us - start_us) / 1000 + 1;
+	// uptime in ms
+	int64_t uptime_ms = (now_us - start_us) / 1000 + 1;
+	// add 0xffffffff so we start near wrapping point
+	uptime_ms += 0xfffffe00ULL;
+	return (uint32_t) (uptime_ms & 0xffffffffULL);
 }
 
 int32_t arduino_random(int32_t min, int32_t max)

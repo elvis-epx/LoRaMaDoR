@@ -25,6 +25,7 @@ recov:
 coverage:
 	gcov test.cpp
 	gcov testnet.cpp
+	gcov testnet2.cpp
 	lcov -c --directory . --output-file main_coverage.info
 	genhtml main_coverage.info --output-directory out
 	xdg-open out/index.html
