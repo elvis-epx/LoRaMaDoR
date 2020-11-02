@@ -1,19 +1,10 @@
 TNC mode: packet size preamble in PC->Arduino direction
 
-Change README, add section about remote control/non-amateur uses
-
-Fefactor NVRAM
-
 RREQ: know RRSI of the other side
 
-Make protocols optional in top-level initialization
+Change README, add section about remote control/non-amateur uses
 
-Log/debug x interfacing with PC over serial
-	- secure packet and cmd exchange (character escaping, etc.)
-	- allow to autom. distinguish packets from debug messages
-	- allow for a PC to implement one side of the L7 protocol
-	- autonomous x PC stack
-	- test collaborated Python code against changes
+--
 
 Telnet, serial x security
 	- cases: Telnet login/sniffing, stolen device
