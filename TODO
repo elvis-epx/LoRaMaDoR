@@ -1,5 +1,7 @@
 Change README, add section about remote control/non-amateur uses
 
+Fefactor NVRAM
+
 RREQ: know RRSI of the other side
 
 Make protocols optional in top-level initialization

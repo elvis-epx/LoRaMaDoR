@@ -30,6 +30,6 @@ for P in $PIDS; do
 done
 if [ "$ERR" != 0 ]; then
 	echo
-	echo Erro de execução, checar logs.
+	echo Execution error, check logs
 	echo
 fi

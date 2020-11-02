@@ -201,6 +201,7 @@ class Connection:
 			"net: ": self.interpret_net,
 			"callsign: ": self.interpret_callsign,
 			"pkt: ": self.interpret_packet,
+			"tnc: ": self.interpret_tnc,
 		}
 
 	def send(self, data):
@@ -271,6 +272,10 @@ class Connection:
 
 	def interpret_cli(self, line):
 		print("%d cli %s" % (self.port, line.decode('utf-8')))
+		return True
+
+	def interpret_tnc(self, line):
+		# Echo of "!tnc" command we send via serial
 		return True
 
 	def interpret_net(self, line):
