@@ -12,6 +12,8 @@
 #include "Timestamp.h"
 #include "NVRAM.h"
 
+extern bool redirect_to_telnet;
+
 static Ptr<Network> Net;
 static Buffer ssid;
 static Buffer password;
@@ -163,3 +165,22 @@ void telnet_print(const char* c)
 {
 	if (is_telnet) output_buffer += c;
 }
+
+// /////////////////////// Glue code with Console and CLI
+
+void console_telnet_enable()
+{
+	redirect_to_telnet = true;
+}
+
+void console_telnet_disable()
+{
+	redirect_to_telnet = false;
+}
+
+// Receive typed character from Telnet socket
+void console_telnet_type(char c)
+{
+	if (redirect_to_telnet) cli_type(c);
+}
+

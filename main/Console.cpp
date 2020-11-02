@@ -16,8 +16,9 @@
 // Serial and telnet console. Intermediates communication between
 // CLI and the platform streams (serial, Telnet).
 
+bool redirect_to_telnet = false;
+
 static Ptr<Network> Net;
-static bool is_telnet = false;
 static Buffer output_buffer;
 
 // Called by main Arduino setup().
@@ -35,7 +36,7 @@ void console_handle()
 {
 	if (Serial.available() > 0) {
 		int c = Serial.read();
-		if (!is_telnet) cli_type(c);
+		if (!redirect_to_telnet) cli_type(c);
 	}
 
 	int a = Serial.availableForWrite();
@@ -45,22 +46,6 @@ void console_handle()
 		Serial.write((const uint8_t*) output_buffer.c_str(), c);
 		output_buffer.cut(c);
 	}
-}
-
-void console_telnet_enable()
-{
-	is_telnet = true;
-}
-
-void console_telnet_disable()
-{
-	is_telnet = false;
-}
-
-// Receive typed character from Telnet socket
-void console_telnet_type(char c)
-{	
-	if (is_telnet) cli_type(c);
 }
 
 // Print to serial console (through a buffer; see console_handle())
@@ -73,7 +58,7 @@ void serial_print(const char *msg)
 // otherwise sends to serial console.
 static void platform_print(const char *msg)
 {
-	if (!is_telnet) {
+	if (!redirect_to_telnet) {
 		serial_print(msg);
 	} else {
 		telnet_print(msg);
