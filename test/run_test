@@ -81,7 +81,7 @@ done
 
 # uses 6000 (client) as TNC and uses port 6001 just to stop the server
 sleep 1
-./switch_test.py 6000 6001
+./switch_test.py 6000 6001 BBBB
 
 ERR=0
 for P in $PIDS; do

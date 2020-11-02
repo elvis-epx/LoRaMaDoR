@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import socket, sys, select, time
+import socket, sys, select, time, random
 
 client_port = int(sys.argv[1])
 server_port = int(sys.argv[2])
+server_callsign = sys.argv[3]
 
 class RxPacket:
 	def __init__(self, data):
@@ -21,6 +22,7 @@ class RxPacket:
 			# naked key
 			key = data
 			value = None
+			uvalue = None
 		else:
 			key = data[:i]
 			value = data[i+1:]
@@ -37,18 +39,25 @@ class RxPacket:
 				self.err = "Param key with invalid char"
 				return False
 
+		try:
+			ukey = key.decode('utf-8')
+		except UnicodeDecodeError:
+			self.err = "Unicode error in key"
+			return False
+
 		if value is not None:
 			for n in range(0, len(value)):
 				c = chr(value[n])
 				if "= ,:<".find(c) >= 0 or ord(c) >= 127:
 					self.err = "Param value with invalid char"
 					return False
+			try:
+				uvalue = value.decode('utf-8')
+			except UnicodeDecodeError:
+				self.err = "Unicode error in value"
+				return False
 
-		try:
-			self.params[key.decode('utf-8').upper()] = value.decode('utf-8')
-		except UnicodeDecodeError:
-			self.err = "Unicode error in key or value"
-			return False
+		self.params[ukey] = uvalue
 
 		return True
 
@@ -120,7 +129,7 @@ class RxPacket:
 		i = data.find(b' ')
 		if i >= 0:
 			preamble = data[:i]
-			self.msg = data[i+1]
+			self.msg = data[i+1:]
 		else:
 			# valid packet with no message
 			preamble = data
@@ -138,13 +147,111 @@ class RxPacket:
 		return "to %s from %s params %s msg %s" % \
 			(self.to, self.fromm, sparams, self.msg)
 
+
+class Switch:
+	def __init__(self, tnc, server, scheduler, canceller, target, value):
+		self.tnc = tnc
+		self.tnc.proto_handlers["SWC"] = self
+		self.server = server
+		self.scheduler = scheduler
+		self.canceller = canceller
+		self.target = target
+		self.value = value 
+		self.challenge = self.gen_challenge(8)
+		self.sendA()
+
+	def gen_challenge(self, length):
+		c = ""
+		for i in range(0, length):
+			c += "0123456789abcdefghijklmnopqrstuvwxyz"[random.randint(0, 35)]
+		return c
+
+	def rx(self, pkt):
+		print("SW: received packet", pkt.msg)
+		try:
+			umsg = pkt.msg.decode('utf-8')
+		except UnicodeDecodeError:
+			print("SW: packet msg has non-ASCII chars")
+			return
+		fields = umsg.split(",")
+		if fields[0] == "B":
+			self.rxB(fields)
+		elif fields[0] == "D":
+			self.rxD(fields)
+
+	def sendA(self):
+		print("SW: sending packet A")
+		self.tnc.send("%s:SW A,%s\r" % (self.server, self.challenge))
+		self.state = 'A'
+		self.to = self.scheduler(self.timeoutA, 3.0)
+
+	def timeoutA(self):
+		# TODO maximum number of requests, exponential backoff
+		self.sendA()
+
+	def rxB(self, fields):
+		if len(fields) < 3:
+			print("SW: received invalid packet B")
+			return
+		if self.state != 'A':
+			print("SW: received packet B but state not A")
+			return
+		if fields[1] != self.challenge:
+			print("SW: received packet B with wrong challenge")
+			return
+		if len(fields[2]) < 8:
+			print("SW: received packet B with short response")
+			return
+		self.response = fields[2]
+		if self.to:
+			self.canceller(self.to)
+			self.to = None
+		self.sendC()
+
+	def sendC(self):
+		print("SW: sending packet C")
+		self.tnc.send("%s:SW C,%s,%s,%d,%d\r" % \
+			(self.server, self.challenge, self.response,
+			self.target, self.value))
+		self.state = 'C'
+		self.to = self.scheduler(self.timeoutC, 3.0)
+
+	def timeoutC(self):
+		# TODO maximum number of requests, exponential backoff
+		self.sendC()
+
+	def rxD(self, fields):
+		if len(fields) < 5:
+			print("SW: received invalid packet D")
+			return
+		if self.state != 'C':
+			print("SW: received packet D but state not C")
+			return
+		if fields[1] != self.challenge:
+			print("SW: received packet D with wrong challenge")
+			return
+		if fields[2] != self.response:
+			print("SW: received packet D with wrong response")
+			return
+		if self.to:
+			self.canceller(self.to)
+			self.to = None
+		# TODO Check target and state
+		print("SW: **** finished transaction ****")
+		self.state = 'E'
+
 task_counter = 1
 tasks = {}
 
 def schedule(task, to):
 	global task_counter, tasks
-	tasks[task_counter] = (task, time.time() + to)
+	handle = task_counter
 	task_counter += 1
+	tasks[handle] = (task, time.time() + to)
+	return handle
+
+def cancel(handle):
+	del tasks[handle]
 
 def service_event_loop(*conns):
 	global task_counter, tasks
@@ -177,12 +284,14 @@ def service_event_loop(*conns):
 			conn.do_send()
 	now = time.time()
 	done = []
+	to_call = []
 	for n, task_record in tasks.items():
 		task, to = task_record
 		if to < now:
-			# print("Executing task %d" % n)
-			task()
+			to_call.append(task)
 			done.append(n)
+	for task in to_call:
+		task()
 	for n in done:
 		del tasks[n]
 	return True
@@ -201,8 +310,9 @@ class Connection:
 			"net: ": self.interpret_net,
 			"callsign: ": self.interpret_callsign,
 			"pkt: ": self.interpret_packet,
-			"tnc: ": self.interpret_tnc,
+			"!tnc": self.interpret_tnc,
 		}
+		self.proto_handlers = {}
 
 	def send(self, data):
 		self.writebuf += data.encode("utf-8")
@@ -288,7 +398,6 @@ class Connection:
 	
 	def interpret_packet(self, line):
 		print("%d packet %s" % (self.port, line))
-
 		i = line.find(b' ')
 		if i < 0:
 			print("%d invalid packet header, no RSSI delim" % self.port)
@@ -329,22 +438,33 @@ class Connection:
 		p = RxPacket(line)
 		if p.err:
 			print("\tinvalid packet: %s" % p.err)
+			return True
 		else:
 			print("%d parsed packet %s" % (self.port, str(p)))
+
+		for key, value in p.params.items():
+			if key in self.proto_handlers:
+				print("Calling handler for %s" % key)
+				self.proto_handlers[key].rx(p)
+				break
+
 		return True
 
 client = Connection(client_port)
 server = Connection(server_port)
 
+# Configure TNC mode
 client.send("\r!tnc\r")
 server.send("\r!tnc\r")
 
 def rst():
 	client.send("\r!reset\r")
 	server.send("\r!reset\r")
-
 schedule(rst, 60.0)
 
+def switch_on():
+	Switch(client, server_callsign, schedule, cancel, 1, 1)
+schedule(switch_on, 1.0)
+
 while service_event_loop(client, server):
-	# print("loop")
 	pass
