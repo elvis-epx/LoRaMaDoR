@@ -416,13 +416,13 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 
 	// Packet originated from us but received via radio = loop
 	if (me() == pkt->from()) {
-		logs("pkt loop", pkt->signature());
+		// logs("pkt loop", pkt->signature());
 		return;
 	}
 
 	// Discard received duplicates
 	if (recv_log.has(pkt->signature())) {
-		logs("pkt dup", pkt->signature());
+		// logs("pkt dup", pkt->signature());
 		return;
 	}
 	recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
@@ -445,6 +445,8 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		return;
 	}
 
+	bool already_repeated = pkt->params().has("R");
+
 	// Forward packet modifiers
 	// They can add params and/or change msg
 	for (size_t i = 0; i < modifiers.size(); ++i) {
@@ -456,10 +458,16 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 
 	Buffer encoded_pkt = pkt->encode_l2();
 
-	// Average TX delay: from 3x to 6x the packet airtime
+	// Average TX delay: 2.5x the packet airtime
+	// spread from 0 to 5x to mitigate collision in the case of multiple repeaters
 	double packet_len = SECONDS * encoded_pkt.length() * 8
 				/ lora_speed_bps();
-	int64_t delay = Network::fudge(packet_len * 4.5, 0.333);
+	int64_t delay = Network::fudge(packet_len * 2.5, 0.95);
+	// Packets already repeated: additional window to mitigate collision from
+	// additional repeaters of the last hop
+	if (already_repeated) {
+		delay += packet_len * 5;
+	}
 
 	logi("relaying w/ delay", delay);
 	schedule(new PacketTx(this, encoded_pkt, delay));
