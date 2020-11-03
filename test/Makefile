@@ -20,10 +20,10 @@ testnet2: testnet2.cpp $(OBJ) *.h
 	gcc $(CFLAGS) -o testnet2 testnet2.cpp $(OBJ) -lstdc++
 
 recov:
-	rm *.gcda
+	rm -f *.gcda
 
 coverage:
-	rm *.info
+	rm -f *.info
 	gcov test.cpp
 	gcov testnet.cpp
 	gcov testnet2.cpp
