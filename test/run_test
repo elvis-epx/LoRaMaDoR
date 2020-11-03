@@ -8,9 +8,9 @@ fi
 make clean
 make -j 4
 if [ $VALGRIND = 1 ]; then
-	valgrind --leak-check=full --suppressions=valgrind.supp --error-exitcode=1 ./test || exit 1
+	nice valgrind --leak-check=full --suppressions=valgrind.supp --error-exitcode=1 ./test || exit 1
 else
-	./test || exit 1
+	nice ./test || exit 1
 fi
 
 echo Automatic part
@@ -22,11 +22,11 @@ for eee in AAAA:0:1:somekey:6000 BBBB:1:1:somekey:6001 CCCC:1:3:somekey:6002 DDD
 	psk=$(echo $eee | cut -f 4 -d ':')
 	port=$(echo $eee | cut -f 5 -d ':')
 	if [ $VALGRIND = 1 ]; then
-		valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
+		nice valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
 			--suppressions=valgrind.supp ./testnet ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
 		PIDS+=" $!"
 	else
-		./testnet ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+		nice ./testnet ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
 		PIDS+=" $!"
 	fi
 done
@@ -70,11 +70,11 @@ for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
 	psk=$(echo $eee | cut -f 4 -d ':')
 	port=$(echo $eee | cut -f 5 -d ':')
 	if [ $VALGRIND = 1 ]; then
-		valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
+		nice valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
 			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
 		PIDS+=" $!"
 	else
-		./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
 		PIDS+=" $!"
 	fi
 done
