@@ -12,7 +12,7 @@ static uint32_t last_millis = 0;
 int64_t sys_timestamp()
 {
 	uint32_t m = _arduino_millis();
-	if (m < last_millis) {
+	if ((m < last_millis) && (last_millis - m) > 0x10000000) {
 		// wrapped around
 		epoch += 1;
 	}
