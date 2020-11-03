@@ -5,7 +5,7 @@ OBJ=Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L
 all: test testnet testnet2
 
 clean:
-	rm -rf *.o test testnet *.gcda *.gcno *.info out *.dSYM *.log *.val
+	rm -rf *.o test testnet *.gcda *.gcno *.info out *.dSYM *.log *.val *.gcov
 
 .cpp.o: *.h
 	gcc $(CFLAGS) -c $<
@@ -23,9 +23,17 @@ recov:
 	rm *.gcda
 
 coverage:
+	rm *.info
 	gcov test.cpp
 	gcov testnet.cpp
 	gcov testnet2.cpp
 	lcov -c --directory . --output-file main_coverage.info
+	lcov -r main_coverage.info '*/RS-FEC.h' -o main_coverage.info
+	lcov -r main_coverage.info '*/testnet.cpp' -o main_coverage.info
+	lcov -r main_coverage.info '*/testnet2.cpp' -o main_coverage.info
+	lcov -r main_coverage.info '*/FakeArduino.cpp' -o main_coverage.info
+	lcov -r main_coverage.info '*/Serial.cpp' -o main_coverage.info
+	lcov -r main_coverage.info '*/Preferences.cpp' -o main_coverage.info
+	lcov -r main_coverage.info '*/sha256.cpp' -o main_coverage.info
 	genhtml main_coverage.info --output-directory out
 	xdg-open out/index.html
