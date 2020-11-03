@@ -409,7 +409,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		// Annotate to detect duplicates
 		recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 		// Transmit
-		schedule(new PacketTx(this, pkt->encode_l2(), 50));
+		schedule(new PacketTx(this, pkt->encode_l2(), 1));
 		logs("tx ", pkt->encode_l3());
 		return;
 	}
