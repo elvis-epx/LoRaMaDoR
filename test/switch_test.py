@@ -58,8 +58,14 @@ loop.schedule(switch_query_bad, 1.0)
 def errors():
 	# challenge too short
 	client.send("%s:SW A,%s\r" % (server_callsign, "1111111"))
+	# challenge too short
+	client.send("%s:SW C,%s\r" % (server_callsign, "1111111"))
 	# invalid type
 	client.send("%s:SW B,%s\r" % (server_callsign, "12111111"))
+	# invalid type
+	client.send("%s:SW AA,%s\r" % (server_callsign, "12111111"))
+	# invalid number of fields
+	client.send("%s:SW A,%s,%s\r" % (server_callsign, "12111111", "12345678"))
 	# initially valid request that will fail later
 	client.send("%s:SW A,%s\r" % (server_callsign, "12345678"))
 loop.schedule(errors, 30.0)
