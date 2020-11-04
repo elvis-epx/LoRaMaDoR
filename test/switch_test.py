@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import socket, sys, select, time, random
+from lora_loop import EventLoop
 
 client_port = int(sys.argv[1])
 server_port = int(sys.argv[2])
@@ -149,12 +150,11 @@ class RxPacket:
 
 
 class Switch:
-	def __init__(self, tnc, server, scheduler, canceller, target, value):
+	def __init__(self, tnc, server, loop, target, value):
 		self.tnc = tnc
 		self.tnc.proto_handlers["SWC"] = self
 		self.server = server
-		self.scheduler = scheduler
-		self.canceller = canceller
+		self.loop = loop
 		self.target = target
 		self.value = value 
 		self.challenge = self.gen_challenge(8)
@@ -183,7 +183,7 @@ class Switch:
 		print("SW: sending packet A")
 		self.tnc.send("%s:SW A,%s\r" % (self.server, self.challenge))
 		self.state = 'A'
-		self.to = self.scheduler(self.timeoutA, 3.0)
+		self.to = self.loop.schedule(self.timeoutA, 3.0)
 
 	def timeoutA(self):
 		# TODO maximum number of requests, exponential backoff
@@ -204,7 +204,7 @@ class Switch:
 			return
 		self.response = fields[2]
 		if self.to:
-			self.canceller(self.to)
+			self.loop.cancel(self.to)
 			self.to = None
 		self.sendC()
 
@@ -214,7 +214,7 @@ class Switch:
 			(self.server, self.challenge, self.response,
 			self.target, self.value))
 		self.state = 'C'
-		self.to = self.scheduler(self.timeoutC, 3.0)
+		self.to = self.loop.schedule(self.timeoutC, 3.0)
 
 	def timeoutC(self):
 		# TODO maximum number of requests, exponential backoff
@@ -234,67 +234,11 @@ class Switch:
 			print("SW: received packet D with wrong response")
 			return
 		if self.to:
-			self.canceller(self.to)
+			self.loop.cancel(self.to)
 			self.to = None
 		# TODO Check target and state
 		print("SW: **** finished transaction ****")
 		self.state = 'E'
-
-task_counter = 1
-tasks = {}
-
-def schedule(task, to):
-	global task_counter, tasks
-	handle = task_counter
-	task_counter += 1
-	tasks[handle] = (task, time.time() + to)
-	return handle
-
-def cancel(handle):
-	del tasks[handle]
-
-def service_event_loop(*conns):
-	global task_counter, tasks
-	rd = []
-	wr = []
-	for conn in conns:
-		if not conn.sock:
-			continue
-		rd.append(conn.sock)
-		if conn.writebuf:
-			wr.append(conn.sock)
-	if not rd and not wr:
-		return False
-
-	min_to = time.time() + 60
-	for n, task_record in tasks.items():
-		task, to = task_record
-		if to < min_to:
-			min_to = to
-	to = min_to - time.time()
-	if to < 0:
-		to = 0
-	# print("Timeout %f" % to)
-	
-	rdok, wrok, dummy = select.select(rd, wr, [], to)
-	for conn in conns:
-		if conn.sock in rdok:
-			conn.do_recv()
-		if conn.sock in wrok:
-			conn.do_send()
-	now = time.time()
-	done = []
-	to_call = []
-	for n, task_record in tasks.items():
-		task, to = task_record
-		if to < now:
-			to_call.append(task)
-			done.append(n)
-	for task in to_call:
-		task()
-	for n in done:
-		del tasks[n]
-	return True
 
 class Connection:
 	def __init__(self, port):
@@ -450,6 +394,8 @@ class Connection:
 
 		return True
 
+loop = EventLoop()
+
 client = Connection(client_port)
 server = Connection(server_port)
 
@@ -460,11 +406,11 @@ server.send("\r!tnc\r")
 def rst():
 	client.send("\r!reset\r")
 	server.send("\r!reset\r")
-schedule(rst, 60.0)
+loop.schedule(rst, 60.0)
 
 def switch_on():
-	Switch(client, server_callsign, schedule, cancel, 1, 1)
-schedule(switch_on, 1.0)
+	Switch(client, server_callsign, loop, 1, 1)
+loop.schedule(switch_on, 1.0)
 
-while service_event_loop(client, server):
+while loop.service(client, server):
 	pass
