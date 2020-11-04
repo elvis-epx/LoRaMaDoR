@@ -20,8 +20,10 @@ Ptr<Packet> Modf_Rreq::modify(const Packet& pkt)
 		// not QB, QR, QC, etc.
 		if (pkt.params().has("RREQ") || pkt.params().has("RRSP")) {
 			Buffer new_msg = pkt.msg();
-			new_msg += '>';
+			if (! new_msg.empty()) new_msg += ' ';
 			new_msg += net->me();
+			new_msg += ' ';
+			new_msg += Buffer::itoa(pkt.rssi());
 			return pkt.change_msg(new_msg);
 		}
 	}

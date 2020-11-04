@@ -3,8 +3,6 @@ TNC mode: packet size preamble in PC->Arduino direction
 
 Test 8-bit cleanliless of TNC packet exchange
 
-RREQ: discover RRSI of the other side
-
 Change README, add section about remote control/non-amateur uses
 
 Telnet, serial x security

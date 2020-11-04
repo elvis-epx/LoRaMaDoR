@@ -18,8 +18,10 @@ L7HandlerResponse Proto_Rreq::handle(const Packet& pkt)
 	// Respond to RREQ packet
 	if (!pkt.to().is_bcast() && pkt.params().has("RREQ")) {
 		Buffer msg = pkt.msg();
-		msg += '|';
+		msg += (msg.empty() ? "*" : " *");
 		msg += net->me();
+		msg += ' ';
+		msg += Buffer::itoa(pkt.rssi());
 
 		Params rrsp = Params();
 		rrsp.put_naked("RRSP");
