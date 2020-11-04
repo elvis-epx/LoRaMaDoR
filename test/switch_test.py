@@ -35,5 +35,12 @@ def switch_query():
 	Switch(client, server_callsign, loop, 2)
 loop.schedule(switch_query, 1.0)
 
+def errors():
+	# challenge too short
+	client.send("%s:SW A,%s\r" % (server_callsign, "1111111"))
+	# invalid type
+	client.send("%s:SW B,%s\r" % (server_callsign, "12111111"))
+loop.schedule(errors, 30.0)
+
 while loop.service(client, server):
 	pass

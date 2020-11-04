@@ -237,8 +237,8 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		Buffer msg = Buffer("B,") + challenge + "," + response;
 		return L7HandlerResponse(true, pkt.from(), swb, msg);
 
-	} else if (type == 'C') {
-		// got challenge + response + command
+	} else {
+		// type C: got challenge + response + command
 		if (! transactions.has(key)) {
 			logs("SW type C unknown challenge", "");
 			return L7HandlerResponse();
@@ -280,8 +280,6 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 				Buffer::itoa(target) + "," + svalue;
 		return L7HandlerResponse(true, pkt.from(), swd, msg);
 	}
-
-	return L7HandlerResponse();
 }
 
 void Proto_Switch::process_timeouts(int64_t now)
