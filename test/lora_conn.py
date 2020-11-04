@@ -113,7 +113,7 @@ class Connection:
 			print("%d invalid packet header, no RSSI delim" % self.port)
 			return True
 		try:
-			rssi = float(line[:i])
+			rssi = int(line[:i], 10)
 		except ValueError:
 			print("%d invalid RSSI value" % self.port)
 			return True
@@ -144,7 +144,7 @@ class Connection:
 			line += self.readbuf[:needs]
 			self.readbuf = self.readbuf[needs:]
 
-		print("%d unwrapped packet RSSI=%f %s" % (self.port, rssi, line))
+		print("%d unwrapped packet RSSI=%d %s" % (self.port, rssi, line))
 		p = RxPacket(line)
 		if p.err:
 			print("\tinvalid packet: %s" % p.err)

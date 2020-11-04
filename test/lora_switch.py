@@ -10,10 +10,14 @@ class Switch:
 		self.server = server
 		self.loop = loop
 		self.target = target
-		self.value = value 
+		self.value = value
+		self.callback = lambda tgt, val: None
 		self.challenge = self.gen_challenge(8)
 		self.sendA()
 		Switch.transactions[self.challenge] = self
+
+	def on_result(self, cb):
+		self.callback = cb
 
 	def gen_challenge(self, length):
 		c = ""
@@ -113,7 +117,30 @@ class Switch:
 		if self.to:
 			self.loop.cancel(self.to)
 			self.to = None
-		# TODO Check target and state
-		print("SW: **** finished transaction ****")
+
+		ok = True
+		if fields[4] == '?':
+			self.value = None
+		else:
+			try:
+				self.value = int(fields[4], 10)
+			except ValueError:
+				print("SW: value is invalid")
+				ok = False
+			if self.value < 0 or self.value > 65535:
+				print("SW: value is invalid")
+				ok = False
+		try:
+			ptarget = int(fields[3], 10)
+		except ValueError:
+			print("SW: returned target is invalid")
+			ok = False
+		if ptarget != self.target:
+			print("SW: returned target different from request")
+			ok = False
+
+		if ok:
+			self.callback(self.target, self.value)
 		self.state = 'E'
 		del Switch.transactions[self.challenge]
+		print("SW: **** finished transaction ****")
