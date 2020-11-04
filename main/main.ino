@@ -13,11 +13,19 @@
 #include "Console.h"
 #include "Telnet.h"
 
+#include "driver/adc.h"
+#include <esp_wifi.h>
+#include <esp_bt.h>
+
 Ptr<Network> Net;
 Preferences prefs;
 
 void setup()
 {
+	setCpuFrequencyMhz(80);
+	esp_bt_controller_disable();
+	// adc_power_off();
+
 	Serial.begin(115200);
 	oled_init();
 	oled_show("Starting...", "", "", "");
