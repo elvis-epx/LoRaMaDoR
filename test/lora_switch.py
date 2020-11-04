@@ -3,15 +3,17 @@
 import time, random
 
 class Switch:
-	def __init__(self, tnc, server, loop, target, value):
+	transactions = {}
+
+	def __init__(self, tnc, server, loop, target, value=None):
 		self.tnc = tnc
-		self.tnc.proto_handlers["SWC"] = self
 		self.server = server
 		self.loop = loop
 		self.target = target
 		self.value = value 
 		self.challenge = self.gen_challenge(8)
 		self.sendA()
+		Switch.transactions[self.challenge] = self
 
 	def gen_challenge(self, length):
 		c = ""
@@ -19,18 +21,33 @@ class Switch:
 			c += "0123456789abcdefghijklmnopqrstuvwxyz"[random.randint(0, 35)]
 		return c
 
-	def rx(self, pkt):
+	@staticmethod
+	def rx(pkt):
 		print("SW: received packet", pkt.msg)
 		try:
 			umsg = pkt.msg.decode('utf-8')
 		except UnicodeDecodeError:
 			print("SW: packet msg has non-ASCII chars")
-			return
+			return True
+
 		fields = umsg.split(",")
-		if fields[0] == "B":
-			self.rxB(fields)
-		elif fields[0] == "D":
-			self.rxD(fields)
+		if len(fields) < 3:
+			print("SW: packet msg has less than 3 fields")
+			return True
+		ptype, challenge, response = fields[0:3]
+
+		if challenge not in Switch.transactions:
+			print("SW: packet msg has unknown challenge")
+			return True
+			
+		if ptype == "B":
+			Switch.transactions[challenge].rxB(fields)
+		elif ptype == "D":
+			Switch.transactions[challenge].rxD(fields)
+		else:
+			print("SW: packet msg of unknown type")
+
+		return True
 
 	def sendA(self):
 		print("SW: sending packet A")
@@ -63,9 +80,16 @@ class Switch:
 
 	def sendC(self):
 		print("SW: sending packet C")
-		self.tnc.send("%s:SW C,%s,%s,%d,%d\r" % \
-			(self.server, self.challenge, self.response,
-			self.target, self.value))
+		if self.value is None:
+			# query
+			self.tnc.send("%s:SW C,%s,%s,%d,?\r" % \
+				(self.server, self.challenge, self.response,
+				self.target))
+		else:
+			# set
+			self.tnc.send("%s:SW C,%s,%s,%d,%d\r" % \
+				(self.server, self.challenge, self.response,
+				self.target, self.value))
 		self.state = 'C'
 		self.to = self.loop.schedule(self.timeoutC, 3.0)
 
@@ -92,3 +116,4 @@ class Switch:
 		# TODO Check target and state
 		print("SW: **** finished transaction ****")
 		self.state = 'E'
+		del Switch.transactions[self.challenge]

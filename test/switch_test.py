@@ -25,9 +25,15 @@ def rst():
 	server.send("\r!reset\r")
 loop.schedule(rst, 60.0)
 
+client.add_proto_handler(["SWC"], Switch)
+
 def switch_on():
 	Switch(client, server_callsign, loop, 1, 1)
 loop.schedule(switch_on, 1.0)
+
+def switch_query():
+	Switch(client, server_callsign, loop, 2)
+loop.schedule(switch_query, 1.0)
 
 while loop.service(client, server):
 	pass

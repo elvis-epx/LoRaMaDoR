@@ -19,7 +19,11 @@ class Connection:
 			"pkt: ": self.interpret_packet,
 			"!tnc": self.interpret_tnc,
 		}
-		self.proto_handlers = {}
+		self.protocol_handlers = {}
+
+	def add_proto_handler(self, keys, klass):
+		for key in keys:
+			self.protocol_handlers[key] = klass
 
 	def send(self, data):
 		self.writebuf += data.encode("utf-8")
@@ -149,9 +153,9 @@ class Connection:
 			print("%d parsed packet %s" % (self.port, str(p)))
 
 		for key, value in p.params.items():
-			if key in self.proto_handlers:
+			if key in self.protocol_handlers:
 				print("Calling handler for %s" % key)
-				self.proto_handlers[key].rx(p)
-				break
+				if self.protocol_handlers[key].rx(p):
+					break
 
 		return True
