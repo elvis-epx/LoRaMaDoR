@@ -1,7 +1,9 @@
 TNC mode: packet size preamble in PC->Arduino direction
 	to make the payload 8-bit safe
 
-RREQ: know RRSI of the other side
+Test 8-bit cleanliless of TNC packet exchange
+
+RREQ: discover RRSI of the other side
 
 Change README, add section about remote control/non-amateur uses
 
