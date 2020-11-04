@@ -41,7 +41,6 @@ class Connection:
 
 	def do_send(self):
 		# print("writing %d..." % self.port)
-		data = self.sock.recv(1500)
 		n = self.sock.send(self.writebuf)
 		if n < 0:
 			print("Conn %d error on send" % self.port)
