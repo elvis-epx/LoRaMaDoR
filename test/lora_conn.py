@@ -92,11 +92,11 @@ class Connection:
 		return True
 
 	def interpret_debug(self, line):
-		print("%d debug %s" % (self.port, line.decode('utf-8')))
+		print("%d debug" % self.port, line)
 		return True
 
 	def interpret_cli(self, line):
-		print("%d cli %s" % (self.port, line.decode('utf-8')))
+		print("%d cli" % self.port, line)
 		return True
 
 	def interpret_tnc(self, line):
@@ -104,15 +104,15 @@ class Connection:
 		return True
 
 	def interpret_net(self, line):
-		print("%d net %s" % (self.port, line.decode('utf-8')))
+		print("%d net" % self.port, line)
 		return True
 	
 	def interpret_callsign(self, line):
-		print("%d callsign %s" % (self.port, line.decode('utf-8')))
+		print("%d callsign" % self.port, line)
 		return True
 	
 	def interpret_packet(self, line):
-		print("%d packet %s" % (self.port, line))
+		print("%d packet" % self.port, line)
 		i = line.find(b' ')
 		if i < 0:
 			print("%d invalid packet header, no RSSI delim" % self.port)

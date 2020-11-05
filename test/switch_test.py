@@ -4,6 +4,7 @@ import sys, select, time, random
 from lora_loop import EventLoop
 from lora_conn import Connection
 from lora_switch import Switch
+from lora_ping import Ping
 
 client_port = int(sys.argv[1])
 server_port = int(sys.argv[2])
@@ -26,6 +27,7 @@ def rst():
 loop.schedule(rst, 60.0)
 
 client.add_proto_handler(["SWC"], Switch)
+client.add_proto_handler(["PONG"], Ping)
 
 def switch_on():
 	s = Switch(client, server_callsign, loop, 1, 1)
@@ -44,6 +46,38 @@ def switch_query():
 		assert(tgt == 2)
 	s.on_result(h)
 loop.schedule(switch_query, 1.0)
+
+def ping():
+	payload = "0123456789" * 10
+	payload = payload.encode("ascii")
+	p = Ping(client, server_callsign, loop, payload)
+	def h(pong_payload):
+		print("######## PONG")
+		if payload != pong_payload:
+			print("Error: payload different")
+			print("Len sent: %d" % len(payload))
+			print("Len recv: %d" % len(pong_payload))
+			print("Payload sent:", payload)
+			print("Payload recv:", pong_payload)
+			sys.exit(1)
+	p.on_result(h)
+loop.schedule(ping, 10.0)
+
+def ping2():
+	payload = bytearray(random.getrandbits(8) for _ in range(100))
+	p = Ping(client, server_callsign, loop, payload)
+	def h(pong_payload):
+		print("######## PONG")
+		if payload != pong_payload:
+			print("Error: payload different")
+			print("Len sent: %d" % len(payload))
+			print("Len recv: %d" % len(pong_payload))
+			print("Payload sent:", payload)
+			print("Payload recv:", pong_payload)
+			sys.exit(1)
+			
+	p.on_result(h)
+loop.schedule(ping2, 20.0)
 
 def switch_query_bad():
 	# query switch out of range
