@@ -41,7 +41,7 @@ Proto_Beacon::Proto_Beacon(Network *net): L7Protocol(net)
 int64_t Proto_Beacon::beacon() const
 {
 	Buffer uptime = Buffer::millis_to_hms(sys_timestamp());
-	Buffer msg = Buffer("LoRaMaDoR up ") + uptime;
+	Buffer msg = Buffer("up ") + uptime;
 	if (net->am_i_repeater()) {
 		net->send(Callsign("QR"), Params(), msg);
 	} else {
