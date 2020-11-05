@@ -71,10 +71,10 @@ for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
 	port=$(echo $eee | cut -f 5 -d ':')
 	if [ $VALGRIND = 1 ]; then
 		nice valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
-			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}_int.log &
 		PIDS+=" $!"
 	else
-		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}_int.log &
 		PIDS+=" $!"
 	fi
 done
@@ -109,5 +109,8 @@ if [ "$ERR" != 0 ]; then
 	echo
 	exit 1
 fi
+
+ver=$(date '+%Y-%m-%d %H:%M:%S')
+echo "#define LORAMADOR_VERSION \"$ver\"" > ../main/Version.h
 
 make coverage

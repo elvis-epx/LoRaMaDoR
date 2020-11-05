@@ -178,6 +178,7 @@ int main(int argc, char* argv[])
 	cli_simtype("!ssid 012345678901234567890123456789012345678901234567890123456789012345\r");
 	assert(arduino_nvram_load("ssid") == "bla");
 	cli_simtype("!ssid\r");
+	cli_simtype("!version\r");
 	cli_simtype("!repeater\r");
 	cli_simtype("!repeater a\r");
 	cli_simtype("!repeater 1\r");

@@ -16,6 +16,7 @@
 #include "CLI.h"
 #include "Console.h"
 #include "Telnet.h"
+#include "Version.h"
 
 // Command-line interface implementation.
 
@@ -255,6 +256,12 @@ static void cli_uptime()
 	console_println(Buffer("cli: Uptime ") + hms);
 }
 
+// Software version
+static void cli_version()
+{
+	console_println(Buffer("cli: sw ver ") + LORAMADOR_VERSION);
+}
+
 // Print list of detected network neighbors
 static void cli_neigh()
 {
@@ -327,6 +334,7 @@ static void cli_parse_help()
 	console_println("cli:  !neigh                 List known neighbors");
 	console_println("cli:  !lastid                Last sent packet #");
 	console_println("cli:  !uptime                Show uptime");
+	console_println("cli:  !version               Show software version");
 	console_println("cli:");
 }
 
@@ -401,6 +409,8 @@ static void cli_parse_meta(Buffer cmd)
 		cli_lastid();
 	} else if (cmd == "uptime") {
 		cli_uptime();
+	} else if (cmd == "version") {
+		cli_version();
 	} else if (cmd == "pktx") {
 		console_println("cli: usage: !pktx <packet encoded in hex format, no spaces>");
 	} else if (cmd.startsWith("pktx ")) {
