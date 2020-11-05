@@ -164,13 +164,18 @@ Params::Params(Buffer b)
 	valid = parse_params(b.c_str(), b.length(), _ident, items);
 }
 
+Vector<Buffer> Params::keys() const
+{
+	return items.keys();
+}
+
 // Generate the wire format of the parameter list
 Buffer Params::serialized() const
 {
 	Buffer buf = s_ident();
 
 	const Vector<Buffer>& keys = items.keys();
-	for (size_t i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.count(); ++i) {
 		const Buffer& key = keys[i];
 		const Buffer& value = items[key];
 		buf += ',';

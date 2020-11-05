@@ -30,6 +30,7 @@ public:
 	void remove(const char *);
 	bool is_key_naked(const char *) const;
 	void set_ident(uint32_t);
+	Vector<Buffer> keys() const;
 private:
 	Dict<Buffer> items;
 	uint32_t _ident;

@@ -36,7 +36,7 @@ public:
 	T& operator[](size_t n) { return *elem[n]; }
 	const T& operator[](size_t n) const { return *elem[n]; }
 	
-	size_t size() const { return sz; }
+	size_t count() const { return sz; }
 	size_t capacity() const { return space; }
 	
 	void reserve(size_t newalloc);
@@ -52,8 +52,8 @@ Vector<T>& Vector<T>::operator=(const Vector& a) {
 	clear();
 
 	// new array
-	elem = new T*[a.size()];
-	space = sz = a.size();
+	elem = new T*[a.count()];
+	space = sz = a.count();
 
 	// copy elements
 	for(size_t i=0; i < sz; ++i) {
@@ -67,8 +67,8 @@ template<class T>
 Vector<T>::Vector(const Vector& a) {
 	if (this==&a) return;
 
-	elem = new T*[a.size()];
-	space = sz = a.size();
+	elem = new T*[a.count()];
+	space = sz = a.count();
 
 	// copy elements
 	for(size_t i=0; i < sz; ++i) {

@@ -227,7 +227,7 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 	Ptr<Packet> pkt(new Packet(to, me(), params, msg));
 
 	// handle L4 protocols, in reverse order of RX
-	for (size_t i = l4protocols.size(); i > 0; --i) {
+	for (size_t i = l4protocols.count(); i > 0; --i) {
 		auto response = l4protocols[i-1]->tx(*pkt);
 		if (response.pkt) {
 			// more than one L4 protocol can tweak the packet
@@ -247,7 +247,7 @@ void Network::recv(Ptr<Packet> pkt)
 	logs("Received pkt", pkt->encode_l3());
 
 	// handle L4 protocols
-	for (size_t i = 0; i < l4protocols.size(); ++i) {
+	for (size_t i = 0; i < l4protocols.count(); ++i) {
 		auto response = l4protocols[i]->rx(*pkt);
 		if (response.has_packet) {
 			send(response.to, response.params, response.msg);
@@ -259,7 +259,7 @@ void Network::recv(Ptr<Packet> pkt)
 	}
 
 	// check if packet can be handled automatically by L7 protocol
-	for (size_t i = 0; i < l7protocols.size(); ++i) {
+	for (size_t i = 0; i < l7protocols.count(); ++i) {
 		auto response = l7protocols[i]->handle(*pkt);
 		if (response.has_packet) {
 			send(response.to, response.params, response.msg);
@@ -296,13 +296,13 @@ int64_t Network::clean_recv_log(int64_t now)
 	Vector<Buffer> remove_list;
 
 	const Vector<Buffer>& keys = recv_log.keys();
-	for (size_t i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.count(); ++i) {
 		if ((recv_log[keys[i]].timestamp + RECV_LOG_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
-	for (size_t i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.count(); ++i) {
 		recv_log.remove(remove_list[i]);
 		// logs("Forgotten packet", remove_list[i]);
 	}
@@ -316,13 +316,13 @@ int64_t Network::clean_neigh(int64_t now)
 	{
 	Vector<Buffer> remove_list;
 	const Vector<Buffer>& keys = neigh.keys();
-	for (size_t i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.count(); ++i) {
 		if ((neigh[keys[i]].timestamp + NEIGH_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
-	for (size_t i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.count(); ++i) {
 		neigh.remove(remove_list[i]);
 		logs("Forgotten neigh", remove_list[i]);
 	}
@@ -331,13 +331,13 @@ int64_t Network::clean_neigh(int64_t now)
 	{
 	Vector<Buffer> remove_list;
 	const Vector<Buffer>& keys = reptr.keys();
-	for (size_t i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.count(); ++i) {
 		if ((reptr[keys[i]].timestamp + NEIGH_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
-	for (size_t i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.count(); ++i) {
 		reptr.remove(remove_list[i]);
 		logs("Forgotten repeater", remove_list[i]);
 	}
@@ -346,13 +346,13 @@ int64_t Network::clean_neigh(int64_t now)
 	{
 	Vector<Buffer> remove_list;
 	const Vector<Buffer>& keys = peerlist.keys();
-	for (size_t i = 0; i < keys.size(); ++i) {
+	for (size_t i = 0; i < keys.count(); ++i) {
 		if ((peerlist[keys[i]].timestamp + NEIGH_PERSIST) < now) {
 			remove_list.push_back(keys[i]);
 		}
 	}
 
-	for (size_t i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.count(); ++i) {
 		peerlist.remove(remove_list[i]);
 		logs("Forgotten peer", remove_list[i]);
 	}
@@ -449,7 +449,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 
 	// Forward packet modifiers
 	// They can add params and/or change msg
-	for (size_t i = 0; i < modifiers.size(); ++i) {
+	for (size_t i = 0; i < modifiers.count(); ++i) {
 		auto modified_pkt = modifiers[i]->modify(*pkt);
 		if (modified_pkt) {
 			pkt = modified_pkt;

@@ -94,7 +94,7 @@ Ptr<Task> TaskManager::next_task() const
 {
 	Ptr<Task> ret(0);
 	int64_t task_time = sys_timestamp() + 60 * 1000;
-	for (size_t i = 0 ; i < tasks.size(); ++i) {
+	for (size_t i = 0 ; i < tasks.count(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (! t->cancelled()) {
 			int64_t nr = t->next_run();
@@ -110,7 +110,7 @@ Ptr<Task> TaskManager::next_task() const
 /*
 void TaskManager::cancel(const Task* task)
 {
-	for (size_t i = 0 ; i < tasks.size(); ++i) {
+	for (size_t i = 0 ; i < tasks.count(); ++i) {
 		if (tasks[i].id() == task) {
 			tasks.remov(i);
 			break;
@@ -123,7 +123,7 @@ void TaskManager::run(int64_t now)
 {
 	bool dirty = false;
 
-	for (size_t i = 0 ; i < tasks.size(); ++i) {
+	for (size_t i = 0 ; i < tasks.count(); ++i) {
 		Ptr<Task> t = tasks[i];
 		if (t->should_run(now)) {
 			bool stay = t->run(now);
@@ -139,7 +139,7 @@ void TaskManager::run(int64_t now)
 
 	while (dirty) {
 		dirty = false;
-		for (size_t i = 0 ; i < tasks.size(); ++i) {
+		for (size_t i = 0 ; i < tasks.count(); ++i) {
 			Ptr<Task> t = tasks[i];
 			if (t->cancelled()) {
 				tasks.remov(i);

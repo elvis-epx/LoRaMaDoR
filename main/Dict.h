@@ -90,7 +90,7 @@ public:
 		bool new_key = pos <= -1;
 
 		if (new_key) {
-			int insertion_pos = indexOf(key, 0, _keys.size(), false);
+			int insertion_pos = indexOf(key, 0, _keys.count(), false);
 			_keys.insert(insertion_pos, key);
 			_values.insert(insertion_pos, value);
 		} else {
@@ -102,7 +102,7 @@ public:
 	}
 
 	size_t count() const {
-		return _keys.size();
+		return _keys.count();
 	}
 
 	const Vector<Buffer>& keys() const{
@@ -147,7 +147,7 @@ public:
 	}
 
 	int indexOf(const char *key) const {
-		return indexOf(key, 0, _keys.size(), true);
+		return indexOf(key, 0, _keys.count(), true);
 	}
 
 private:

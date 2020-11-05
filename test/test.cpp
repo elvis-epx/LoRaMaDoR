@@ -185,7 +185,7 @@ void test4()
 	a.push_back(Buffer("C"));
 	a.push_back(Buffer("D"));
 	a.remov(1);
-	assert(a.size() == 2);
+	assert(a.count() == 2);
 	assert(a[0] == "B");
 	assert(a[1] == "D");
 }

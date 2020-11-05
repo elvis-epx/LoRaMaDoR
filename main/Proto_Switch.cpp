@@ -286,7 +286,7 @@ void Proto_Switch::process_timeouts(int64_t now)
 {
 	Vector<Buffer> remove_list;
 
-	for (size_t i = 0; i < transactions.keys().size(); ++i) {
+	for (size_t i = 0; i < transactions.keys().count(); ++i) {
 		const Buffer key = transactions.keys()[i];
 		const auto trans = transactions[key];
 		if (trans.timeout < now) {
@@ -294,7 +294,7 @@ void Proto_Switch::process_timeouts(int64_t now)
 		}
 	}
 
-	for (size_t i = 0; i < remove_list.size(); ++i) {
+	for (size_t i = 0; i < remove_list.count(); ++i) {
 		transactions.remove(remove_list[i]);
 	}
 }
