@@ -28,6 +28,11 @@ class Connection:
 	def send(self, data):
 		self.writebuf += data.encode("utf-8")
 
+	def sendpkt(self, data):
+		if isinstance(data, str):
+			data = data.encode("utf-8")
+		self.writebuf += b"!pktx " + data.hex().encode("utf-8") + b"\r"
+
 	def recv(self):
 		data, self.readbuf = self.readbuf, ""
 		return data

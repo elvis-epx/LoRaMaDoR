@@ -55,7 +55,7 @@ class Switch:
 
 	def sendA(self):
 		print("SW: sending packet A")
-		self.tnc.send("%s:SW A,%s\r" % (self.server, self.challenge))
+		self.tnc.sendpkt("%s:SW A,%s" % (self.server, self.challenge))
 		self.state = 'A'
 		self.to = self.loop.schedule(self.timeoutA, 3.0)
 
@@ -86,12 +86,12 @@ class Switch:
 		print("SW: sending packet C")
 		if self.value is None:
 			# query
-			self.tnc.send("%s:SW C,%s,%s,%d,?\r" % \
+			self.tnc.sendpkt("%s:SW C,%s,%s,%d,?" % \
 				(self.server, self.challenge, self.response,
 				self.target))
 		else:
 			# set
-			self.tnc.send("%s:SW C,%s,%s,%d,%d\r" % \
+			self.tnc.sendpkt("%s:SW C,%s,%s,%d,%d" % \
 				(self.server, self.challenge, self.response,
 				self.target, self.value))
 		self.state = 'C'

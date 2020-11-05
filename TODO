@@ -1,6 +1,3 @@
-TNC mode: packet size preamble in PC->Arduino direction
-	to make the payload 8-bit safe
-
 Test 8-bit cleanliless of TNC packet exchange
 
 Change README, add section about remote control/non-amateur uses

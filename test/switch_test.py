@@ -56,30 +56,31 @@ def switch_query_bad():
 loop.schedule(switch_query_bad, 1.0)
 
 def errors():
+	client.sendpkt("")
 	# challenge too short
 	client.send("%s:SW A,%s\r" % (server_callsign, "1111111"))
 	# challenge too short
-	client.send("%s:SW C,%s\r" % (server_callsign, "1111111"))
+	client.sendpkt("%s:SW C,%s" % (server_callsign, "1111111"))
 	# invalid type
 	client.send("%s:SW B,%s\r" % (server_callsign, "12111111"))
 	# invalid type
-	client.send("%s:SW AA,%s\r" % (server_callsign, "12111111"))
+	client.sendpkt("%s:SW AA,%s" % (server_callsign, "12111111"))
 	# invalid number of fields
 	client.send("%s:SW A,%s,%s\r" % (server_callsign, "12111111", "12345678"))
 	# initially valid request that will fail later
-	client.send("%s:SW A,%s\r" % (server_callsign, "12345678"))
+	client.sendpkt("%s:SW A,%s" % (server_callsign, "12345678"))
 loop.schedule(errors, 30.0)
 
 def errors2():
 	# repeat request that will fail later
-	client.send("%s:SW A,%s\r" % (server_callsign, "12345678"))
+	client.sendpkt("%s:SW A,%s" % (server_callsign, "12345678"))
 loop.schedule(errors2, 35.0)
 
 def errors3():
 	# fail request in C packet (wrong response)
-	client.send("%s:SW C,%s,%s,%d,%d\r" % (server_callsign, "12345678", "12345678", 1, 1))
+	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "12345678", "12345678", 1, 1))
 	# send C packet with bad challenge
-	client.send("%s:SW C,%s,%s,%d,%d\r" % (server_callsign, "87654321", "12345678", 1, 1))
+	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "87654321", "12345678", 1, 1))
 loop.schedule(errors2, 40.0)
 
 while loop.service(client, server):

@@ -6,6 +6,7 @@
 #ifndef UNDER_TEST
 #include <Arduino.h>
 #endif
+#include <stdlib.h>
 #include "Buffer.h"
 #include "ArduinoBridge.h"
 #include "Timestamp.h"
@@ -329,6 +330,8 @@ static void cli_parse_help()
 	console_println("cli:");
 }
 
+static void cli_parse_tnc_packet(Buffer cmd);
+
 // !command switchboard
 static void cli_parse_meta(Buffer cmd)
 {
@@ -398,10 +401,33 @@ static void cli_parse_meta(Buffer cmd)
 		cli_lastid();
 	} else if (cmd == "uptime") {
 		cli_uptime();
+	} else if (cmd == "pktx") {
+		console_println("cli: usage: !pktx <packet encoded in hex format, no spaces>");
+	} else if (cmd.startsWith("pktx ")) {
+		cmd.cut(5);
+		cli_parse_tnc_packet(cmd.strip());
 	} else {
 		console_print("cli: Unknown cmd: ");
 		console_println(cmd);
 	}
+}
+
+static void cli_parse_packet(Buffer cmd);
+
+static void cli_parse_tnc_packet(Buffer cmd)
+{
+	size_t final_size = cmd.length() / 2;
+	uint8_t *pkt = (uint8_t*) malloc(final_size + 1);
+	for (size_t i = 0; i < final_size; ++i) {
+		char tmp[3];
+		tmp[0] = cmd.charAt(i * 2 + 0);
+		tmp[1] = cmd.charAt(i * 2 + 1);
+		tmp[2] = 0;
+		pkt[i] = strtol(tmp, NULL, 16);
+	}
+	pkt[final_size] = 0;
+	cli_parse_packet(Buffer((char*) pkt, final_size));
+	free(pkt);
 }
 
 // Parse a packet typed in console
