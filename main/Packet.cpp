@@ -160,7 +160,7 @@ Buffer Packet::encode_l3() const
 	b += _msg;
 
 	if (b.length() > MSGSIZE_LONG) {
-		// TODO return error or warning
+		// FIXME return error or warning
 		b = b.substr(0, MSGSIZE_LONG);
 	}
 

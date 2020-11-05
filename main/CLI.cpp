@@ -544,7 +544,7 @@ void cli_type(char c) {
 		}
 	} else if (c < 32) {
 		// ignore non-handled control chars
-	} else if (cli_buf.length() > 200) {
+	} else if (cli_buf.length() > 600) {
 		return;
 	} else {
 		cli_buf += c;
