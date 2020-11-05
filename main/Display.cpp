@@ -32,7 +32,7 @@ void oled_show(const char *ma, const char *mb, const char *mc, const char *md)
 {
 	char ms[20];
 	Buffer uptime = Buffer::millis_to_hms(sys_timestamp());
-	sprintf(ms, "%s", uptime.c_str());
+	sprintf(ms, "uptime %s", uptime.c_str());
 	display.clear();
 	display.drawString(0, 0, ma);
 	display.drawString(0, 12, mb);

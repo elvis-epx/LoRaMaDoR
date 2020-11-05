@@ -70,7 +70,12 @@ void app_recv(Ptr<Packet> pkt)
 	Buffer msga = Buffer(pkt->to()) + " < " + pkt->from();
 	Buffer msgb = Buffer("id ") + pkt->params().s_ident() +
 		" rssi " + Buffer::itoa(pkt->rssi());
-	Buffer msgc = Buffer("p ") + pkt->params().serialized();
+	Buffer msgc;
+	auto keys = pkt->params().keys();
+	for (size_t i = 0; i < keys.count(); ++i) {
+		msgc += keys[i];
+		msgc += " ";
+	}
 	oled_show(msga.c_str(), pkt->msg().c_str(), msgb.c_str(), msgc.c_str());
 }
 
