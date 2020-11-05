@@ -22,6 +22,12 @@ Preferences prefs;
 
 void setup()
 {
+	// Base current, beacons every 10s: 106mA (avg over 30min)
+	// 80MHz CPU freq: -34mA
+	// OLED completely off: -5mA
+	// OLED with no text: -2mA
+	// beacons every 600s: -3mA
+
 	setCpuFrequencyMhz(80);
 	esp_bt_controller_disable();
 	// adc_power_off();
