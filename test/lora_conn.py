@@ -16,7 +16,7 @@ class Connection:
 			"cli: ": self.interpret_cli,
 			"net: ": self.interpret_net,
 			"callsign: ": self.interpret_callsign,
-			"pkt: ": self.interpret_packet,
+			"pkrx: ": self.interpret_packet,
 			"!tnc": self.interpret_tnc,
 		}
 		self.protocol_handlers = {}
@@ -118,31 +118,6 @@ class Connection:
 			print("%d invalid RSSI value" % self.port)
 			return True
 		line = line[i+1:]
-
-		i = line.find(b' ')
-		if i < 0:
-			print("%d invalid packet header, no size delim" % self.port)
-			return True
-		if i >= 3:
-			print("%d invalid packet header, delim size too big" % self.port)
-			return True
-		try:
-			size = int(line[:i], 10)
-		except ValueError:
-			print("%d invalid packet delim" % self.port)
-			return True
-		line = line[i+1:]
-		if len(line) > size:
-			print("%d packet bigger than expected" % self.port)
-			return True
-		needs = size - len(line)
-		if needs > 0:
-			# packet may contain EOL in payload; fetch the rest
-			if len(self.readbuf) < needs:
-				print("%d packet not complete yet, returning to buffer" % self.port)
-				return False
-			line += self.readbuf[:needs]
-			self.readbuf = self.readbuf[needs:]
 
 		print("%d unwrapped packet RSSI=%d %s" % (self.port, rssi, line))
 		p = RxPacket(line)

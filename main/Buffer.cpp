@@ -390,3 +390,20 @@ int Buffer::toInt() const
 {
 	return strtol(this->buf, 0, 10);
 }
+
+Buffer Buffer::tohex() const
+{
+	static const char* hextable = "0123456789abcdef";
+
+	char *hexdata = (char*) malloc(length() * 2 + 1);
+	for (size_t i = 0; i < length(); ++i) {
+		uint8_t c = charAt(i);
+		hexdata[i * 2 + 0] = hextable[(c >> 4) & 0xf];
+		hexdata[i * 2 + 1] = hextable[c & 0xf];
+	}
+	hexdata[length() * 2] = 0;
+
+	Buffer ret = Buffer(hexdata, length() * 2);
+	free(hexdata);
+	return ret;
+}

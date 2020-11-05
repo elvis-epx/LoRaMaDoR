@@ -56,6 +56,7 @@ public:
 	int charAt(int) const;
 	int charAt(size_t) const;
 	int toInt() const;
+	Buffer tohex() const;
 
 	friend class BufferImpl;
 private:

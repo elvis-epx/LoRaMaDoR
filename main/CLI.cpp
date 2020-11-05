@@ -54,10 +54,9 @@ void logi(const char* a, int32_t b) {
 void app_recv(Ptr<Packet> pkt)
 {
 	if (tnc) {
-		Buffer data = pkt->encode_l3();
-		cli_print(Buffer("pkt: ") +
+		Buffer data = pkt->encode_l3().tohex();
+		cli_print(Buffer("pkrx: ") +
 			Buffer::itoa(pkt->rssi()) + " " +
-			Buffer::itoa(data.length()) + " " +
 			data);
 		return;
 	}

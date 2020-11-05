@@ -1,14 +1,32 @@
 #!/usr/bin/env python3
 
 class RxPacket:
-	def __init__(self, data):
+	def __init__(self, hexdata):
 		self.params = {}
 		self.msg = b''
 		self.to = ""
 		self.fromm = ""
 		self.ident = 0
 		self.err = None
-		self.decode_l3(data)
+		data = self.decode_hex(hexdata.strip())
+		if data:
+			self.decode_l3(data)
+
+	def decode_hex(self, hexdata):
+		if not hexdata or (len(hexdata) % 1) != 0:
+			self.err = "Invalid hex encoded packet"
+			return None
+		try:
+			uhexdata = hexdata.decode('utf-8')
+		except UnicodeDecodeError:
+			self.err = "Unicode error in hexdata"
+			return None
+		try:
+			data = bytes.fromhex(uhexdata)
+		except ValueError:
+			self.err = "bad data in hexdata"
+			return None
+		return data
 
 	def parse_symbol_param(self, data):
 		i = data.find(b'=')
