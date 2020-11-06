@@ -3,8 +3,6 @@
  * Copyright (c) 2019 PU5EPX
  */
 
-// Implementation of packet confirmation (C,CO options)
-
 #ifndef __HMACKEYS_H
 #define __HMACKEYS_H
 

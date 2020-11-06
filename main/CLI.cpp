@@ -178,6 +178,37 @@ static void cli_parse_hmac_psk(Buffer candidate)
 	console_println("cli: Activate !debug mode to check HMAC-related issues.");
 }
 
+// Configure pre-shared key (PSK) for packet encryption
+static void cli_parse_crypto_psk(Buffer candidate)
+{
+	if (candidate.empty()) {
+		Buffer crypto_psk = arduino_nvram_crypto_psk_load();
+		if (crypto_psk.empty()) {
+			console_println("cli: No crypto pre-shared key is configured.");
+		} else {
+			console_print("cli: Crypto pre-shared key is '");
+			console_print(crypto_psk);
+			console_println("'");
+			// console_println("FIXME scrub the key for security reasons");
+		}
+		return;
+	}
+
+	if (candidate.length() > 32) {
+		console_println("cli: Pre-shared key must have between 1 and 32 ASCII chars.");
+		return;
+	}
+
+	if (candidate == "None") {
+		candidate = "";
+	}
+	
+	arduino_nvram_crypto_psk_save(candidate);
+	console_println("cli: Pre-shared key saved, effective immediately.");
+	console_println("cli: Make sure your peers are using the same key.");
+	console_println("cli: Activate !debug mode to check crypto-related issues.");
+}
+
 // Configure or print beacon first interval time in seconds
 static void cli_parse_beacon_first(const Buffer &candidate)
 {
@@ -326,6 +357,7 @@ static void cli_parse_help()
 	console_println("cli:  !beacon [10..600]      Get/set beacon average time (in seconds)");
 	console_println("cli:  !beacon1st [10..300]   Get/set first beacon avg time");
 	console_println("cli:  !hmacpsk [KEY]         Get/Set optional HMAC pre-shared key (None to disable)");
+	console_println("cli:  !cryptopsk [KEY]       Get/Set optional crypto pre-shared key (None to disable)");
 	console_println("cli:  !wifi                  Show Wi-Fi/network status");
 	console_println("cli:  !defconfig             Reset all configurations saved in NVRAM");
 	console_println("cli:  !debug / !nodebug      Enable/disable debug and verbose mode");
@@ -363,6 +395,12 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd.startsWith("hmacpsk")) {
 		cmd.cut(7);
 		cli_parse_hmac_psk(cmd);
+	} else if (cmd.startsWith("cryptopsk ")) {
+		cmd.cut(10);
+		cli_parse_crypto_psk(cmd);
+	} else if (cmd.startsWith("cryptopsk")) {
+		cmd.cut(9);
+		cli_parse_crypto_psk(cmd);
 	} else if (cmd == "beacon") {
 		cli_parse_beacon("");
 	} else if (cmd.startsWith("beacon1st ")) {

@@ -33,6 +33,9 @@ void arduino_nvram_callsign_save(const Callsign&);
 Buffer arduino_nvram_hmac_psk_load();
 void arduino_nvram_hmac_psk_save(const Buffer &b);
 
+Buffer arduino_nvram_crypto_psk_load();
+void arduino_nvram_crypto_psk_save(const Buffer &b);
+
 Buffer arduino_nvram_load(const char *);
 void arduino_nvram_save(const char *, const Buffer&);
 

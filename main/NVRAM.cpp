@@ -153,6 +153,27 @@ void arduino_nvram_hmac_psk_save(const Buffer &b)
 	prefs.end();
 }
 
+Buffer arduino_nvram_crypto_psk_load()
+{
+	char candidate[33];
+	prefs.begin(chapter);
+	// len includes \0
+	size_t len = prefs.getString("cpsk", candidate, 33);
+	prefs.end();
+
+	if (len <= 1) {
+		return "";
+	}
+	return Buffer(candidate, len - 1);
+}
+
+void arduino_nvram_crypto_psk_save(const Buffer &b)
+{
+	prefs.begin(chapter, false);
+	prefs.putString("cpsk", b.c_str());
+	prefs.end();
+}
+
 // used by Wi-Fi SSID and password
 void arduino_nvram_save(const char *key, const Buffer& value)
 {

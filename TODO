@@ -5,8 +5,6 @@ Telnet, serial x security
 	- do not show PSK, keys once stored?
 	- Telnet password?
 
-Cryptography support
-
 HMAC - multiple keys
 
 Possibility of remote, NAT-piercing access

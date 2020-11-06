@@ -51,29 +51,29 @@ void test2() {
 
 	int error;
 	printf("---\n");
-	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133", error);
+	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133", error, false);
 	assert (!!p);
 	assert (p->msg().length() == 0);
 
-	p = Packet::decode_l3("AAAA-12<BBBB:133 ee", error);
+	p = Packet::decode_l3("AAAA-12<BBBB:133 ee", error, false);
 	assert (!!p);
 	assert (strcmp("ee", p->msg().c_str()) == 0);
 	assert (p->msg() == "ee");
 	assert (strcmp(Buffer(p->to()).c_str(), "AAAA-12") == 0);
 	
-	assert (!Packet::decode_l3("A<BBBB:133", error));
-	assert (!Packet::decode_l3("AAAA<B:133", error));
-	assert (!Packet::decode_l3("AAAA:BBBB<133", error));
-	assert (!Packet::decode_l3("AAAA BBBB<133", error));
-	assert (!Packet::decode_l3("<BBBB:133", error));
-	p = Packet::decode_l3("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla", error);
+	assert (!Packet::decode_l3("A<BBBB:133", error, false));
+	assert (!Packet::decode_l3("AAAA<B:133", error, false));
+	assert (!Packet::decode_l3("AAAA:BBBB<133", error, false));
+	assert (!Packet::decode_l3("AAAA BBBB<133", error, false));
+	assert (!Packet::decode_l3("<BBBB:133", error, false));
+	p = Packet::decode_l3("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla", error, false);
 	assert (!!p);
 
-	assert (!Packet::decode_l3("AAAA<BBBB:133,aaa,,ddd=eee,fff bla", error));
-	assert (!Packet::decode_l3("AAAA<BBBB:01 bla", error));
-	assert (!Packet::decode_l3("AAAA<BBBB:aa bla", error));
+	assert (!Packet::decode_l3("AAAA<BBBB:133,aaa,,ddd=eee,fff bla", error, false));
+	assert (!Packet::decode_l3("AAAA<BBBB:01 bla", error, false));
+	assert (!Packet::decode_l3("AAAA<BBBB:aa bla", error, false));
 
-	p = Packet::decode_l3("AAAA<BBBB:133,A,B=C bla", error);
+	p = Packet::decode_l3("AAAA<BBBB:133,A,B=C bla", error, false);
 	assert (!!p);
 	Ptr<Packet> q = p->change_msg("bla ble");
 	Params d = q->params();
@@ -289,13 +289,13 @@ int main()
 	d.set_ident(123);
 	Packet p(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
 	Buffer spl3 = p.encode_l3();
-	Buffer spl2 = p.encode_l2();
+	Buffer spl2 = p.encode_l2u();
 
 	printf("spl3 '%s'\n", spl3.c_str());
 	assert (strcmp(spl3.c_str(), "AAAA<BBBB:123,X,Y=456 bla ble") == 0);
 	printf("---\n");
 	int error;
-	Ptr<Packet> q = Packet::decode_l2(spl2.c_str(), spl2.length(), -50, error);
+	Ptr<Packet> q = Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt some chars */
@@ -307,7 +307,7 @@ int main()
 	*spl2.hot(15) = 66;
 	*spl2.hot(33) = 66;
 	*spl2.hot(40) = 66;
-	q = Packet::decode_l2(spl2.c_str(), spl2.length(), -50, error);
+	q = Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error);
 	assert (q);
 
 	/* Corrupt too many chars */
@@ -319,7 +319,7 @@ int main()
 	*spl2.hot(11) = 66;
 	*spl2.hot(13) = 66;
 	*spl2.hot(39) = 66;
-	assert(! Packet::decode_l2(spl2.c_str(), spl2.length(), -50, error));
+	assert(! Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error));
 
 	assert (p.is_dup(*q));
 	assert (q->is_dup(p));
@@ -333,18 +333,18 @@ int main()
 	assert (q->params().is_key_naked("X"));
 
 	Packet plong(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
-	Buffer plong2 = plong.encode_l2();
+	Buffer plong2 = plong.encode_l2u();
 	assert(plong2.length() > 100);
-	assert(Packet::decode_l2(plong2.c_str(), plong2.length(), -50, error));
+	assert(Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
 	// corrupt a little
 	*plong2.hot(13) = 66;
-	assert(Packet::decode_l2(plong2.c_str(), plong2.length(), -50, error));
+	assert(Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
 	// corrupt a lot
 	memset(plong2.hot(14), 66, 30);
-	assert(!Packet::decode_l2(plong2.c_str(), plong2.length(), -50, error));
+	assert(!Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
 	
 	Buffer pshort("bla");
-	assert(!Packet::decode_l2(pshort.c_str(), pshort.length(), -50, error));
+	assert(!Packet::decode_l2u(pshort.c_str(), pshort.length(), -50, error));
 
 	test2();
 	test4();

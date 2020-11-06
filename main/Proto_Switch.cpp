@@ -8,8 +8,8 @@
  *
  * This class implements the server side of the SW protocol to control remote
  * devices, mainly switches. The protocol is confirmed and resistant to replay
- * attacks. HMAC packet signing is required since the replay attack mitigation
- * depends on authenticated messages.
+ * attacks. Either HMAC packet signing or encryption is required since the
+ * replay attack mitigation depends on authenticated messages.
  *
  * Though the protocol is confirmed, the initiative of retransmission lies on
  * the client. The only support at server side for retransmission is to be
@@ -29,7 +29,7 @@
  * size is 8 chars.
  *
  * The server knows the challenge came from the client station since the
- * packet is HMAC-signed.
+ * packet is HMAC-signed or encrypted.
  * 
  * Type B (server -> client): "B,challenge,response"
  *
@@ -198,8 +198,8 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		return L7HandlerResponse();
 	}
 
-	if (!pkt.params().has("H")) {
-		logs("SW demands HMAC keys are configured", "");
+	if (!pkt.was_encrypted() && !pkt.params().has("H")) {
+		logs("SW demands HMAC or crypto to work securely", "");
 		return L7HandlerResponse();
 	}
 

@@ -281,7 +281,7 @@ void radio_recv_trampoline(const char *recv_area, size_t plen, int rssi)
 void Network::radio_recv(const char *recv_area, size_t plen, int rssi)
 {
 	int error;
-	Ptr<Packet> pkt = Packet::decode_l2(recv_area, plen, rssi, error);
+	Ptr<Packet> pkt = Packet::decode_l2e(recv_area, plen, rssi, error);
 	if (!pkt) {
 		logi("rx invalid pkt err", error);
 		return;
@@ -409,7 +409,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		// Annotate to detect duplicates
 		recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 		// Transmit
-		schedule(new PacketTx(this, pkt->encode_l2(), 1));
+		schedule(new PacketTx(this, pkt->encode_l2e(), 1));
 		logs("tx ", pkt->encode_l3());
 		return;
 	}
@@ -456,7 +456,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		}
 	}
 
-	Buffer encoded_pkt = pkt->encode_l2();
+	Buffer encoded_pkt = pkt->encode_l2e();
 
 	// Average TX delay: 2.5x the packet airtime
 	// spread from 0 to 5x to mitigate collision in the case of multiple repeaters

@@ -3,8 +3,6 @@
  * Copyright (c) 2020 PU5EPX
  */
 
-// Implementation of packet confirmation (C,CO options)
-
 #include "HMACKeys.h"
 #include "NVRAM.h"
 
