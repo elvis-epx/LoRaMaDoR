@@ -148,15 +148,15 @@ static void cli_parse_beacon(const Buffer &candidate)
 }
 
 // Configure pre-shared key (PSK) for HMAC packet authentication
-static void cli_parse_psk(Buffer candidate)
+static void cli_parse_hmac_psk(Buffer candidate)
 {
 	if (candidate.empty()) {
-		Buffer psk = arduino_nvram_psk_load();
-		if (psk.empty()) {
-			console_println("cli: No pre-shared key is configured.");
+		Buffer hmac_psk = arduino_nvram_hmac_psk_load();
+		if (hmac_psk.empty()) {
+			console_println("cli: No HMAC pre-shared key is configured.");
 		} else {
-			console_print("cli: Pre-shared key is '");
-			console_print(psk);
+			console_print("cli: HMAC Pre-shared key is '");
+			console_print(hmac_psk);
 			console_println("'");
 			// console_println("FIXME scrub the key for security reasons");
 		}
@@ -172,7 +172,7 @@ static void cli_parse_psk(Buffer candidate)
 		candidate = "";
 	}
 	
-	arduino_nvram_psk_save(candidate);
+	arduino_nvram_hmac_psk_save(candidate);
 	console_println("cli: Pre-shared key saved, effective immediately.");
 	console_println("cli: Make sure your peers are using the same key.");
 	console_println("cli: Activate !debug mode to check HMAC-related issues.");
@@ -325,7 +325,7 @@ static void cli_parse_help()
 	console_println("cli:  !repeater [0 or 1]     Get/set repeater function switch");
 	console_println("cli:  !beacon [10..600]      Get/set beacon average time (in seconds)");
 	console_println("cli:  !beacon1st [10..300]   Get/set first beacon avg time");
-	console_println("cli:  !psk [KEY]             Get/Set optional HMAC pre-shared key (None to disable)");
+	console_println("cli:  !hmacpsk [KEY]         Get/Set optional HMAC pre-shared key (None to disable)");
 	console_println("cli:  !wifi                  Show Wi-Fi/network status");
 	console_println("cli:  !defconfig             Reset all configurations saved in NVRAM");
 	console_println("cli:  !debug / !nodebug      Enable/disable debug and verbose mode");
@@ -357,12 +357,12 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd.startsWith("beacon ")) {
 		cmd.cut(7);
 		cli_parse_beacon(cmd);
-	} else if (cmd.startsWith("psk ")) {
-		cmd.cut(4);
-		cli_parse_psk(cmd);
-	} else if (cmd.startsWith("psk")) {
-		cmd.cut(3);
-		cli_parse_psk(cmd);
+	} else if (cmd.startsWith("hmacpsk ")) {
+		cmd.cut(8);
+		cli_parse_hmac_psk(cmd);
+	} else if (cmd.startsWith("hmacpsk")) {
+		cmd.cut(7);
+		cli_parse_hmac_psk(cmd);
 	} else if (cmd == "beacon") {
 		cli_parse_beacon("");
 	} else if (cmd.startsWith("beacon1st ")) {

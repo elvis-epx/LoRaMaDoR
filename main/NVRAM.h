@@ -30,8 +30,8 @@ void arduino_nvram_id_save(uint32_t);
 Callsign arduino_nvram_callsign_load();
 void arduino_nvram_callsign_save(const Callsign&);
 
-Buffer arduino_nvram_psk_load();
-void arduino_nvram_psk_save(const Buffer &b);
+Buffer arduino_nvram_hmac_psk_load();
+void arduino_nvram_hmac_psk_save(const Buffer &b);
 
 Buffer arduino_nvram_load(const char *);
 void arduino_nvram_save(const char *, const Buffer&);

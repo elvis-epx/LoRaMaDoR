@@ -145,24 +145,24 @@ int main(int argc, char* argv[])
 	cli_simtype("!beacon1st\r");
 	cli_simtype("!beacon1st 0\r");
 	cli_simtype("!beacon1st 1\r");
-	cli_simtype("!psk None\r");
-	assert(arduino_nvram_psk_load() == "");
-	cli_simtype("!psk\r");
-	cli_simtype("!psk abracadabra\r");
-	assert(arduino_nvram_psk_load() == "abracadabra");
-	cli_simtype("!psk\r");
-	cli_simtype("!psk \r");
-	assert(arduino_nvram_psk_load() == "abracadabra");
-	cli_simtype("!psk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
-	assert(arduino_nvram_psk_load() == "abracadabra");
-	cli_simtype("!psk None\r");
-	assert(arduino_nvram_psk_load() == "");
+	cli_simtype("!hmacpsk None\r");
+	assert(arduino_nvram_hmac_psk_load() == "");
+	cli_simtype("!hmacpsk\r");
+	cli_simtype("!hmacpsk abracadabra\r");
+	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
+	cli_simtype("!hmacpsk\r");
+	cli_simtype("!hmacpsk \r");
+	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
+	cli_simtype("!hmacpsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
+	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
+	cli_simtype("!hmacpsk None\r");
+	assert(arduino_nvram_hmac_psk_load() == "");
 
 	sprintf(cli_cmd, "!repeater %d\r", repeater);
 	cli_simtype(cli_cmd);
 	sprintf(cli_cmd, "!callsign %s\r", argv[1]);
 	cli_simtype(cli_cmd);
-	sprintf(cli_cmd, "!psk %s\r", argv[4]);
+	sprintf(cli_cmd, "!hmacpsk %s\r", argv[4]);
 	cli_simtype(cli_cmd);
 
 	Net = Ptr<Network>(new Network());

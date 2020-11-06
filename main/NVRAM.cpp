@@ -132,7 +132,7 @@ void arduino_nvram_callsign_save(const Callsign &new_callsign)
 	prefs.end();
 }
 
-Buffer arduino_nvram_psk_load()
+Buffer arduino_nvram_hmac_psk_load()
 {
 	char candidate[33];
 	prefs.begin(chapter);
@@ -146,7 +146,7 @@ Buffer arduino_nvram_psk_load()
 	return Buffer(candidate, len - 1);
 }
 
-void arduino_nvram_psk_save(const Buffer &b)
+void arduino_nvram_hmac_psk_save(const Buffer &b)
 {
 	prefs.begin(chapter, false);
 	prefs.putString("psk", b.c_str());

@@ -11,5 +11,5 @@
 Buffer HMACKeys::get_key_for(const Callsign &c)
 {
 	// TODO allow to store keys per-prefix (with or without SSID, etc.)
-	return arduino_nvram_psk_load();
+	return arduino_nvram_hmac_psk_load();
 }
