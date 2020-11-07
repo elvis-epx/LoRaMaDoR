@@ -28,19 +28,26 @@ void test_crypto()
 		assert(text != enctext);
 		assert(enctext2 != enctext);
 		printf("Text len: %zu %zu\n", text.length(), enctext.length());
-	
-		for (size_t i = 0; i < enctext.length(); ++i) {
-			printf("%d ", enctext.charAt(i));
-		}
-		printf("\n");
+		/*
 		for (size_t i = 0; i < enctext2.length(); ++i) {
-			printf("%d ", enctext2.charAt(i));
+			printf("%02x ", enctext2.charAt(i));
+		}
+		*/
+		printf("\n");
+		for (size_t i = 0; i < enctext.length(); ++i) {
+			printf("%02x ", enctext.charAt(i));
 		}
 		printf("\n");
 	
 		encrypted = CryptoKeys::_decrypt(key, enctext.c_str(), enctext.length(), &udata, &ulen);
 		assert(encrypted);
 		assert(ulen == i);
+		/*
+		for (size_t i = 0; i < ulen; ++i) {
+			printf("%02x ", (uint8_t) udata[i]);
+		}
+		*/
+		printf("\n");
 		assert(Buffer(udata, ulen) == text);
 		::free(udata);
 	}
