@@ -92,7 +92,7 @@ bool CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_
 	// if receiver has the wrong key, the payload will be mangled and will
 	// be most probably rejected
 
-	// if the received packet is not encrypted, it will be rejectede because
+	// if the received packet is not encrypted, it will be rejected because
 	// it won't start with MAGIC. Even if it is, it will be mangled by the
 	// decryption process and rejected by the parser.
 
@@ -120,6 +120,7 @@ bool CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_
 	if (buffer_in[0] != MAGIC) {
 		logs("crypto", "packet with unknown preamble");
 		return false;
+		FIXME reject unencrypted packets
 	}
 
 	uint8_t* buffer_interm = (uint8_t*) malloc(tot_len);
