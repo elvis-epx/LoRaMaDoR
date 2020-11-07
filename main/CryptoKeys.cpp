@@ -72,29 +72,29 @@ void CryptoKeys::_encrypt(const Buffer& key, Buffer& b)
 	::free(buffer);
 }
 
-bool CryptoKeys::decrypt(const char *cbuffer_in, const size_t gross, char **buffer_out, size_t *payload_len)
+int CryptoKeys::decrypt(const char *cbuffer_in, const size_t tot_len,
+			char **buffer_out, size_t *payload_len)
 {
 	Buffer key = CryptoKeys::get_key();
 	if (key.empty()) {
 		buffer_out = 0;
 		payload_len = 0;
-		return false;
+		if (tot_len > 0 && cbuffer_in[0] == MAGIC) {
+			return CryptoKeys::ERR_ENCRYPTED;
+		}
+		return CryptoKeys::OK_PLAINTEXT;
 	}
-	return _decrypt(key, cbuffer_in, gross, buffer_out, payload_len);
+	return _decrypt(key, cbuffer_in, tot_len, buffer_out, payload_len);
 }
 
-bool CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t tot_len,
+int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t tot_len,
 				char **buffer_out, size_t *payload_len)
 {
-	// if receiver does not know the key, it will try to parse a mangled
-	// packet that starts with MAGIC so it will be most probably rejected
-
 	// if receiver has the wrong key, the payload will be mangled and will
 	// be most probably rejected
 
 	// if the received packet is not encrypted, it will be rejected because
-	// it won't start with MAGIC. Even if it is, it will be mangled by the
-	// decryption process and rejected by the parser.
+	// it won't start with MAGIC.
 
 	// TODO handle situations above more robustly instead of probabilisticly
 
@@ -106,21 +106,20 @@ bool CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_
 
 	if (tot_len < (2 * aes256.blockSize())) {
 		logs("crypto", "packet too short");
-		return false;
+		return CryptoKeys::ERR_DECRIPTION;
 	}
 
 	if (tot_len % aes256.blockSize() != 0) {
 		logs("crypto", "packet not a multiple of block");
-		return false;
+		return CryptoKeys::ERR_DECRIPTION;
 	}
 
 	size_t blocks = tot_len / aes256.blockSize();
 	const uint8_t* buffer_in = (const uint8_t*) cbuffer_in;
 
 	if (buffer_in[0] != MAGIC) {
-		logs("crypto", "packet with unknown preamble");
-		return false;
-		FIXME reject unencrypted packets
+		logs("crypto", "packet with unknown preamble or not encrypted");
+		return CryptoKeys::ERR_NOT_ENCRYPTED;
 	}
 
 	uint8_t* buffer_interm = (uint8_t*) malloc(tot_len);
@@ -152,12 +151,12 @@ bool CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_
 
 	if (blocks != calc_blocks) {
 		logs("crypto", "block count incompatible with alleged payload length");
-		return false;
+		return CryptoKeys::ERR_DECRIPTION;
 	}
 
 	*buffer_out = (char*) malloc(*payload_len);
 	::memcpy(*buffer_out, buffer_interm + aes256.blockSize() + LENGTH_LEN, *payload_len);
 	::free(buffer_interm);
 
-	return true;
+	return CryptoKeys::OK_DECRYPTED;
 }

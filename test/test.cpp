@@ -17,7 +17,7 @@ void test_crypto()
 	Buffer text, enctext, enctext2;
 	char *udata;
 	size_t ulen;
-	bool encrypted;
+	int enc_res;
 
 	for (size_t i = 0; i <= base_text.length(); ++i) {
 		text = base_text.substr(0, i);
@@ -39,8 +39,8 @@ void test_crypto()
 		}
 		printf("\n");
 	
-		encrypted = CryptoKeys::_decrypt(key, enctext.c_str(), enctext.length(), &udata, &ulen);
-		assert(encrypted);
+		enc_res = CryptoKeys::_decrypt(key, enctext.c_str(), enctext.length(), &udata, &ulen);
+		assert(enc_res == CryptoKeys::OK_DECRYPTED);
 		assert(ulen == i);
 		/*
 		for (size_t i = 0; i < ulen; ++i) {

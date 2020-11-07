@@ -78,17 +78,16 @@ static Ptr<Packet> decode_l2b(const char* data, size_t len, int rssi, int &error
 		return Packet::decode_l3(data, len, rssi, error, false);
 	}
 
-	bool encrypted;
 	char *udata;
 	size_t ulen;
 	Ptr<Packet> p;
-	encrypted = CryptoKeys::decrypt(data, len, &udata, &ulen);
+	int decrypt_res = CryptoKeys::decrypt(data, len, &udata, &ulen);
 
-	if (encrypted) {
-		p = Packet::decode_l3(udata, ulen, rssi, error, encrypted);
+	if (decrypt_res == CryptoKeys::OK_DECRYPTED) {
+		p = Packet::decode_l3(udata, ulen, rssi, error, true);
 		::free(udata);
-	} else {
-		p = Packet::decode_l3(data, len, rssi, error, encrypted);
+	} else if (decrypt_res == CryptoKeys::OK_PLAINTEXT) {
+		p = Packet::decode_l3(data, len, rssi, error, false);
 	}
 	return p;
 }
