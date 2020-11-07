@@ -7,6 +7,44 @@
 #include "Proto_HMAC.h"
 #include "Network.h"
 #include "CLI.h"
+#include "CryptoKeys.h"
+
+void test_crypto()
+{
+	Buffer key = "abracadabra";
+	Buffer base_text = "0123456789 012345789 012345789 012345789 012345789 012345789 012345789";
+
+	Buffer text, enctext, enctext2;
+	char *udata;
+	size_t ulen;
+	bool encrypted;
+
+	for (size_t i = 0; i <= base_text.length(); ++i) {
+		text = base_text.substr(0, i);
+		enctext = text;
+		enctext2 = text;
+		CryptoKeys::_encrypt(key, enctext);
+		CryptoKeys::_encrypt(key, enctext2);
+		assert(text != enctext);
+		assert(enctext2 != enctext);
+		printf("Text len: %zu %zu\n", text.length(), enctext.length());
+	
+		for (size_t i = 0; i < enctext.length(); ++i) {
+			printf("%d ", enctext.charAt(i));
+		}
+		printf("\n");
+		for (size_t i = 0; i < enctext2.length(); ++i) {
+			printf("%d ", enctext2.charAt(i));
+		}
+		printf("\n");
+	
+		encrypted = CryptoKeys::_decrypt(key, enctext.c_str(), enctext.length(), &udata, &ulen);
+		assert(encrypted);
+		assert(ulen == i);
+		assert(Buffer(udata, ulen) == text);
+		::free(udata);
+	}
+}
 
 // dummy
 Ptr<Network> Net(0);
@@ -349,6 +387,7 @@ int main()
 	test2();
 	test4();
 	test5();
+	test_crypto();
 
 	Packet plong3(Callsign(Buffer("AAAAAAA-11")), Callsign(Buffer("BBBBBB-22")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer b3 = plong3.encode_l3();
