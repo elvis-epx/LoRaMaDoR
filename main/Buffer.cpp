@@ -204,7 +204,7 @@ int Buffer::charAt(int i) const
 	if (i >= (signed) this->len || i < 0) {
 		return -1;
 	}
-	return this->buf[i];
+	return ((uint8_t) this->buf[i]);
 }
 
 int Buffer::charAt(size_t i) const
