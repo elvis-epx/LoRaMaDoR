@@ -82,7 +82,11 @@ int CryptoKeys::decrypt(const char *cbuffer_in, const size_t tot_len,
 		if (tot_len > 0 && cbuffer_in[0] == MAGIC) {
 			return CryptoKeys::ERR_ENCRYPTED;
 		}
-		return CryptoKeys::OK_PLAINTEXT;
+		return CryptoKeys::OK_CLEARTEXT;
+	}
+
+	if (tot_len > 0 && cbuffer_in[0] != MAGIC) {
+		return CryptoKeys::ERR_NOT_ENCRYPTED;
 	}
 	return _decrypt(key, cbuffer_in, tot_len, buffer_out, payload_len);
 }
@@ -92,9 +96,6 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 {
 	// if receiver has the wrong key, the payload will be mangled and will
 	// be most probably rejected
-
-	// if the received packet is not encrypted, it will be rejected because
-	// it won't start with MAGIC.
 
 	// TODO handle situations above more robustly instead of probabilisticly
 
@@ -116,11 +117,6 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 
 	size_t blocks = tot_len / aes256.blockSize();
 	const uint8_t* buffer_in = (const uint8_t*) cbuffer_in;
-
-	if (buffer_in[0] != MAGIC) {
-		logs("crypto", "packet with unknown preamble or not encrypted");
-		return CryptoKeys::ERR_NOT_ENCRYPTED;
-	}
 
 	uint8_t* buffer_interm = (uint8_t*) malloc(tot_len);
 	::memcpy(buffer_interm, buffer_in, tot_len);
