@@ -99,7 +99,26 @@ void test_crypto2()
 	assert(error == 1900);
 
 	// try to decode a seemingly encrypted packet which is internally bogus
+	// bad length
 	spl2 = "\x05" "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
+	Packet::append_fec(spl2);
+	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!q);
+	printf("%d\n", error);
+	assert(error == 1902);
+
+	// try to decode a seemingly encrypted packet which is internally bogus
+	// too short
+	spl2 = "\x05" "12345678901234567890";
+	Packet::append_fec(spl2);
+	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!q);
+	printf("%d\n", error);
+	assert(error == 1902);
+
+	// try to decode a seemingly encrypted packet which is internally bogus
+	// informed length incompatible with true length
+	spl2 = "\x05" "2345678901234567890123456789012";
 	Packet::append_fec(spl2);
 	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
 	assert(!q);
