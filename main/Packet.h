@@ -34,9 +34,10 @@ public:
 
 	Ptr<Packet> change_msg(const Buffer&) const;
 	Ptr<Packet> change_params(const Params&) const;
-	/* next 2 are public for unit testing */
+	/* next 3 are public for unit testing */
 	Buffer encode_l2u() const;
 	static Ptr<Packet> decode_l2u(const char* data, size_t len, int rssi, int& error);
+	static void append_fec(Buffer& b);
 	Buffer encode_l2e() const;
 	Buffer encode_l3() const;
 	bool is_dup(const Packet& other) const;

@@ -212,7 +212,7 @@ Buffer Packet::encode_l3() const
 	return b;
 }
 
-static void append_fec(Buffer& b)
+void Packet::append_fec(Buffer& b)
 {
 	memset(rs_decoded, 0, sizeof(rs_decoded));
 	memcpy(rs_decoded, b.c_str(), b.length());
