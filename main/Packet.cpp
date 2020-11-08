@@ -240,6 +240,7 @@ Buffer Packet::encode_l2u() const
 }
 
 // Encode a packet in level 2, with FEC and ready to be sent.
+// Encryption will be applied if key is stored on NVRAM
 Buffer Packet::encode_l2e() const
 {
 	return encode_l2(true);

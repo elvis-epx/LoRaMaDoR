@@ -8,6 +8,7 @@
 #include "Network.h"
 #include "CLI.h"
 #include "CryptoKeys.h"
+#include "NVRAM.h"
 
 void test_crypto()
 {
@@ -51,6 +52,62 @@ void test_crypto()
 		assert(Buffer(udata, ulen) == text);
 		::free(udata);
 	}
+}
+
+void test_crypto2()
+{
+	// test encryption and decryption
+	arduino_nvram_crypto_psk_save("Abracadabra");
+
+	Params d;
+	d.put_naked("x");
+	d.put("y", "456");
+	d.set_ident(123);
+	Packet p(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
+	Buffer spl2u = p.encode_l2u();
+	Buffer spl2 = p.encode_l2e();
+
+	// verify that encrypted and unencrypted packets are different
+	assert(spl2u.length() < spl2.length());
+	assert(!spl2.startsWith(spl2u));
+
+	// test decoder of encrypted packet
+	int error;
+	Ptr<Packet> q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!!q);
+
+	// disable encryption
+	arduino_nvram_crypto_psk_save("");
+
+	// try to decode encrypted packet while expecting cleartext
+	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!q);
+	assert(error == 1901);
+
+	spl2u = p.encode_l2u();
+	spl2 = p.encode_l2e();
+	// without a configured key, encryption should not happen
+	assert(spl2u.length() == spl2.length());
+	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!!q);
+
+	// reenable encryption
+	arduino_nvram_crypto_psk_save("Abracadabra");
+	// try to decode a cleartext packet while expecting encrypted packet
+	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!q);
+	assert(error == 1900);
+
+	// try to decode a seemingly encrypted packet which is internally bogus
+	spl2 = "\x05" "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
+	Packet::append_fec(spl2);
+	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
+	assert(!q);
+	printf("%d\n", error);
+	assert(error == 1902);
+
+	// disable encryption
+	arduino_nvram_crypto_psk_save("");
 }
 
 // dummy
@@ -395,6 +452,7 @@ int main()
 	test4();
 	test5();
 	test_crypto();
+	test_crypto2();
 
 	Packet plong3(Callsign(Buffer("AAAAAAA-11")), Callsign(Buffer("BBBBBB-22")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer b3 = plong3.encode_l3();
