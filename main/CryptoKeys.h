@@ -22,7 +22,7 @@ public:
 	static const int ERR_ENCRYPTED = 2;
 	static const int ERR_DECRIPTION = 3;
 	static const int OK_DECRYPTED = 4;
-	static const int OK_PLAINTEXT = 5;
+	static const int OK_CLEARTEXT = 5;
 };
 
 #endif
