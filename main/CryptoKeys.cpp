@@ -147,6 +147,7 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 
 	if (blocks != calc_blocks) {
 		logs("crypto", "block count incompatible with alleged payload length");
+		::free(buffer_interm);
 		return CryptoKeys::ERR_DECRIPTION;
 	}
 

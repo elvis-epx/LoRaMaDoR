@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <cstdlib>
 #include "Packet.h"
 #include "sha256.h"
 #include "Proto_HMAC.h"
