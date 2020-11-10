@@ -8,6 +8,7 @@
 #include "Proto_HMAC.h"
 #include "Network.h"
 #include "CLI.h"
+#include "HMACKeys.h"
 #include "CryptoKeys.h"
 #include "Preferences.h"
 #include "NVRAM.h"
@@ -361,7 +362,7 @@ void test5()
 
 int main()
 {
-	Buffer hmac = Proto_HMAC_hmac("abracadabra", "BBBBAAAA23Ola");
+	Buffer hmac = HMACKeys::hmac("abracadabra", "BBBBAAAA23Ola");
 	assert(hmac == "4f32644cc359"); // calculated with test_hmac.py
 	Params d23;
 	d23.set_ident(23);
