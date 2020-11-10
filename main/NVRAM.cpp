@@ -151,7 +151,11 @@ Buffer arduino_nvram_hmac_psk_load()
 void arduino_nvram_hmac_psk_save(const Buffer &b)
 {
 	prefs.begin(chapter, false);
-	prefs.putString("psk", b.c_str());
+	if (b.length() == 0) {
+		prefs.putString("psk", "");
+	} else {
+		prefs.putString("psk", HMACKeys::hash_key(b).c_str());
+	}
 	prefs.end();
 	HMACKeys::invalidate();
 }
@@ -173,7 +177,11 @@ Buffer arduino_nvram_crypto_psk_load()
 void arduino_nvram_crypto_psk_save(const Buffer &b)
 {
 	prefs.begin(chapter, false);
-	prefs.putString("cpsk", b.c_str());
+	if (b.length() == 0) {
+		prefs.putString("cpsk", "");
+	} else {
+		prefs.putString("cpsk", CryptoKeys::hash_key(b).c_str());
+	}
 	prefs.end();
 	CryptoKeys::invalidate();
 }

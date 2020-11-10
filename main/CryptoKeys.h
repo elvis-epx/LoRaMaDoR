@@ -18,6 +18,7 @@ public:
 	static void _encrypt(const Buffer&, Buffer&);
 	static int _decrypt(const Buffer&, const char *, const size_t, char **, size_t *);
 	static void invalidate();
+	static Buffer hash_key(const Buffer& key);
 
 	static const int ERR_NOT_ENCRYPTED = 1;
 	static const int ERR_ENCRYPTED = 2;

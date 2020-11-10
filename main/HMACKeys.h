@@ -14,6 +14,7 @@ public:
 	static Buffer get_key_for(const Callsign &c);
 	static Buffer hmac(const Buffer& key, const Buffer& data);
 	static void invalidate();
+	static Buffer hash_key(const Buffer& key);
 };
 
 #endif

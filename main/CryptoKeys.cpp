@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <cassert>
 #include "AES.h"
+#include "sha256.h"
 
 #include "CryptoKeys.h"
 #include "NVRAM.h"
@@ -47,6 +49,8 @@ void CryptoKeys::encrypt(Buffer& b)
 
 void CryptoKeys::_encrypt(const Buffer& key, Buffer& b)
 {
+	assert(key.length() == 32);
+
 	AES256 aes256;
 	uint8_t* ukey = (uint8_t*) calloc(sizeof(uint8_t), aes256.keySize());
 	::memcpy(ukey, key.c_str(), key.length());
@@ -83,6 +87,7 @@ int CryptoKeys::decrypt(const char *cbuffer_in, const size_t tot_len,
 			char **buffer_out, size_t *payload_len)
 {
 	Buffer key = CryptoKeys::get_key();
+
 	if (key.empty()) {
 		buffer_out = 0;
 		payload_len = 0;
@@ -105,6 +110,8 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 	// be most probably rejected
 
 	// TODO handle situations above more robustly instead of probabilisticly
+
+	assert(key.length() == 32);
 
 	AES256 aes256;
 	uint8_t* ukey = (uint8_t*) calloc(sizeof(uint8_t), aes256.keySize());
@@ -168,4 +175,23 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 void CryptoKeys::invalidate()
 {
 	valid = false;
+}
+
+static const char* hex = "0123456789abcdef";
+
+Buffer CryptoKeys::hash_key(const Buffer& key)
+{
+	Sha256 hash;
+	hash.init();
+	hash.write(2);
+	for (size_t i = 0; i < key.length(); ++i) {
+		hash.write((uint8_t) key.charAt(i));
+	}
+	uint8_t* res = hash.result();
+	char b64[32];
+	for (size_t i = 0; i < 16; ++i) {
+		b64[i*2+0] = hex[(res[i] >> 4) & 0xf];
+		b64[i*2+1] = hex[res[i] & 0xf];
+	}
+	return Buffer(b64, 32);
 }
