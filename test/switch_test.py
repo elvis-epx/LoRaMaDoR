@@ -115,7 +115,21 @@ def errors3():
 	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "12345678", "12345678", 1, 1))
 	# send C packet with bad challenge
 	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "87654321", "12345678", 1, 1))
-loop.schedule(errors2, 40.0)
+	# send C packet with short challenge
+	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "87654321", "1234", 1, 1))
+	# send C packet w/o target
+	client.sendpkt("%s:SW C,%s,%s" % (server_callsign, "87654321", "12345678"))
+	# send C packet with bad target
+	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "87654321", "12345678", 0, 1))
+	# send C packet with empty target, good value
+	client.sendpkt("%s:SW C,%s,%s,,%d" % (server_callsign, "87654321", "12345678", 0))
+	# send C packet with good target, empty value
+	client.sendpkt("%s:SW C,%s,%s,%d,,bla" % (server_callsign, "87654321", "12345678", 1))
+	# send C packet with good target, good value, extra field
+	client.sendpkt("%s:SW C,%s,%s,%d,%d,bla" % (server_callsign, "87654321", "12345678", 1, 1))
+	# send C packet with bad value 
+	client.sendpkt("%s:SW C,%s,%s,%d,%d" % (server_callsign, "87654321", "12345678", 1, 10000000))
+loop.schedule(errors3, 40.0)
 
 while loop.service(client, server):
 	pass
