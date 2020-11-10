@@ -72,7 +72,7 @@ for eee in AAAA:0:1:somekey:6000:None BBBB:0:1:somekey:6001:None; do
 	port=$(echo $eee | cut -f 5 -d ':')
 	cpsk=$(echo $eee | cut -f 6 -d ':')
 	if [ $VALGRIND = 1 ]; then
-		nice valgrind --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
+		nice valgrind --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=${sta}_int.val --gen-suppressions=all \
 			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
 		PIDS+=" $!"
 	else
@@ -123,11 +123,11 @@ for eee in AAAA:0:1:None:6000:cryptok BBBB:0:1:None:6001:cryptok; do
 	port=$(echo $eee | cut -f 5 -d ':')
 	cpsk=$(echo $eee | cut -f 6 -d ':')
 	if [ $VALGRIND = 1 ]; then
-		nice valgrind --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
-			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
+		nice valgrind --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=${sta}_int2.val --gen-suppressions=all \
+			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int2.log &
 		PIDS+=" $!"
 	else
-		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
+		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int2.log &
 		PIDS+=" $!"
 	fi
 done

@@ -104,6 +104,15 @@ private:
 Proto_Switch::Proto_Switch(Network *net): L7Protocol(net)
 {
 	net->schedule(new SwitchTimeoutTask(this, 10 * SECONDS));
+#ifdef UNDER_TEST
+	auto trans = SwitchTransaction();
+	trans.from = Callsign("UNKNOWN");
+	trans.challenge = "bla";
+	trans.response = "ble";
+	trans.timeout = sys_timestamp() - 3600 * SECONDS;
+	trans.done = true;
+	transactions["moooo"] = trans;
+#endif
 } 
 
 static bool parse(Buffer msg, char &type, Buffer &challenge,
