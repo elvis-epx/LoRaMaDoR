@@ -12,6 +12,7 @@
 class HMACKeys {
 public:
 	static Buffer get_key_for(const Callsign &c);
+	static void invalidate();
 };
 
 #endif

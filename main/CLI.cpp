@@ -153,12 +153,9 @@ static void cli_parse_hmac_psk(Buffer candidate)
 	if (candidate.empty()) {
 		Buffer hmac_psk = arduino_nvram_hmac_psk_load();
 		if (hmac_psk.empty()) {
-			console_println("cli: No HMAC pre-shared key is configured.");
+			console_println("cli: HMAC pre-shared key is not configured.");
 		} else {
-			console_print("cli: HMAC Pre-shared key is '");
-			console_print(hmac_psk);
-			console_println("'");
-			// console_println("FIXME scrub the key for security reasons");
+			console_println("cli: HMAC Pre-shared key is configured.");
 		}
 		return;
 	}
@@ -184,12 +181,9 @@ static void cli_parse_crypto_psk(Buffer candidate)
 	if (candidate.empty()) {
 		Buffer crypto_psk = arduino_nvram_crypto_psk_load();
 		if (crypto_psk.empty()) {
-			console_println("cli: No crypto pre-shared key is configured.");
+			console_println("cli: Crypto pre-shared key is not configured.");
 		} else {
-			console_print("cli: Crypto pre-shared key is '");
-			console_print(crypto_psk);
-			console_println("'");
-			// console_println("FIXME scrub the key for security reasons");
+			console_println("cli: Crypto pre-shared key is configured.");
 		}
 		return;
 	}
@@ -256,10 +250,12 @@ static void cli_parse_password(Buffer candidate)
 {
 	candidate.strip();
 	if (candidate.empty()) {
-		console_print("cli: Wi-Fi password is '");
-		console_print(arduino_nvram_load("password"));
-		console_println("'");
-		console_println("cli: Set password to None for Wi-Fi network without password.");
+		if (arduino_nvram_load("password") == "None") {
+			console_println("cli: Wi-Fi password is not set.");
+		} else {
+			console_println("cli: Wi-Fi password is set.");
+			console_println("cli: Set password to None for Wi-Fi network without password.");
+		}
 		return;
 	}
 	

@@ -14,9 +14,16 @@
 #include "ArduinoBridge.h"
 #include "Console.h"
 
+static bool valid = false;
+static Buffer psk;
+
 Buffer CryptoKeys::get_key()
 {
-	return arduino_nvram_crypto_psk_load();
+	if (!valid) {
+		psk = arduino_nvram_crypto_psk_load();
+		valid = true;
+	}
+	return psk;
 }
 
 #define MAGIC 0x05
@@ -156,4 +163,9 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 	::free(buffer_interm);
 
 	return CryptoKeys::OK_DECRYPTED;
+}
+
+void CryptoKeys::invalidate()
+{
+	valid = false;
 }

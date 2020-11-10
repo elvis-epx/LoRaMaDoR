@@ -1,3 +1,8 @@
+Keys:
+	- store hashed versions
+	- cache
+	- invalidate
+
 Change README, add section about remote control/non-amateur uses
 
 Telnet, serial x security

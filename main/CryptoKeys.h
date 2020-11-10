@@ -17,6 +17,7 @@ public:
 	/* public because of unit testing */
 	static void _encrypt(const Buffer&, Buffer&);
 	static int _decrypt(const Buffer&, const char *, const size_t, char **, size_t *);
+	static void invalidate();
 
 	static const int ERR_NOT_ENCRYPTED = 1;
 	static const int ERR_ENCRYPTED = 2;
