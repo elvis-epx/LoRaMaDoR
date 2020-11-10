@@ -15,7 +15,7 @@
 
 void test_crypto()
 {
-	Buffer key = "abracadabra";
+	Buffer key = CryptoKeys::hash_key("abracadabra");
 	Buffer base_text = "0123456789 012345789 012345789 012345789 012345789 012345789 012345789";
 
 	Buffer text, enctext, enctext2;
@@ -362,40 +362,43 @@ void test5()
 
 int main()
 {
-	Buffer hmac = HMACKeys::hmac("abracadabra", "BBBBAAAA23Ola");
-	assert(hmac == "4f32644cc359"); // calculated with test_hmac.py
+	Buffer key = HMACKeys::hash_key("abracadabra");
+	printf("%s\n", key.c_str());
+	assert(key == "9b801f436eeb78055b4d77d9773bbae5"); // calculated with test_hmac.py
+	Buffer hmac = HMACKeys::hmac(key, "BBBBAAAA23Ola");
+	assert(hmac == "10d872720ebe"); // calculated with test_hmac.py
 	Params d23;
 	d23.set_ident(23);
 	Packet p23(Callsign(Buffer("BBBB")), Callsign(Buffer("AAAA")), d23, Buffer("Ola"));
 	// printf("%s\n", p23.encode_l3().c_str());
-	auto p23a = Proto_HMAC_tx("abracadabra", p23);
+	auto p23a = Proto_HMAC_tx(key, p23);
 	assert(!!p23a.pkt);
 	// printf("%s\n", p23a.pkt->encode_l3().c_str());
-	assert(p23a.pkt->params().get("H") == "4f32644cc359");
-	assert(Proto_HMAC_rx("abracadabra", p23).error);
-	assert(!Proto_HMAC_rx("abracadabra", *p23a.pkt).error);
+	assert(p23a.pkt->params().get("H") == "10d872720ebe");
+	assert(Proto_HMAC_rx(key, p23).error);
+	assert(!Proto_HMAC_rx(key, *p23a.pkt).error);
 	
 	d23 = p23a.pkt->params();
 
 	d23.put("H", "");
 	auto p23e = p23a.pkt->change_params(d23);
-	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+	assert(Proto_HMAC_rx(key, *p23e).error);
 
 	d23.remove("H");
 	p23e = p23a.pkt->change_params(d23);
-	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+	assert(Proto_HMAC_rx(key, *p23e).error);
 
 	d23.put("H", "0123456789ab");
 	p23e = p23a.pkt->change_params(d23);
-	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+	assert(Proto_HMAC_rx(key, *p23e).error);
 
 	d23.put("H", "0123456789abcdefg");
 	p23e = p23a.pkt->change_params(d23);
-	assert(Proto_HMAC_rx("abracadabra", *p23e).error);
+	assert(Proto_HMAC_rx(key, *p23e).error);
 
-	d23.put("H", "4f32644cc359");
+	d23.put("H", "10d872720ebe");
 	p23e = p23a.pkt->change_params(d23);
-	assert(!Proto_HMAC_rx("abracadabra", *p23e).error);
+	assert(!Proto_HMAC_rx(key, *p23e).error);
 
 	assert (!Callsign("Q").is_valid());
 	assert (Callsign("QB").is_valid());

@@ -149,13 +149,13 @@ int main(int argc, char* argv[])
 	assert(arduino_nvram_hmac_psk_load() == "");
 	cli_simtype("!hmacpsk\r");
 	cli_simtype("!hmacpsk abracadabra\r");
-	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
+	assert(arduino_nvram_hmac_psk_load() == "9b801f436eeb78055b4d77d9773bbae5");
 	cli_simtype("!hmacpsk\r");
 	cli_simtype("!hmacpsk \r");
-	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
+	assert(arduino_nvram_hmac_psk_load() == "9b801f436eeb78055b4d77d9773bbae5");
 	cli_simtype("!hmacpsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
 	cli_simtype("!cryptopsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
-	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
+	assert(arduino_nvram_hmac_psk_load() == "9b801f436eeb78055b4d77d9773bbae5");
 	cli_simtype("!hmacpsk None\r");
 	assert(arduino_nvram_hmac_psk_load() == "");
 	assert(arduino_nvram_crypto_psk_load() == "");

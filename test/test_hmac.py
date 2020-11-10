@@ -3,7 +3,10 @@
 import hmac
 import hashlib
 
-key = 'abracadabra'.encode('utf-8')
+text_key = 'abracadabra'.encode('ascii')
+print("Text key:", text_key)
+key = hashlib.sha256(bytearray([1]) + text_key).hexdigest()[0:32].encode('ascii')
+print("Hashed armored key:", key)
 
 to = 'BBBB'
 fro = 'AAAA'
