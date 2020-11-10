@@ -25,8 +25,9 @@ Ptr<Network> Net(0);
 
 int main(int argc, char* argv[])
 {
-	if (argc < 6) {
-		printf("Specify, callsign, repeater mode, coverage bitmask, HMAC PSK and serial emulation port\n");
+	if (argc < 7) {
+		printf("Specify, callsign, repeater mode, coverage bitmask, "
+			"HMAC PSK, serial emulation port and crypto PSK\n");
 		return 1;
 	}
 
@@ -52,7 +53,9 @@ int main(int argc, char* argv[])
 
 	char cli_cmd[100];
 
-	sprintf(cli_cmd, "!psk %s\r", argv[4]);
+	sprintf(cli_cmd, "!hmacpsk %s\r", argv[4]);
+	cli_simtype(cli_cmd);
+	sprintf(cli_cmd, "!cryptopsk %s\r", argv[6]);
 	cli_simtype(cli_cmd);
 	sprintf(cli_cmd, "!repeater %d\r", repeater);
 	cli_simtype(cli_cmd);
@@ -63,6 +66,8 @@ int main(int argc, char* argv[])
 	console_setup(Net);
 	cli_simtype("!beacon 30\r");
 	cli_simtype("!debug\r");
+	cli_simtype("!hmacpsk\r");
+	cli_simtype("!cryptopsk\r");
 	cli_simtype("!beacon1st 10\r");
 
 	// Main loop simulation (in Arduino, would be a busy loop)

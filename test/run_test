@@ -61,20 +61,22 @@ if [ "$ERR" != 0 ]; then
 	exit 1
 fi
 
-echo Interactive/TNC part
+
+echo Interactive/TNC part I
 PIDS=""
-for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
+for eee in AAAA:0:1:somekey:6000:None BBBB:0:1:somekey:6001:None; do
 	sta=$(echo $eee | cut -f 1 -d ':')
 	rep=$(echo $eee | cut -f 2 -d ':')
 	cov=$(echo $eee | cut -f 3 -d ':')
 	psk=$(echo $eee | cut -f 4 -d ':')
 	port=$(echo $eee | cut -f 5 -d ':')
+	cpsk=$(echo $eee | cut -f 6 -d ':')
 	if [ $VALGRIND = 1 ]; then
 		nice valgrind --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
-			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}_int.log &
+			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
 		PIDS+=" $!"
 	else
-		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}_int.log &
+		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
 		PIDS+=" $!"
 	fi
 done
@@ -109,6 +111,67 @@ if [ "$ERR" != 0 ]; then
 	echo
 	exit 1
 fi
+
+
+echo Interactive/TNC part II
+PIDS=""
+for eee in AAAA:0:1:None:6000:cryptok BBBB:0:1:None:6001:cryptok; do
+	sta=$(echo $eee | cut -f 1 -d ':')
+	rep=$(echo $eee | cut -f 2 -d ':')
+	cov=$(echo $eee | cut -f 3 -d ':')
+	psk=$(echo $eee | cut -f 4 -d ':')
+	port=$(echo $eee | cut -f 5 -d ':')
+	cpsk=$(echo $eee | cut -f 6 -d ':')
+	if [ $VALGRIND = 1 ]; then
+		nice valgrind --leak-check=full --show-reachable=yes --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
+			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
+		PIDS+=" $!"
+	else
+		nice ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}_int.log &
+		PIDS+=" $!"
+	fi
+done
+
+# uses 6000 (client) as TNC and uses port 6001 just to stop the server
+sleep 2
+TNCERR=0
+./switch_test.py 6000 6001 BBBB || TNCERR=1
+
+for eee in 6000 6001; do
+	while echo -e '\r!reset\r' >/dev/tcp/localhost/$eee; do
+		echo "Killing port $eee with reset"
+		sleep 1
+	done
+done
+
+ERR=0
+for P in $PIDS; do
+	if ! wait $P; then
+		ERR=1
+	fi
+done
+if [ "$TNCERR" != 0 ]; then
+	echo
+	echo Execution error in TNC client script, check logs
+	echo
+	exit 1
+fi
+if [ "$ERR" != 0 ]; then
+	echo
+	echo Execution error, check logs
+	echo
+	exit 1
+fi
+
+
+
+
+
+
+
+
+
+
 
 ver=$(date '+%Y-%m-%d %H:%M:%S')
 echo "#define LORAMADOR_VERSION \"$ver\"" > ../main/Version.h

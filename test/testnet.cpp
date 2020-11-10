@@ -154,9 +154,11 @@ int main(int argc, char* argv[])
 	cli_simtype("!hmacpsk \r");
 	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
 	cli_simtype("!hmacpsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
+	cli_simtype("!cryptopsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
 	assert(arduino_nvram_hmac_psk_load() == "abracadabra");
 	cli_simtype("!hmacpsk None\r");
 	assert(arduino_nvram_hmac_psk_load() == "");
+	assert(arduino_nvram_crypto_psk_load() == "");
 
 	sprintf(cli_cmd, "!repeater %d\r", repeater);
 	cli_simtype(cli_cmd);
