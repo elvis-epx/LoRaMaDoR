@@ -9,6 +9,7 @@
 #include "Network.h"
 #include "CLI.h"
 #include "CryptoKeys.h"
+#include "Preferences.h"
 #include "NVRAM.h"
 
 void test_crypto()
@@ -128,6 +129,23 @@ void test_crypto2()
 
 	// disable encryption
 	arduino_nvram_crypto_psk_save("");
+}
+
+void test1()
+{
+	// test default values of empty NVRAM
+	assert(arduino_nvram_beacon_load() == 600);
+	arduino_nvram_beacon_save(700);
+	assert(arduino_nvram_beacon_load() == 600);
+	
+	arduino_nvram_beacon_first_save(600);
+	assert(arduino_nvram_beacon_first_load() == 30);
+
+	assert(arduino_nvram_callsign_load() == "FIXMEE-1");
+
+	Preferences::putString("callsign", "1Q");
+	assert(arduino_nvram_callsign_load() == "FIXMEE-2");
+	assert(arduino_nvram_load("kkkk") == "None");
 }
 
 // dummy
@@ -468,6 +486,7 @@ int main()
 	Buffer pshort("bla");
 	assert(!Packet::decode_l2u(pshort.c_str(), pshort.length(), -50, error));
 
+	test1();
 	test2();
 	test4();
 	test5();
