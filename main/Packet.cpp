@@ -177,7 +177,9 @@ Ptr<Packet> Packet::decode_l3(const char* data, size_t len, int rssi, int &error
 	}
 
 	Ptr<Packet> p = Ptr<Packet>(new Packet(to, from, params, Buffer(msg, msg_len), rssi));
-	if (p) p->set_encrypted();
+	if (p && encrypted) {
+		p->set_encrypted();
+	}
 	return p;
 }
 
