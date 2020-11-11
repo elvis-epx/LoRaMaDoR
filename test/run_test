@@ -51,6 +51,8 @@ done
 ERR=0
 for P in $PIDS; do
 	if ! wait $P; then
+		echo $PIDS
+		echo "PID $P exited with error"
 		ERR=1
 	fi
 done
@@ -96,6 +98,8 @@ done
 ERR=0
 for P in $PIDS; do
 	if ! wait $P; then
+		echo $PIDS
+		echo "PID $P exited with error"
 		ERR=1
 	fi
 done
@@ -147,6 +151,8 @@ done
 ERR=0
 for P in $PIDS; do
 	if ! wait $P; then
+		echo $PIDS
+		echo "PID $P exited with error"
 		ERR=1
 	fi
 done

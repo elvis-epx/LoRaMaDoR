@@ -39,7 +39,10 @@ class Connection:
 
 	def do_recv(self):
 		# print("reading %d..." % self.port)
-		data = self.sock.recv(1500)
+		try:
+			data = self.sock.recv(1500)
+		except ConnectionResetError:
+			data = ""
 		if len(data) == 0:
 			print("Conn %d closed on recv" % self.port)
 			self.sock.close()
