@@ -76,6 +76,27 @@ void rreq()
 	free(cmd);
 }
 
+void pswitch()
+{
+	printf("$$$$$ CLI SW\n");
+	const Dict<Peer> neigh = Net->peers();
+	const Vector<Buffer> neigh_cs = neigh.keys();
+	auto n = neigh.count();
+	if (!n) {
+		return;
+	}
+	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
+	Callsign cs(scs);
+	if (!cs.is_valid()) {
+		printf("Neigh callsign invalid %s\n", scs.c_str());
+		exit(2);
+	}
+	char *cmd;
+	asprintf(&cmd, "%s:SW 12345678\r", scs.c_str());
+	cli_simtype(cmd);
+	free(cmd);
+}
+
 void sendm_bad()
 {
 	cli_simtype("QB ola\r");
@@ -236,6 +257,8 @@ int main(int argc, char* argv[])
 			ping_self();
 		} else if (arduino_random(0, 100) == 0) {
 			rreq();
+		} else if (arduino_random(0, 100) == 0) {
+			pswitch();
 		} else if (arduino_random(0, 100) == 0) {
 			sendm();
 		} else if (arduino_random(0, 1000) == 0) {
