@@ -187,6 +187,7 @@ int main(int argc, char* argv[])
 	cli_simtype("!beacon 0\r");
 	cli_simtype("!beacon 10\r");
 	cli_simtype("!beacon\r");
+	cli_simtype("!password\r");
 	cli_simtype("!password ble\r");
 	cli_simtype("!password 012345678901234567890123456789012345678901234567890123456789012345\r");
 	assert(arduino_nvram_load("password") == "ble");
