@@ -95,7 +95,7 @@ protected:
 	virtual int64_t run2(int64_t now)
 	{
 		p->process_timeouts(now);
-		return 10 * SECONDS;
+		return 30 * SECONDS;
 	}
 private:
 	Proto_Switch *p;
@@ -226,6 +226,10 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 	if (type == 'A') {
 		// got challenge
 		if (transactions.has(key)) {
+			if (transactions[key].done) {
+				logs("SW replay attack?", "");
+				return L7HandlerResponse();
+			}
 			// return the same response
 			response = transactions[key].response;
 		} else {
@@ -235,7 +239,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			trans.from = pkt.from();
 			trans.challenge = challenge;
 			trans.response = response;
-			trans.timeout = sys_timestamp() + 60 * SECONDS;
+			trans.timeout = sys_timestamp() + 120 * SECONDS;
 			trans.done = false;
 			transactions[key] = trans;
 		}
@@ -280,7 +284,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		}
 
 		trans.done = true;
-		trans.timeout = sys_timestamp() + 60 * SECONDS;
+		trans.timeout = sys_timestamp() + 120 * SECONDS;
 
 		// send packet D
 		Params swd = Params();
