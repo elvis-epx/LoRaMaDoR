@@ -20,7 +20,7 @@ class EventLoop:
 		rd = []
 		wr = []
 		for conn in conns:
-			if not conn.sock:
+			if not conn.sock or conn.sock.fileno() < 0:
 				continue
 			rd.append(conn.sock)
 			if conn.writebuf:

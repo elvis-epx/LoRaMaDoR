@@ -7,7 +7,10 @@ class Connection:
 	def __init__(self, port):
 		self.port = port
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.sock.connect(("localhost", port))
+		try:
+			self.sock.connect(("localhost", port))
+		except ConnectionRefusedError:
+			self.sock.close()
 		self.readbuf = b''
 		self.writebuf = b''
 		self.EOL = b'\r\n'

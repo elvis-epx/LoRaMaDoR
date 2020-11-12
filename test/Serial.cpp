@@ -120,7 +120,9 @@ void SerialClass::emu_port(int p)
 	servaddr.sin_port = htons(port);
 
 	int x = 1;
-	setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &x, sizeof(x));
+	setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &x, sizeof(x));
+	x = 1;
+	setsockopt(listen_socket, SOL_SOCKET, SO_REUSEPORT, &x, sizeof(x));
 
 	if ((bind(listen_socket, (struct sockaddr *)&servaddr, sizeof(servaddr))) != 0) {
 		printf("fake: emu socket bind failed...\n");
