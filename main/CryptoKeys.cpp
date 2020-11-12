@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <cassert>
 #include "AES.h"
 #include "sha256.h"
 
@@ -49,8 +48,6 @@ void CryptoKeys::encrypt(Buffer& b)
 
 void CryptoKeys::_encrypt(const Buffer& key, Buffer& b)
 {
-	assert(key.length() == 32);
-
 	AES256 aes256;
 	uint8_t* ukey = (uint8_t*) calloc(sizeof(uint8_t), aes256.keySize());
 	::memcpy(ukey, key.c_str(), key.length());
@@ -110,8 +107,6 @@ int CryptoKeys::_decrypt(const Buffer& key, const char *cbuffer_in, const size_t
 	// be most probably rejected
 
 	// TODO handle situations above more robustly instead of probabilisticly
-
-	assert(key.length() == 32);
 
 	AES256 aes256;
 	uint8_t* ukey = (uint8_t*) calloc(sizeof(uint8_t), aes256.keySize());

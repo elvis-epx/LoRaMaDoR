@@ -3,7 +3,6 @@
  * Copyright (c) 2020 PU5EPX
  */
 
-#include <cassert>
 #include "HMACKeys.h"
 #include "NVRAM.h"
 #include "sha256.h"
@@ -30,8 +29,6 @@ static const char* hex = "0123456789abcdef";
 
 Buffer HMACKeys::hmac(const Buffer& key, const Buffer& data)
 {
-	assert(key.length() == 32);
-
 	Sha256 hmac;
 	hmac.initHmac((uint8_t*) key.c_str(), key.length());
 	for (size_t i = 0; i < data.length(); ++i) {

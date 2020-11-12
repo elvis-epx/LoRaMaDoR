@@ -1,7 +1,7 @@
-Keys:
-	- store hashed versions
-	- cache
-	- invalidate
+Resetting after changing crypto key and receiving a packet
+	(only on ESP32 target)
+Seems not to reset if does not get a packet immediately after
+	changing the password
 
 Change README, add section about remote control/non-amateur uses
 
