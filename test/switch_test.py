@@ -29,7 +29,10 @@ loop.schedule(rst, 60.0)
 client.add_proto_handler(["SWC"], Switch)
 client.add_proto_handler(["PONG"], Ping)
 
+s = None
+
 def switch_on():
+	global s
 	s = Switch(client, server_callsign, loop, 1, 1)
 	def h(tgt, res):
 		print("########", tgt, res)
@@ -39,12 +42,12 @@ def switch_on():
 loop.schedule(switch_on, 1.0)
 
 def switch_query():
-	s = Switch(client, server_callsign, loop, 2)
+	s2 = Switch(client, server_callsign, loop, 2)
 	def h(tgt, res):
 		print("########", tgt, res)
 		assert(res == 0)
 		assert(tgt == 2)
-	s.on_result(h)
+	s2.on_result(h)
 loop.schedule(switch_query, 1.0)
 
 def ping():
@@ -81,16 +84,18 @@ loop.schedule(ping2, 20.0)
 
 def switch_query_bad():
 	# query switch out of range
-	s = Switch(client, server_callsign, loop, 999)
+	s2 = Switch(client, server_callsign, loop, 999)
 	def h(tgt, res):
 		print("########", tgt, res)
 		assert(tgt == 999)
 		assert(res is None)
-	s.on_result(h)
+	s2.on_result(h)
 loop.schedule(switch_query_bad, 1.0)
 
 def errors():
 	client.sendpkt("")
+	# reuse challenge of spent transaction
+	client.send("%s:SW,MOO A,%s\r" % (server_callsign, s.challenge))
 	# challenge too short
 	client.send("%s:SW A,%s\r" % (server_callsign, "1111111"))
 	# challenge too short

@@ -256,9 +256,8 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			logs("SW type C unknown challenge", "");
 			return L7HandlerResponse();
 		}
-		auto trans = transactions[key];
 
-		if (trans.response != response) {
+		if (transactions[key].response != response) {
 			logs("SW type C mismatched response", "");
 			return L7HandlerResponse();
 		}
@@ -268,7 +267,7 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		if (target <= sw_count) {
 			if (value >= 0) {
 				// set switch
-				if (!trans.done) {
+				if (!transactions[key].done) {
 					// TODO apply command to hardware switch
 					sw[target - 1] = value;
 				}
@@ -283,8 +282,8 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 			svalue = "?";
 		}
 
-		trans.done = true;
-		trans.timeout = sys_timestamp() + 120 * SECONDS;
+		transactions[key].done = true;
+		transactions[key].timeout = sys_timestamp() + 120 * SECONDS;
 
 		// send packet D
 		Params swd = Params();
