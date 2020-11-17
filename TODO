@@ -3,8 +3,6 @@ Resetting after changing crypto key and receiving a packet
 Seems not to reset if does not get a packet immediately after
 	changing the password
 
-Change README, add section about remote control/non-amateur uses
-
 Roadmap in MD format
 	- multiple devices for 1 callsign (tx in one, rx in another)
 
