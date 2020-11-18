@@ -80,8 +80,14 @@ PU5EPX-11<PP5CRE-11:RRSP >PP5ABC>PU5XYZ|PP5CRE-11>PU5ABC
 
 ## The protocol
 
-See [this page](PacketFormat.md) for technical details about the
+See the [Packet format page](PacketFormat.md) for technical details about the
 wire protocol.
+
+There is a [TNC mode](TNC.md) for interaction between a computer and 
+the microcontroller.
+
+See the possible [non-amateur uses](NonAmateur.md) of this stack, and the
+[tentative roadmap](Roadmap.md) of the project.
 
 ## Console via Telnet
 
