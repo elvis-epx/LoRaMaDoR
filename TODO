@@ -2,15 +2,3 @@ Resetting after changing crypto key and receiving a packet
 	(only on ESP32 target)
 Seems not to reset if does not get a packet immediately after
 	changing the password
-
-Roadmap in MD format
-	- multiple devices for 1 callsign (tx in one, rx in another)
-
-Telnet, serial x security
-	- cases: Telnet login/sniffing, stolen device
-	- Telnet password?
-
-HMAC - multiple keys
-
-Possibility of remote, NAT-piercing access
-Gateway via Internet, IP router
