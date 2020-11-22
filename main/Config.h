@@ -3,4 +3,12 @@
 
 #define SWITCH_PROTO_SUPPORT 1
 
+/* LoRa parameters */
+#define BAND    916750000
+#define POWER   20
+#define PABOOST 1
+#define SPREAD  7
+#define BWIDTH  62500
+#define CR4SLSH 5
+
 #endif
