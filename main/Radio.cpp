@@ -81,11 +81,11 @@ static bool setup_lora_common()
 	return true;
 }
 
-#define ST_IDLE 0
-#define ST_RX 1
-#define ST_TX 2
+static const int STATUS_IDLE = 0;
+static const int STATUS_RECEIVING = 1;
+static const int STATUS_TRANSMITTING = 2;
 
-static int status = ST_IDLE;
+static int status = STATUS_IDLE;
 
 static char recv_area[255];
 static void (*rx_callback)(const char *, size_t, int) = 0;
@@ -103,8 +103,8 @@ static void on_receive(int plen)
 
 void lora_resume_rx()
 {
-	if (status != ST_RX) {
-		status = ST_RX;
+	if (status != STATUS_RECEIVING) {
+		status = STATUS_RECEIVING;
 		LoRa.receive();
 	}
 }
@@ -112,7 +112,7 @@ void lora_resume_rx()
 // Asynchronous transmission
 bool lora_tx(const Buffer& packet)
 {
-	if (status == ST_TX) {
+	if (status == STATUS_TRANSMITTING) {
 		return false;
 	}
 
@@ -121,7 +121,7 @@ bool lora_tx(const Buffer& packet)
 		return false;
 	}
 
-	status = ST_TX;
+	status = STATUS_TRANSMITTING;
 	LoRa.write((uint8_t*) packet.c_str(), packet.length());
 	LoRa.endPacket(true);
 	return true;
@@ -129,7 +129,7 @@ bool lora_tx(const Buffer& packet)
 
 void lora_tx_done()
 {
-	status = ST_IDLE;
+	status = STATUS_IDLE;
 	lora_resume_rx();
 }
 
