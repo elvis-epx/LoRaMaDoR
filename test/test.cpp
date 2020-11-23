@@ -31,17 +31,17 @@ void test_crypto()
 		CryptoKeys::_encrypt(key, enctext2);
 		assert(text != enctext);
 		assert(enctext2 != enctext);
-		printf("Text len: %zu %zu\n", text.length(), enctext.length());
+		// printf("Text len: %zu %zu\n", text.length(), enctext.length());
 		/*
 		for (size_t i = 0; i < enctext2.length(); ++i) {
 			printf("%02x ", enctext2.charAt(i));
 		}
-		*/
 		printf("\n");
 		for (size_t i = 0; i < enctext.length(); ++i) {
 			printf("%02x ", enctext.charAt(i));
 		}
 		printf("\n");
+		*/
 	
 		enc_res = CryptoKeys::_decrypt(key, enctext.c_str(), enctext.length(), &udata, &ulen);
 		assert(enc_res == CryptoKeys::OK_DECRYPTED);
@@ -50,8 +50,8 @@ void test_crypto()
 		for (size_t i = 0; i < ulen; ++i) {
 			printf("%02x ", (uint8_t) udata[i]);
 		}
-		*/
 		printf("\n");
+		*/
 		assert(Buffer(udata, ulen) == text);
 		::free(udata);
 	}
@@ -431,9 +431,12 @@ int main()
 	d.put_naked("x");
 	d.put("y", "456");
 	d.set_ident(123);
+
+	// test short packet FEC
 	Packet p(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
 	Buffer spl3 = p.encode_l3();
 	Buffer spl2 = p.encode_l2u();
+	assert(spl2.length() < 60);
 
 	printf("spl3 '%s'\n", spl3.c_str());
 	assert (strcmp(spl3.c_str(), "AAAA<BBBB:123,X,Y=456 bla ble") == 0);
@@ -445,12 +448,8 @@ int main()
 	/* Corrupt some chars */
 	*spl2.hot(1) = 66;
 	*spl2.hot(3) = 66;
-	*spl2.hot(7) = 66;
-	*spl2.hot(9) = 66;
-	*spl2.hot(12) = 66;
-	*spl2.hot(15) = 66;
 	*spl2.hot(33) = 66;
-	*spl2.hot(40) = 66;
+	*spl2.hot(39) = 66;
 	q = Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error);
 	assert (q);
 
@@ -476,11 +475,31 @@ int main()
 	assert (strcmp(q->params().get("Y").c_str(), "456") == 0);
 	assert (q->params().is_key_naked("X"));
 
+	// test medium packet FEC
+	Packet pmedium(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("0123456789012345678901234567890123456789012345678901234567890123456789"));
+	Buffer pmedium2 = pmedium.encode_l2u();
+	assert(pmedium2.length() > 65);
+	assert(pmedium2.length() < 115);
+	assert(Packet::decode_l2u(pmedium2.c_str(), pmedium2.length(), -50, error));
+	// corrupt a little
+	*pmedium2.hot(12) = 66;
+	*pmedium2.hot(13) = 66;
+	*pmedium2.hot(10) = 66;
+	*pmedium2.hot(8) = 66;
+	*pmedium2.hot(4) = 66;
+	*pmedium2.hot(3) = 66;
+	assert(Packet::decode_l2u(pmedium2.c_str(), pmedium2.length(), -50, error));
+	// corrupt a lot
+	memset(pmedium2.hot(14), 66, 30);
+	assert(!Packet::decode_l2u(pmedium2.c_str(), pmedium2.length(), -50, error));
+
+	// test long packet FEC
 	Packet plong(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer plong2 = plong.encode_l2u();
-	assert(plong2.length() > 100);
+	assert(plong2.length() > 120);
 	assert(Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
 	// corrupt a little
+	*plong2.hot(12) = 66;
 	*plong2.hot(13) = 66;
 	assert(Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
 	// corrupt a lot
@@ -499,7 +518,7 @@ int main()
 
 	Packet plong3(Callsign(Buffer("AAAAAAA-11")), Callsign(Buffer("BBBBBB-22")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer b3 = plong3.encode_l3();
-	assert(b3.length() == 180);
+	assert(b3.length() == 200);
 
 	printf("Autotest ok\n");
 }

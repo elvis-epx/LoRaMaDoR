@@ -14,15 +14,19 @@
 #include "RS-FEC.h"
 #include "CryptoKeys.h"
 
-static const int MSGSIZE_SHORT = 80;
-static const int MSGSIZE_LONG = 180;
-static const int REDUNDANCY = 20;
+static const int MSGSIZ_SHORT = 50;
+static const int MSGSIZ_MEDIUM = 100;
+static const int MSGSIZ_LONG = 200;
+static const int REDUNDANCY_SHORT = 10;
+static const int REDUNDANCY_MEDIUM = 14;
+static const int REDUNDANCY_LONG = 20;
 
-char rs_encoded[MSGSIZE_LONG + REDUNDANCY];
-char rs_decoded[MSGSIZE_LONG];
+char rs_encoded[MSGSIZ_LONG + REDUNDANCY_LONG];
+char rs_decoded[MSGSIZ_LONG];
 
-RS::ReedSolomon<MSGSIZE_LONG, REDUNDANCY> rs_long;
-RS::ReedSolomon<MSGSIZE_SHORT, REDUNDANCY> rs_short;
+RS::ReedSolomon<MSGSIZ_SHORT, REDUNDANCY_SHORT> rsf_short;
+RS::ReedSolomon<MSGSIZ_MEDIUM, REDUNDANCY_MEDIUM> rsf_medium;
+RS::ReedSolomon<MSGSIZ_LONG, REDUNDANCY_LONG> rsf_long;
 
 // Decode packet preamble (except callsigns).
 static bool decode_preamble(const char* data, size_t len,
@@ -103,28 +107,36 @@ static Ptr<Packet> decode_l2b(const char* data, size_t len, int rssi, int &error
 Ptr<Packet> Packet::decode_l2(const char *data, size_t len, int rssi, int& error, bool maybe_encrypted)
 {
 	error = 0;
-	if (len <= REDUNDANCY || len > (MSGSIZE_LONG + REDUNDANCY)) {
+	if (len <= REDUNDANCY_SHORT || len > (MSGSIZ_LONG + REDUNDANCY_LONG)) {
 		error = 999;
 		return Ptr<Packet>(0);
 	}
 
 	memset(rs_encoded, 0, sizeof(rs_encoded));
-	if (len <= (MSGSIZE_SHORT + REDUNDANCY)) {
-		memcpy(rs_encoded, data, len - REDUNDANCY);
-		memcpy(rs_encoded + MSGSIZE_SHORT, data + len - REDUNDANCY, REDUNDANCY);
-		if (rs_short.Decode(rs_encoded, rs_decoded)) {
+	if (len <= (MSGSIZ_SHORT + REDUNDANCY_SHORT)) {
+		memcpy(rs_encoded, data, len - REDUNDANCY_SHORT);
+		memcpy(rs_encoded + MSGSIZ_SHORT, data + len - REDUNDANCY_SHORT, REDUNDANCY_SHORT);
+		if (rsf_short.Decode(rs_encoded, rs_decoded)) {
 			error = 998;
 			return Ptr<Packet>(0);
 		}
-		return decode_l2b(rs_decoded, len - REDUNDANCY, rssi, error, maybe_encrypted);
+		return decode_l2b(rs_decoded, len - REDUNDANCY_SHORT, rssi, error, maybe_encrypted);
+	} else if (len <= (MSGSIZ_MEDIUM + REDUNDANCY_MEDIUM)) {
+		memcpy(rs_encoded, data, len - REDUNDANCY_MEDIUM);
+		memcpy(rs_encoded + MSGSIZ_MEDIUM, data + len - REDUNDANCY_MEDIUM, REDUNDANCY_MEDIUM);
+		if (rsf_medium.Decode(rs_encoded, rs_decoded)) {
+			error = 998;
+			return Ptr<Packet>(0);
+		}
+		return decode_l2b(rs_decoded, len - REDUNDANCY_MEDIUM, rssi, error, maybe_encrypted);
 	} else {
-		memcpy(rs_encoded, data, len - REDUNDANCY);
-		memcpy(rs_encoded + MSGSIZE_LONG, data + len - REDUNDANCY, REDUNDANCY);
-		if (rs_long.Decode(rs_encoded, rs_decoded)) {
+		memcpy(rs_encoded, data, len - REDUNDANCY_LONG);
+		memcpy(rs_encoded + MSGSIZ_LONG, data + len - REDUNDANCY_LONG, REDUNDANCY_LONG);
+		if (rsf_long.Decode(rs_encoded, rs_decoded)) {
 			error = 997;
 			return Ptr<Packet>(0);
 		}
-		return decode_l2b(rs_decoded, len - REDUNDANCY, rssi, error, maybe_encrypted);
+		return decode_l2b(rs_decoded, len - REDUNDANCY_LONG, rssi, error, maybe_encrypted);
 	}
 }
 
@@ -206,9 +218,9 @@ Buffer Packet::encode_l3() const
 	b += ' ';
 	b += _msg;
 
-	if (b.length() > MSGSIZE_LONG) {
+	if (b.length() > MSGSIZ_LONG) {
 		// FIXME return error or warning
-		b = b.substr(0, MSGSIZE_LONG);
+		b = b.substr(0, MSGSIZ_LONG);
 	}
 
 	return b;
@@ -218,12 +230,15 @@ void Packet::append_fec(Buffer& b)
 {
 	memset(rs_decoded, 0, sizeof(rs_decoded));
 	memcpy(rs_decoded, b.c_str(), b.length());
-	if (b.length() <= MSGSIZE_SHORT) {
-		rs_short.Encode(rs_decoded, rs_encoded);
-		b.append(rs_encoded + MSGSIZE_SHORT, REDUNDANCY);
+	if (b.length() <= MSGSIZ_SHORT) {
+		rsf_short.Encode(rs_decoded, rs_encoded);
+		b.append(rs_encoded + MSGSIZ_SHORT, REDUNDANCY_SHORT);
+	} else if (b.length() <= MSGSIZ_MEDIUM) {
+		rsf_medium.Encode(rs_decoded, rs_encoded);
+		b.append(rs_encoded + MSGSIZ_MEDIUM, REDUNDANCY_MEDIUM);
 	} else {
-		rs_long.Encode(rs_decoded, rs_encoded);
-		b.append(rs_encoded + MSGSIZE_LONG, REDUNDANCY);
+		rsf_long.Encode(rs_decoded, rs_encoded);
+		b.append(rs_encoded + MSGSIZ_LONG, REDUNDANCY_LONG);
 	}
 }
 

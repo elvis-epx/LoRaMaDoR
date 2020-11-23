@@ -87,14 +87,17 @@ in seconds.
 
 ## FEC code
 
-Every packet is trailed by a 20-octet FEC (Forward Error Code).
+Every packet is trailed by a FEC (Forward Error Code). The code can be
+Reed-Solomon RS(50,10), RS(100,14) or RS(200,20) depending on packet
+size.
 
 Since Reed-Solomon codes demand a fixed-size message, it is calculated as if
-the network packet was padded with nulls (binary zeros).
+the network packet was padded with nulls (binary zeros) up to 50, 100 or 200
+octets.
 
-In order to contemplate low-memory microcontrollers, which cannot handle RS codes
-above a certain size, two base sizes (and therefore two different RS codes) are
-used: 100/80 and 200/180.
+The idea of using several codes is to keep the redundancy and error correction
+power roughly similar to all packet sizes, with a discreet advantage given to
+shorter packets (< 100 octets).
 
 The reference FEC RS implementation is https://github.com/simonyipeter/Arduino-FEC .
 
@@ -115,4 +118,4 @@ key (configured via !cryptopsk command). This is implemented for non-amateur
 uses like remote control of devices in private networks.
 
 Encryption happens between packet encoding and insertion of FEC code. Encryption
-packets are 16 octets longer than cleartext packets.
+packets are 8 octets longer than cleartext packets.
