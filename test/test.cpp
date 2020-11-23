@@ -411,13 +411,13 @@ int main()
 	assert (!Callsign("Q1").is_valid());
 	assert (!Callsign("Q-").is_valid());
 	assert (!Callsign("qcc").is_valid());
-	assert (!Callsign("xc").is_valid());
+	assert (Callsign("xc").is_valid());
 	assert (!Callsign("1cccc").is_valid());
 	assert (!Callsign("aaaaa-1a").is_valid());
 	assert (!Callsign("aaaaa-01").is_valid());
 	assert (!Callsign("a#jskd").is_valid());
 	assert (!Callsign("-1").is_valid());
-	assert (!Callsign("aaa-1").is_valid());
+	assert (!Callsign("a-1").is_valid());
 	assert (!Callsign("aaaa-1-2").is_valid());;
 	assert (!Callsign("aaaa-123").is_valid());
 
