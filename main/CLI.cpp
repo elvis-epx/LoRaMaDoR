@@ -460,18 +460,7 @@ static void cli_parse_packet(Buffer cmd);
 
 static void cli_parse_tnc_packet(Buffer cmd)
 {
-	size_t final_size = cmd.length() / 2;
-	uint8_t *pkt = (uint8_t*) malloc(final_size + 1);
-	for (size_t i = 0; i < final_size; ++i) {
-		char tmp[3];
-		tmp[0] = cmd.charAt(i * 2 + 0);
-		tmp[1] = cmd.charAt(i * 2 + 1);
-		tmp[2] = 0;
-		pkt[i] = strtol(tmp, NULL, 16);
-	}
-	pkt[final_size] = 0;
-	cli_parse_packet(Buffer((char*) pkt, final_size));
-	free(pkt);
+	cli_parse_packet(cmd.fromhex());
 }
 
 // Parse a packet typed in console

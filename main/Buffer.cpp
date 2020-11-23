@@ -407,3 +407,20 @@ Buffer Buffer::tohex() const
 	free(hexdata);
 	return ret;
 }
+
+Buffer Buffer::fromhex() const
+{
+	size_t final_size = length() / 2;
+	uint8_t *bin = (uint8_t*) malloc(final_size + 1);
+	for (size_t i = 0; i < final_size; ++i) {
+		char tmp[3];
+		tmp[0] = charAt(i * 2 + 0);
+		tmp[1] = charAt(i * 2 + 1);
+		tmp[2] = 0;
+		bin[i] = strtol(tmp, NULL, 16);
+	}
+	bin[final_size] = 0;
+	Buffer ret = Buffer((char*) bin, final_size);
+	free(bin);
+	return ret;
+}
