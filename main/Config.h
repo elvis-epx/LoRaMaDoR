@@ -8,7 +8,7 @@
 #define POWER   20
 #define PABOOST 1
 #define SPREAD  7
-#define BWIDTH  62500
+#define BWIDTH  125000
 #define CR4SLSH 5
 
 #endif
