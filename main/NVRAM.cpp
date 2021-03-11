@@ -63,7 +63,7 @@ uint32_t arduino_nvram_beacon_load()
 	uint32_t b = prefs.getUInt("beacon");
 	prefs.end();
 
-	if (b < 10 || b > 600) {
+	if (b < 2 || b > 600) {
 		b = 600;
 	}
 
@@ -72,7 +72,7 @@ uint32_t arduino_nvram_beacon_load()
 
 void arduino_nvram_beacon_save(uint32_t b)
 {
-	if (b < 10 || b > 600) {
+	if (b < 2 || b > 600) {
 		b = 600;
 	}
 
@@ -88,7 +88,7 @@ uint32_t arduino_nvram_beacon_first_load()
 	prefs.end();
 
 	if (b < 1 || b > 300) {
-		b = 30;
+		b = 1;
 	}
 
 	return b;
@@ -97,7 +97,7 @@ uint32_t arduino_nvram_beacon_first_load()
 void arduino_nvram_beacon_first_save(uint32_t b)
 {
 	if (b < 1 || b > 300) {
-		b = 30;
+		b = 1;
 	}
 
 	prefs.begin(chapter, false);

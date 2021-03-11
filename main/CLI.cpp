@@ -138,8 +138,8 @@ static void cli_parse_beacon(const Buffer &candidate)
 
 	int b = candidate.toInt();
 	
-	if (b < 10 || b > 600) {
-		console_println("cli: Invalid value. Beacon interval must be 10..600s.");
+	if (b < 2 || b > 600) {
+		console_println("cli: Invalid value. Beacon interval must be 2..600s.");
 		return;
 	}
 	
