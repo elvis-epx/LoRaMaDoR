@@ -203,27 +203,6 @@ static void cli_parse_crypto_psk(Buffer candidate)
 	console_println("cli: Activate !debug mode to check crypto-related issues.");
 }
 
-// Configure or print beacon first interval time in seconds
-static void cli_parse_beacon_first(const Buffer &candidate)
-{
-	if (candidate.empty()) {
-		console_print("cli: Beacon 1st average interval is ");
-		console_print(Buffer::itoa(arduino_nvram_beacon_first_load()));
-		console_println("s");
-		return;
-	}
-
-	int b = candidate.toInt();
-	
-	if (b < 1 || b > 300) {
-		console_println("cli: Invalid value. Beacon 1st interval must be 1..300s.");
-		return;
-	}
-	
-	arduino_nvram_beacon_first_save(b);
-	console_println("cli: Beacon 1st interval saved. Effective next restart.");
-}
-
 // Wi-Fi network name (SSID) configuration
 static void cli_parse_ssid(Buffer candidate)
 {
@@ -351,7 +330,6 @@ static void cli_parse_help()
 	console_println("cli:  !password [PASSWORD]   Get/set Wi-Fi password (None if no password)");
 	console_println("cli:  !repeater [0 or 1]     Get/set repeater function switch");
 	console_println("cli:  !beacon [10..600]      Get/set beacon average time (in seconds)");
-	console_println("cli:  !beacon1st [10..300]   Get/set first beacon avg time");
 	console_println("cli:  !hmacpsk [KEY]         Get/Set optional HMAC pre-shared key (None to disable)");
 	console_println("cli:  !cryptopsk [KEY]       Get/Set optional crypto pre-shared key (None to disable)");
 	console_println("cli:  !wifi                  Show Wi-Fi/network status");
@@ -399,11 +377,6 @@ static void cli_parse_meta(Buffer cmd)
 		cli_parse_crypto_psk(cmd);
 	} else if (cmd == "beacon") {
 		cli_parse_beacon("");
-	} else if (cmd.startsWith("beacon1st ")) {
-		cmd.cut(10);
-		cli_parse_beacon_first(cmd);
-	} else if (cmd == "beacon1st") {
-		cli_parse_beacon_first("");
 	} else if (cmd.startsWith("ssid ")) {
 		cmd.cut(5);
 		cli_parse_ssid(cmd);

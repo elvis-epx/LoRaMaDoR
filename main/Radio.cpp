@@ -132,5 +132,6 @@ void lora_start(void (*cb)(const char *buf, size_t plen, int rssi))
 	setup_lora();
 	LoRa.onReceive(on_receive);
 	LoRa.onTxDone(lora_tx_done);
-	lora_resume_rx();
+	// for some reason, crashes if receives before transmitting
+	// lora_resume_rx();
 }

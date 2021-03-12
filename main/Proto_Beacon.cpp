@@ -34,8 +34,7 @@ private:
 
 Proto_Beacon::Proto_Beacon(Network *net): L7Protocol(net)
 {
-	net->schedule(new BeaconTask(this,
-		Network::fudge(arduino_nvram_beacon_first_load() * 1000, 0.5)));
+	net->schedule(new BeaconTask(this, Network::fudge(5000, 0.5)));
 }
 
 int64_t Proto_Beacon::beacon() const

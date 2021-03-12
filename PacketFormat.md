@@ -78,12 +78,11 @@ The fudge factor is 0.5, meaning the interval is randomly chosen between 5 and
 15 minutes. The randomization avoids gratitous collisions when e.g. all stations
 in the area are rebooted simultaneously after a blackout.
 
-The first beacon packet is sent, by default and in average, 30 seconds after
+The first beacon packet is sent, by default and in average, 5 seconds after
 startup. The fudge factor is 0.5 as well.
 
-These intervals can be configured and are stored in NVRAM. Use the commands
-`!beacon` and `!beacon1st` to query or set them. Note the values are expressed
-in seconds.
+The beacon interval can be queried or set via command `!beacon`. Note the
+value is expressed in seconds.
 
 ## FEC code
 

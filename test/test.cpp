@@ -139,9 +139,6 @@ void test1()
 	arduino_nvram_beacon_save(700);
 	assert(arduino_nvram_beacon_load() == 600);
 	
-	arduino_nvram_beacon_first_save(600);
-	assert(arduino_nvram_beacon_first_load() == 30);
-
 	assert(arduino_nvram_callsign_load() == "FIXMEE-1");
 
 	Preferences::putString("callsign", "1Q");
