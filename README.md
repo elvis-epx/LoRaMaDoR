@@ -8,10 +8,8 @@ The most obvious use case is live chat, but there's potential for many other use
 This project is inspired by [LoRaHam](https://github.com/travisgoodspeed/loraham).
 The major enhancement is a packet format
 which is more powerful and more extensible, allowing for true network formation.
-The implementation is a work in
-progress, and more documentation will be added as time permits.
 
-As all other mentioned projects, LoRaMaDoR is a priori targeted for amateur
+LoRaMaDoR is a priori targeted for amateur
 radio operators. The callsign is the network address. But anyone can try it,
 actually. And they can even do it legally, since LoRa operates on unlicensed
 ISM bands.
