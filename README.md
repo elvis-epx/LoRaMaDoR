@@ -1,9 +1,37 @@
 # LoRaMaDoR - ham radio based on LoRa 
 
-This project is inspired by LoRaHam. The major enhancement is a packet format
+LoRaMaDoR is a communication system based on 
+LoRa digital radio. The
+name is a wordplay with "LoRa" and "radioamador" (ham radio in Portuguese).
+The most obvious use case is live chat, but there's potential for many other uses.
+
+This project is inspired by [LoRaHam](https://github.com/travisgoodspeed/loraham).
+The major enhancement is a packet format
 which is more powerful and more extensible, allowing for true network formation.
 The implementation is a work in
 progress, and more documentation will be added as time permits.
+
+As all other mentioned projects, LoRaMaDoR is a priori targeted for amateur
+radio operators. The callsign is the network address. But anyone can try it,
+actually. And they can even do it legally, since LoRa operates on unlicensed
+ISM bands.
+
+# Quick demo
+
+[In this video,](https://www.youtube.com/embed/nXooq_4EkzU)
+LoRaMaDoR is running in 3 or 4 Arduinos, and we are interacting with
+one of them via USB serial port. We send "human" messages,
+and also ping a remote station to get an automatic response.
+
+<p>
+The idea of the command-line interface is to make the operation as simple
+as possible. To send a typical message, just type "callsign message"; the
+controller fills in the red tape to produce the final, valid packet.
+
+<p>
+LoRaMaDoR works without anything connected to the serial port. It responds
+to PINGs and can forward packets. It can be extended to be an autonomous
+weather sensor, location beacon, etc.
 
 # Console and command-line interface (CLI)
 
