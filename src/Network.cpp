@@ -12,7 +12,6 @@
 #include "Packet.h"
 #include "Params.h"
 #include "CLI.h"
-#include "Radio.h"
 #include "Proto_Ping.h"
 #include "Proto_Beacon.h"
 #include "Modf_R.h"
@@ -135,10 +134,6 @@ private:
 };
 
 
-// bridges C-style callback from LoRa/Radio module to network object
-void radio_recv_trampoline(const char *recv_area, size_t plen, int rssi);
-Network* trampoline_target = 0;
-
 //////////////////////////// Network class proper
 
 Network::Network()
@@ -169,8 +164,8 @@ Network::Network()
 	new Modf_R(this);
 	new Modf_Rreq(this);
 
-	trampoline_target = this;
-	lora_start(radio_recv_trampoline);
+	// FIXME encryption key
+	transport = Ptr<LoRaL2>(new LoRaL2(BAND, SPREAD, BWIDTH, 0, 0, this));
 }
 
 Network::~Network()
@@ -270,23 +265,27 @@ void Network::recv(Ptr<Packet> pkt)
 	app_recv(pkt);
 }
 
-// Called by LoRa layer
-void radio_recv_trampoline(const char *recv_area, size_t plen, int rssi)
-{
-	// ugly, but...
-	trampoline_target->radio_recv(recv_area, plen, rssi);
-}
-
 // Handle packet from radio, schedule processing
-void Network::radio_recv(const char *recv_area, size_t plen, int rssi)
+void Network::recv(LoRaL2Packet *l2pkt)
 {
-	int error;
-	Ptr<Packet> pkt = Packet::decode_l2e(recv_area, plen, rssi, error);
-	if (!pkt) {
-		logi("rx invalid pkt err", error);
+	if (l2pkt->err) {
+		logi("rx invalid l2pkt err", l2pkt->err);
+		delete l2pkt;
 		return;
 	}
-	logi("rx good packet, RSSI =", rssi);
+
+	int error;
+	Ptr<Packet> pkt = Packet::decode_l3((const char*) l2pkt->packet, l2pkt->len, l2pkt->rssi, error);
+
+	if (!pkt) {
+		logi("rx invalid pkt err", error);
+		delete l2pkt;
+		return;
+	}
+
+	logi("rx good packet, RSSI =", l2pkt->rssi);
+	delete l2pkt;
+
 	schedule(new PacketFwd(this, pkt, false));
 }
 
@@ -364,7 +363,8 @@ int64_t Network::clean_neigh(int64_t now)
 // execute packet transmission
 int64_t Network::tx(const Buffer& encoded_packet)
 {
-	if (! lora_tx(encoded_packet)) {
+	if (! transport->send((const uint8_t*) encoded_packet.c_str(),
+				encoded_packet.length())) {
 		return TX_BUSY_RETRY_TIME;
 	}
 	return 0;
@@ -409,7 +409,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		// Annotate to detect duplicates
 		recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 		// Transmit
-		schedule(new PacketTx(this, pkt->encode_l2e(), 1));
+		schedule(new PacketTx(this, pkt->encode_l3(), 1));
 		logs("tx ", pkt->encode_l3());
 		return;
 	}
@@ -456,12 +456,12 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		}
 	}
 
-	Buffer encoded_pkt = pkt->encode_l2e();
+	Buffer encoded_pkt = pkt->encode_l3();
 
 	// Average TX delay: 2.5x the packet airtime
 	// spread from 0 to 5x to mitigate collision in the case of multiple repeaters
 	double packet_len = SECONDS * encoded_pkt.length() * 8
-				/ lora_speed_bps();
+				/ transport->speed_bps();
 	int64_t delay = Network::fudge(packet_len * 2.5, 0.95);
 	// Packets already repeated: additional window to mitigate collision from
 	// additional repeaters of the last hop

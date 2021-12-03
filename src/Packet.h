@@ -21,10 +21,9 @@ public:
 		const Params& params, const Buffer& msg, int rssi=0);
 	~Packet();
 
-	static Ptr<Packet> decode_l2e(const char* data, size_t len, int rssi, int& error);
 	/* next 2 are public for unit testing */
-	static Ptr<Packet> decode_l3(const char* data, size_t len, int rssi, int& error, bool encrypted);
-	static Ptr<Packet> decode_l3(const char *data, int& error, bool encrypted);
+	static Ptr<Packet> decode_l3(const char* data, size_t len, int rssi, int& error);
+	static Ptr<Packet> decode_l3(const char *data, int& error);
 
 	Packet(const Packet &) = delete;
 	Packet(Packet &&) = delete;
@@ -34,11 +33,6 @@ public:
 
 	Ptr<Packet> change_msg(const Buffer&) const;
 	Ptr<Packet> change_params(const Params&) const;
-	/* next 3 are public for unit testing */
-	Buffer encode_l2u() const;
-	static Ptr<Packet> decode_l2u(const char* data, size_t len, int rssi, int& error);
-	static void append_fec(Buffer& b);
-	Buffer encode_l2e() const;
 	Buffer encode_l3() const;
 	bool is_dup(const Packet& other) const;
 	Buffer signature() const;
@@ -47,20 +41,14 @@ public:
 	const Params params() const;
 	const Buffer msg() const;
 	int rssi() const;
-	bool was_encrypted() const;
-	void set_encrypted();
 
 private:
-	Buffer encode_l2(bool) const;
-	static Ptr<Packet> decode_l2(const char* data, size_t len, int rssi, int& error, bool);
-
 	Callsign _to;
 	Callsign _from;
 	const Params _params;
 	Buffer _signature;
 	const Buffer _msg;
 	int _rssi;
-	bool _was_encrypted;
 };
 
 #endif

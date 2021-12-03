@@ -11,22 +11,6 @@
 #include <string.h>
 #include "Packet.h"
 #include "Params.h"
-#include "RS-FEC.h"
-#include "CryptoKeys.h"
-
-static const int MSGSIZ_SHORT = 50;
-static const int MSGSIZ_MEDIUM = 100;
-static const int MSGSIZ_LONG = 200;
-static const int REDUNDANCY_SHORT = 10;
-static const int REDUNDANCY_MEDIUM = 14;
-static const int REDUNDANCY_LONG = 20;
-
-char rs_encoded[MSGSIZ_LONG + REDUNDANCY_LONG];
-char rs_decoded[MSGSIZ_LONG];
-
-RS::ReedSolomon<MSGSIZ_SHORT, REDUNDANCY_SHORT> rsf_short;
-RS::ReedSolomon<MSGSIZ_MEDIUM, REDUNDANCY_MEDIUM> rsf_medium;
-RS::ReedSolomon<MSGSIZ_LONG, REDUNDANCY_LONG> rsf_long;
 
 // Decode packet preamble (except callsigns).
 static bool decode_preamble(const char* data, size_t len,
@@ -73,83 +57,6 @@ Packet::Packet(const Callsign &to, const Callsign &from,
 
 Packet::~Packet()
 {
-}
-
-static Ptr<Packet> decode_l2b(const char* data, size_t len, int rssi, int &error,
-				bool maybe_encrypted)
-{
-	if (!maybe_encrypted) {
-		return Packet::decode_l3(data, len, rssi, error, false);
-	}
-
-	char *udata;
-	size_t ulen;
-	Ptr<Packet> p;
-	int decrypt_res = CryptoKeys::decrypt(data, len, &udata, &ulen);
-
-	if (decrypt_res == CryptoKeys::OK_DECRYPTED) {
-		p = Packet::decode_l3(udata, ulen, rssi, error, true);
-		::free(udata);
-	} else if (decrypt_res == CryptoKeys::OK_CLEARTEXT) {
-		p = Packet::decode_l3(data, len, rssi, error, false);
-	} else if (decrypt_res == CryptoKeys::ERR_NOT_ENCRYPTED) {
-		error = 1900;
-	} else if (decrypt_res == CryptoKeys::ERR_ENCRYPTED) {
-		error = 1901;
-	} else if (decrypt_res == CryptoKeys::ERR_DECRIPTION) {
-		error = 1902;
-	}
-
-	return p;
-}
-
-// Decode packet coming from layer 1.
-Ptr<Packet> Packet::decode_l2(const char *data, size_t len, int rssi, int& error, bool maybe_encrypted)
-{
-	error = 0;
-	if (len <= REDUNDANCY_SHORT || len > (MSGSIZ_LONG + REDUNDANCY_LONG)) {
-		error = 999;
-		return Ptr<Packet>(0);
-	}
-
-	memset(rs_encoded, 0, sizeof(rs_encoded));
-	if (len <= (MSGSIZ_SHORT + REDUNDANCY_SHORT)) {
-		memcpy(rs_encoded, data, len - REDUNDANCY_SHORT);
-		memcpy(rs_encoded + MSGSIZ_SHORT, data + len - REDUNDANCY_SHORT, REDUNDANCY_SHORT);
-		if (rsf_short.Decode(rs_encoded, rs_decoded)) {
-			error = 998;
-			return Ptr<Packet>(0);
-		}
-		return decode_l2b(rs_decoded, len - REDUNDANCY_SHORT, rssi, error, maybe_encrypted);
-	} else if (len <= (MSGSIZ_MEDIUM + REDUNDANCY_MEDIUM)) {
-		memcpy(rs_encoded, data, len - REDUNDANCY_MEDIUM);
-		memcpy(rs_encoded + MSGSIZ_MEDIUM, data + len - REDUNDANCY_MEDIUM, REDUNDANCY_MEDIUM);
-		if (rsf_medium.Decode(rs_encoded, rs_decoded)) {
-			error = 998;
-			return Ptr<Packet>(0);
-		}
-		return decode_l2b(rs_decoded, len - REDUNDANCY_MEDIUM, rssi, error, maybe_encrypted);
-	} else {
-		memcpy(rs_encoded, data, len - REDUNDANCY_LONG);
-		memcpy(rs_encoded + MSGSIZ_LONG, data + len - REDUNDANCY_LONG, REDUNDANCY_LONG);
-		if (rsf_long.Decode(rs_encoded, rs_decoded)) {
-			error = 997;
-			return Ptr<Packet>(0);
-		}
-		return decode_l2b(rs_decoded, len - REDUNDANCY_LONG, rssi, error, maybe_encrypted);
-	}
-}
-
-// Decode packet coming from layer 1 that may be encrypted.
-Ptr<Packet> Packet::decode_l2e(const char *data, size_t len, int rssi, int& error)
-{
-	return decode_l2(data, len, rssi, error, true);
-}
-
-// Decode unencrypted packet coming from layer 1.
-Ptr<Packet> Packet::decode_l2u(const char *data, size_t len, int rssi, int& error)
-{
-	return decode_l2(data, len, rssi, error, false);
 }
 
 // Decode packet coming from layer 2.
@@ -218,49 +125,7 @@ Buffer Packet::encode_l3() const
 	b += ' ';
 	b += _msg;
 
-	if (b.length() > MSGSIZ_LONG) {
-		// FIXME return error or warning
-		b = b.substr(0, MSGSIZ_LONG);
-	}
-
 	return b;
-}
-
-void Packet::append_fec(Buffer& b)
-{
-	memset(rs_decoded, 0, sizeof(rs_decoded));
-	memcpy(rs_decoded, b.c_str(), b.length());
-	if (b.length() <= MSGSIZ_SHORT) {
-		rsf_short.Encode(rs_decoded, rs_encoded);
-		b.append(rs_encoded + MSGSIZ_SHORT, REDUNDANCY_SHORT);
-	} else if (b.length() <= MSGSIZ_MEDIUM) {
-		rsf_medium.Encode(rs_decoded, rs_encoded);
-		b.append(rs_encoded + MSGSIZ_MEDIUM, REDUNDANCY_MEDIUM);
-	} else {
-		rsf_long.Encode(rs_decoded, rs_encoded);
-		b.append(rs_encoded + MSGSIZ_LONG, REDUNDANCY_LONG);
-	}
-}
-
-Buffer Packet::encode_l2(bool possibly_encrypted) const
-{
-	Buffer b = encode_l3();
-	if (possibly_encrypted) CryptoKeys::encrypt(b);
-	append_fec(b);
-	return b;
-}
-
-// Encode an unencrypted packet in level 2, with FEC and ready to be sent.
-Buffer Packet::encode_l2u() const
-{
-	return encode_l2(false);
-}
-
-// Encode a packet in level 2, with FEC and ready to be sent.
-// Encryption will be applied if key is stored on NVRAM
-Buffer Packet::encode_l2e() const
-{
-	return encode_l2(true);
 }
 
 // Packet unique identification (prefix + ID).

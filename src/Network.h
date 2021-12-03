@@ -15,6 +15,7 @@
 #include "Task.h"
 #include "Params.h"
 #include "Callsign.h"
+#include "LoRa-trans/LoRaL2.h"
 
 #define MAX_PACKET_ID 9999
 
@@ -37,7 +38,7 @@ struct RecvLogItem {
 	int64_t timestamp;
 };
 
-class Network {
+class Network: public LoRaL2Observer {
 public:
 	Network();
 	virtual ~Network();
@@ -53,7 +54,7 @@ public:
 	static Buffer gen_random_token(int);
 
 	// publicised to bridge with uncoupled code
-	void radio_recv(const char *recv_area, size_t plen, int rssi);
+	virtual void recv(LoRaL2Packet *);
 	size_t get_last_pkt_id() const;
 
 	// publicised to be called by protocols
@@ -86,6 +87,7 @@ private:
 	Callsign my_callsign;
 	uint32_t repeater_function_activated;
 
+	Ptr<LoRaL2> transport;
 	TaskManager task_mgr;
 	Dict<Peer> neigh;
 	Dict<Peer> reptr;

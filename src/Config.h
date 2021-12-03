@@ -4,7 +4,7 @@
 #define SWITCH_PROTO_SUPPORT 1
 
 /* LoRa parameters */
-#define BAND    916750000
+#define BAND    916500000
 #define POWER   20
 #define PABOOST 1
 #define SPREAD  7
