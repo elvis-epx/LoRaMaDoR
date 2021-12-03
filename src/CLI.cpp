@@ -56,7 +56,7 @@ void logi(const char* a, int32_t b) {
 void app_recv(Ptr<Packet> pkt)
 {
 	if (tnc) {
-		Buffer data = pkt->encode_l3().tohex();
+		Buffer data = pkt->encode_l3(Net->max_payload()).tohex();
 		cli_print(Buffer("pkrx: ") +
 			Buffer::itoa(pkt->rssi()) + " " +
 			data);

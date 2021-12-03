@@ -238,7 +238,7 @@ uint32_t Network::send(const Callsign &to, Params params, const Buffer& msg)
 // Receive packet targeted to this station
 void Network::recv(Ptr<Packet> pkt)
 {
-	logs("Received pkt", pkt->encode_l3());
+	logs("Received pkt", pkt->encode_l3(max_payload()));
 
 	// handle L4 protocols
 	for (size_t i = 0; i < l4protocols.count(); ++i) {
@@ -359,11 +359,18 @@ int64_t Network::clean_neigh(int64_t now)
 	return NEIGH_CLEAN;
 }
 
-// execute packet transmission
-int64_t Network::tx(const Buffer& encoded_packet)
+size_t Network::max_payload() const
 {
-	if (! transport->send((const uint8_t*) encoded_packet.c_str(),
-				encoded_packet.length())) {
+	return transport->max_payload();
+}
+
+// execute packet transmission
+int64_t Network::tx(const Buffer &encoded_packet)
+{
+	// makes sure won't fail because of packet too big
+	Buffer trimmed_packet = encoded_packet.substr(0, max_payload());
+	if (! transport->send((const uint8_t*) trimmed_packet.c_str(),
+				trimmed_packet.length())) {
 		return TX_BUSY_RETRY_TIME;
 	}
 	return 0;
@@ -408,8 +415,8 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		// Annotate to detect duplicates
 		recv_log[pkt->signature()] = RecvLogItem(pkt->rssi(), now);
 		// Transmit
-		schedule(new PacketTx(this, pkt->encode_l3(), 1));
-		logs("tx ", pkt->encode_l3());
+		schedule(new PacketTx(this, pkt->encode_l3(max_payload()), 1));
+		logs("tx ", pkt->encode_l3(max_payload()));
 		return;
 	}
 
@@ -455,7 +462,7 @@ void Network::route(Ptr<Packet> pkt, bool we_are_origin, int64_t now)
 		}
 	}
 
-	Buffer encoded_pkt = pkt->encode_l3();
+	Buffer encoded_pkt = pkt->encode_l3(max_payload());
 
 	// Average TX delay: 2.5x the packet airtime
 	// spread from 0 to 5x to mitigate collision in the case of multiple repeaters

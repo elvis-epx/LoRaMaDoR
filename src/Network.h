@@ -52,6 +52,7 @@ public:
 	const Dict<Peer>& peers() const;
 	static uint32_t fudge(uint32_t avg, double fudge);
 	static Buffer gen_random_token(int);
+	size_t max_payload() const;
 
 	// publicised to bridge with uncoupled code
 	virtual void recv(LoRaL2Packet *);

@@ -109,7 +109,7 @@ Ptr<Packet> Packet::change_params(const Params&new_params) const
 }
 
 // Encode a packet in layer 3.
-Buffer Packet::encode_l3() const
+Buffer Packet::encode_l3(size_t max) const
 {
 	Buffer b(_to);
 	b += '<';
@@ -118,6 +118,7 @@ Buffer Packet::encode_l3() const
 	b += _params.serialized();
 	b += ' ';
 	b += _msg;
+	b = b.substr(0, max);
 
 	return b;
 }
