@@ -1,5 +1,5 @@
 CFLAGS=-DDEBUG -DUNDER_TEST -fsanitize=undefined -fstack-protector-strong -fstack-protector-all -std=c++1y -Wall -g -O0 -fprofile-arcs -ftest-coverage -fno-elide-constructors
-OBJ=Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o Proto_HMAC.o sha256.o HMACKeys.o Proto_Switch.o NVRAM.o Preferences.o Timestamp.o Console.o Serial.o CryptoKeys.o BlockCipher.o AES256.o AESCommon.o Crypto.o
+OBJ=Packet.o Buffer.o Task.o FakeArduino.o Network.o Callsign.o Params.o CLI.o L4Protocol.o L7Protocol.o Modifier.o Proto_Ping.o Proto_Rreq.o Modf_Rreq.o Modf_R.o Proto_Beacon.o Proto_C.o Proto_HMAC.o HMACKeys.o Proto_Switch.o NVRAM.o Preferences.o Timestamp.o Console.o Serial.o
 
 all: test testnet testnet2
 
@@ -10,13 +10,13 @@ clean:
 	gcc $(CFLAGS) -c $<
 
 test: test.cpp $(OBJ) *.h
-	gcc $(CFLAGS) -o test test.cpp $(OBJ) -lstdc++
+	gcc $(CFLAGS) -o test test.cpp $(OBJ) LoRa-trans/test/*.o -lstdc++
 
 testnet: testnet.cpp $(OBJ) *.h
-	gcc $(CFLAGS) -o testnet testnet.cpp $(OBJ) -lstdc++
+	gcc $(CFLAGS) -o testnet testnet.cpp $(OBJ)  LoRa-trans/test/*.o -lstdc++
 
 testnet2: testnet2.cpp $(OBJ) *.h
-	gcc $(CFLAGS) -o testnet2 testnet2.cpp $(OBJ) -lstdc++
+	gcc $(CFLAGS) -o testnet2 testnet2.cpp $(OBJ) LoRa-trans/test/*.o -lstdc++
 
 recov:
 	rm -f *.gcda

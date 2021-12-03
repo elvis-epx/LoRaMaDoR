@@ -38,7 +38,7 @@ uint32_t _arduino_millis()
 	return (uint32_t) (uptime_ms & 0xffffffffULL);
 }
 
-int32_t arduino_random(int32_t min, int32_t max)
+int32_t arduino_random2(int32_t min, int32_t max)
 {
 	if (virgin) init_things();
 	return min + random() % (max - min);
@@ -120,7 +120,7 @@ uint32_t lora_speed_bps()
 
 bool lora_tx(const Buffer& b)
 {
-	if (arduino_random(0, 10) == 0) {
+	if (arduino_random2(0, 10) == 0) {
 		printf("fake: Simulate send pkt fail\n");
 		return false;
 	}
@@ -172,15 +172,15 @@ void lora_emu_rx()
 	}
 
 	len -= 1;
-	if (arduino_random(0, 3) == 0) {
+	if (arduino_random2(0, 3) == 0) {
 		printf("fake: Received packet, corrupt it a little\n");
 		for (int i = 0; i < 3; ++i) {
-			msg[arduino_random(0, len)] = arduino_random(0, 256);
+			msg[arduino_random2(0, len)] = arduino_random2(0, 256);
 		}
-	} else if (arduino_random(0, 100) == 0) {
+	} else if (arduino_random2(0, 100) == 0) {
 		printf("fake: Received packet, corrupt it a lot\n");
 		for (int i = 0; i < 30; ++i) {
-			msg[arduino_random(0, len)] = arduino_random(0, 256);
+			msg[arduino_random2(0, len)] = arduino_random2(0, 256);
 		}
 	} else {
 		printf("fake: Received packet, not corrupting\n");

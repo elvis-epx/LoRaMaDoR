@@ -49,8 +49,7 @@ static bool decode_preamble(const char* data, size_t len,
 
 Packet::Packet(const Callsign &to, const Callsign &from,
 			const Params& params, const Buffer& msg, int rssi): 
-			_to(to), _from(from), _params(params), _msg(msg), _rssi(rssi),
-			_was_encrypted(false)
+			_to(to), _from(from), _params(params), _msg(msg), _rssi(rssi)
 {
 	_signature = Buffer(_from) + ":" + params.s_ident();
 }
@@ -59,15 +58,13 @@ Packet::~Packet()
 {
 }
 
-// Decode packet coming from layer 2.
-Ptr<Packet> Packet::decode_l3(const char* data, int& error, bool encrypted)
+Ptr<Packet> Packet::decode_l3_test(const char* data, int& error)
 {
-	return decode_l3(data, strlen(data), -50, error, encrypted);
+	return decode_l3(data, strlen(data), -50, error);
 }
 
 // Decode packet coming from layer 2.
-Ptr<Packet> Packet::decode_l3(const char* data, size_t len, int rssi, int &error,
-				bool encrypted)
+Ptr<Packet> Packet::decode_l3(const char* data, size_t len, int rssi, int &error)
 {
 	const char *preamble = 0;
 	const char *msg = 0;
@@ -96,9 +93,6 @@ Ptr<Packet> Packet::decode_l3(const char* data, size_t len, int rssi, int &error
 	}
 
 	Ptr<Packet> p = Ptr<Packet>(new Packet(to, from, params, Buffer(msg, msg_len), rssi));
-	if (p && encrypted) {
-		p->set_encrypted();
-	}
 	return p;
 }
 
@@ -169,16 +163,4 @@ const Buffer Packet::msg() const
 int Packet::rssi() const
 {
 	return _rssi;
-}
-
-// returns True when packet was received in encrypted form
-bool Packet::was_encrypted() const
-{
-	return _was_encrypted;
-}
-
-// Marks packet as received encrypted
-void Packet::set_encrypted()
-{
-	_was_encrypted = true;
 }

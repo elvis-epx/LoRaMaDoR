@@ -175,34 +175,6 @@ static void cli_parse_hmac_psk(Buffer candidate)
 	console_println("cli: Activate !debug mode to check HMAC-related issues.");
 }
 
-// Configure pre-shared key (PSK) for packet encryption
-static void cli_parse_crypto_psk(Buffer candidate)
-{
-	if (candidate.empty()) {
-		Buffer crypto_psk = arduino_nvram_crypto_psk_load();
-		if (crypto_psk.empty()) {
-			console_println("cli: Crypto pre-shared key is not configured.");
-		} else {
-			console_println("cli: Crypto pre-shared key is configured.");
-		}
-		return;
-	}
-
-	if (candidate.length() > 32) {
-		console_println("cli: Pre-shared key must have between 1 and 32 ASCII chars.");
-		return;
-	}
-
-	if (candidate == "None") {
-		candidate = "";
-	}
-	
-	arduino_nvram_crypto_psk_save(candidate);
-	console_println("cli: Pre-shared key saved, effective immediately.");
-	console_println("cli: Make sure your peers are using the same key.");
-	console_println("cli: Activate !debug mode to check crypto-related issues.");
-}
-
 // Wi-Fi network name (SSID) configuration
 static void cli_parse_ssid(Buffer candidate)
 {
@@ -331,7 +303,6 @@ static void cli_parse_help()
 	console_println("cli:  !repeater [0 or 1]     Get/set repeater function switch");
 	console_println("cli:  !beacon [10..600]      Get/set beacon average time (in seconds)");
 	console_println("cli:  !hmacpsk [KEY]         Get/Set optional HMAC pre-shared key (None to disable)");
-	console_println("cli:  !cryptopsk [KEY]       Get/Set optional crypto pre-shared key (None to disable)");
 	console_println("cli:  !wifi                  Show Wi-Fi/network status");
 	console_println("cli:  !defconfig             Reset all configurations saved in NVRAM");
 	console_println("cli:  !debug / !nodebug      Enable/disable debug and verbose mode");
@@ -369,12 +340,6 @@ static void cli_parse_meta(Buffer cmd)
 	} else if (cmd.startsWith("hmacpsk")) {
 		cmd.cut(7);
 		cli_parse_hmac_psk(cmd);
-	} else if (cmd.startsWith("cryptopsk ")) {
-		cmd.cut(10);
-		cli_parse_crypto_psk(cmd);
-	} else if (cmd.startsWith("cryptopsk")) {
-		cmd.cut(9);
-		cli_parse_crypto_psk(cmd);
 	} else if (cmd == "beacon") {
 		cli_parse_beacon("");
 	} else if (cmd.startsWith("ssid ")) {

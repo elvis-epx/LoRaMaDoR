@@ -13,7 +13,6 @@
 #include "Callsign.h"
 #include "Network.h"
 #include "NVRAM.h"
-#include "CryptoKeys.h"
 #include "HMACKeys.h"
 
 extern Preferences prefs;
@@ -134,32 +133,6 @@ void arduino_nvram_hmac_psk_save(const Buffer &b)
 	}
 	prefs.end();
 	HMACKeys::invalidate();
-}
-
-Buffer arduino_nvram_crypto_psk_load()
-{
-	char candidate[33];
-	prefs.begin(chapter);
-	// len includes \0
-	size_t len = prefs.getString("cpsk", candidate, 33);
-	prefs.end();
-
-	if (len <= 1) {
-		return "";
-	}
-	return Buffer(candidate, len - 1);
-}
-
-void arduino_nvram_crypto_psk_save(const Buffer &b)
-{
-	prefs.begin(chapter, false);
-	if (b.length() == 0) {
-		prefs.putString("cpsk", "");
-	} else {
-		prefs.putString("cpsk", CryptoKeys::hash_key(b).c_str());
-	}
-	prefs.end();
-	CryptoKeys::invalidate();
 }
 
 // used by Wi-Fi SSID and password

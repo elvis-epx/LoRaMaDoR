@@ -23,7 +23,7 @@ public:
 
 	/* next 2 are public for unit testing */
 	static Ptr<Packet> decode_l3(const char* data, size_t len, int rssi, int& error);
-	static Ptr<Packet> decode_l3(const char *data, int& error);
+	static Ptr<Packet> decode_l3_test(const char *data, int& error);
 
 	Packet(const Packet &) = delete;
 	Packet(Packet &&) = delete;

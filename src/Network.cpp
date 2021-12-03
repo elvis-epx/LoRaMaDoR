@@ -47,7 +47,7 @@ RecvLogItem::RecvLogItem()
 // Generates a random number with average avg and spread 'fudge'
 uint32_t Network::fudge(uint32_t avg, double fudge)
 {
-	return arduino_random(avg * (1.0 - fudge), avg * (1.0 + fudge));
+	return arduino_random2(avg * (1.0 - fudge), avg * (1.0 + fudge));
 }
 
 // Generates a random string with safe characters (~5 bits per char)
@@ -55,7 +55,7 @@ Buffer Network::gen_random_token(int len)
 {
 	char *s = new char[len + 1];
 	for (int i = 0; i < len; ++i) {
-		int n = arduino_random(0, 36);
+		int n = arduino_random2(0, 36);
 		s[i] = "0123456789abcdefghijklmnopqrstuvwxyz_"[n];
 	}
 	s[len] = 0;
@@ -164,7 +164,6 @@ Network::Network()
 	new Modf_R(this);
 	new Modf_Rreq(this);
 
-	// FIXME encryption key
 	transport = Ptr<LoRaL2>(new LoRaL2(BAND, SPREAD, BWIDTH, 0, 0, this));
 }
 

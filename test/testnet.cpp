@@ -43,7 +43,7 @@ void ping()
 		return;
 	}
 
-	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
+	Buffer scs = neigh_cs[arduino_random2(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
@@ -64,7 +64,7 @@ void rreq()
 	if (!n) {
 		return;
 	}
-	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
+	Buffer scs = neigh_cs[arduino_random2(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
@@ -85,7 +85,7 @@ void pswitch()
 	if (!n) {
 		return;
 	}
-	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
+	Buffer scs = neigh_cs[arduino_random2(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
@@ -111,14 +111,14 @@ void sendm()
 	if (!n) {
 		return;
 	}
-	Buffer scs = neigh_cs[arduino_random(0, (int) n)];
+	Buffer scs = neigh_cs[arduino_random2(0, (int) n)];
 	Callsign cs(scs);
 	if (!cs.is_valid()) {
 		printf("Neigh callsign invalid %s\n", scs.c_str());
 		exit(2);
 	}
 	char *cmd;
-	int opt = arduino_random(0, 4);
+	int opt = arduino_random2(0, 4);
 	if (opt == 0) {
 		asprintf(&cmd, "%s ola\r", scs.c_str());
 	} else if (opt == 1) {
@@ -175,11 +175,9 @@ int main(int argc, char* argv[])
 	cli_simtype("!hmacpsk \r");
 	assert(arduino_nvram_hmac_psk_load() == "9b801f436eeb78055b4d77d9773bbae5");
 	cli_simtype("!hmacpsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
-	cli_simtype("!cryptopsk ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\r");
 	assert(arduino_nvram_hmac_psk_load() == "9b801f436eeb78055b4d77d9773bbae5");
 	cli_simtype("!hmacpsk None\r");
 	assert(arduino_nvram_hmac_psk_load() == "");
-	assert(arduino_nvram_crypto_psk_load() == "");
 
 	sprintf(cli_cmd, "!repeater %d\r", repeater);
 	cli_simtype(cli_cmd);
@@ -251,19 +249,19 @@ int main(int argc, char* argv[])
 	int s2 = Serial.emu_listen_socket();
 
 	while (true) {
-		if (arduino_random(0, 100) == 0) {
+		if (arduino_random2(0, 100) == 0) {
 			ping();
-		} else if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random2(0, 100) == 0) {
 			ping_self();
-		} else if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random2(0, 100) == 0) {
 			rreq();
-		} else if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random2(0, 100) == 0) {
 			pswitch();
-		} else if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random2(0, 100) == 0) {
 			sendm();
-		} else if (arduino_random(0, 1000) == 0) {
+		} else if (arduino_random2(0, 1000) == 0) {
 			sendm_bad();
-		} else if (arduino_random(0, 100) == 0) {
+		} else if (arduino_random2(0, 100) == 0) {
 			cli_simtype("!neigh\r");
 			cli_simtype("!uptime\r");
 		}

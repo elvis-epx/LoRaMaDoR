@@ -4,133 +4,13 @@
 #include <ctype.h>
 #include <cstdlib>
 #include "Packet.h"
-#include "sha256.h"
+#include "LoRa-trans/src/sha256.h"
 #include "Proto_HMAC.h"
 #include "Network.h"
 #include "CLI.h"
 #include "HMACKeys.h"
-#include "CryptoKeys.h"
 #include "Preferences.h"
 #include "NVRAM.h"
-
-void test_crypto()
-{
-	Buffer key = CryptoKeys::hash_key("abracadabra");
-	Buffer base_text = "0123456789 012345789 012345789 012345789 012345789 012345789 012345789";
-
-	Buffer text, enctext, enctext2;
-	char *udata;
-	size_t ulen;
-	int enc_res;
-
-	for (size_t i = 0; i <= base_text.length(); ++i) {
-		text = base_text.substr(0, i);
-		enctext = text;
-		enctext2 = text;
-		CryptoKeys::_encrypt(key, enctext);
-		CryptoKeys::_encrypt(key, enctext2);
-		assert(text != enctext);
-		assert(enctext2 != enctext);
-		// printf("Text len: %zu %zu\n", text.length(), enctext.length());
-		/*
-		for (size_t i = 0; i < enctext2.length(); ++i) {
-			printf("%02x ", enctext2.charAt(i));
-		}
-		printf("\n");
-		for (size_t i = 0; i < enctext.length(); ++i) {
-			printf("%02x ", enctext.charAt(i));
-		}
-		printf("\n");
-		*/
-	
-		enc_res = CryptoKeys::_decrypt(key, enctext.c_str(), enctext.length(), &udata, &ulen);
-		assert(enc_res == CryptoKeys::OK_DECRYPTED);
-		assert(ulen == i);
-		/*
-		for (size_t i = 0; i < ulen; ++i) {
-			printf("%02x ", (uint8_t) udata[i]);
-		}
-		printf("\n");
-		*/
-		assert(Buffer(udata, ulen) == text);
-		::free(udata);
-	}
-}
-
-void test_crypto2()
-{
-	// test encryption and decryption
-	arduino_nvram_crypto_psk_save("Abracadabra");
-
-	Params d;
-	d.put_naked("x");
-	d.put("y", "456");
-	d.set_ident(123);
-	Packet p(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
-	Buffer spl2u = p.encode_l2u();
-	Buffer spl2 = p.encode_l2e();
-
-	// verify that encrypted and unencrypted packets are different
-	assert(spl2u.length() < spl2.length());
-	assert(!spl2.startsWith(spl2u));
-
-	// test decoder of encrypted packet
-	int error;
-	Ptr<Packet> q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!!q);
-
-	// disable encryption
-	arduino_nvram_crypto_psk_save("");
-
-	// try to decode encrypted packet while expecting cleartext
-	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!q);
-	assert(error == 1901);
-
-	spl2u = p.encode_l2u();
-	spl2 = p.encode_l2e();
-	// without a configured key, encryption should not happen
-	assert(spl2u.length() == spl2.length());
-	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!!q);
-
-	// reenable encryption
-	arduino_nvram_crypto_psk_save("Abracadabra");
-	// try to decode a cleartext packet while expecting encrypted packet
-	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!q);
-	assert(error == 1900);
-
-	// try to decode a seemingly encrypted packet which is internally bogus
-	// bad length
-	spl2 = "\x05" "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
-	Packet::append_fec(spl2);
-	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!q);
-	printf("%d\n", error);
-	assert(error == 1902);
-
-	// try to decode a seemingly encrypted packet which is internally bogus
-	// too short
-	spl2 = "\x05" "12345678901234567890";
-	Packet::append_fec(spl2);
-	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!q);
-	printf("%d\n", error);
-	assert(error == 1902);
-
-	// try to decode a seemingly encrypted packet which is internally bogus
-	// informed length incompatible with true length
-	spl2 = "\x05" "2345678901234567890123456789012";
-	Packet::append_fec(spl2);
-	q = Packet::decode_l2e(spl2.c_str(), spl2.length(), -50, error);
-	assert(!q);
-	printf("%d\n", error);
-	assert(error == 1902);
-
-	// disable encryption
-	arduino_nvram_crypto_psk_save("");
-}
 
 void test1()
 {
@@ -189,29 +69,29 @@ void test2() {
 
 	int error;
 	printf("---\n");
-	Ptr<Packet> p = Packet::decode_l3("AAAA<BBBB:133", error, false);
+	Ptr<Packet> p = Packet::decode_l3_test("AAAA<BBBB:133", error);
 	assert (!!p);
 	assert (p->msg().length() == 0);
 
-	p = Packet::decode_l3("AAAA-12<BBBB:133 ee", error, false);
+	p = Packet::decode_l3_test("AAAA-12<BBBB:133 ee", error);
 	assert (!!p);
 	assert (strcmp("ee", p->msg().c_str()) == 0);
 	assert (p->msg() == "ee");
 	assert (strcmp(Buffer(p->to()).c_str(), "AAAA-12") == 0);
 	
-	assert (!Packet::decode_l3("A<BBBB:133", error, false));
-	assert (!Packet::decode_l3("AAAA<B:133", error, false));
-	assert (!Packet::decode_l3("AAAA:BBBB<133", error, false));
-	assert (!Packet::decode_l3("AAAA BBBB<133", error, false));
-	assert (!Packet::decode_l3("<BBBB:133", error, false));
-	p = Packet::decode_l3("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla", error, false);
+	assert (!Packet::decode_l3_test("A<BBBB:133", error));
+	assert (!Packet::decode_l3_test("AAAA<B:133", error));
+	assert (!Packet::decode_l3_test("AAAA:BBBB<133", error));
+	assert (!Packet::decode_l3_test("AAAA BBBB<133", error));
+	assert (!Packet::decode_l3_test("<BBBB:133", error));
+	p = Packet::decode_l3_test("AAAA<BBBB:133,aaa,bbb=ccc,ddd=eee,fff bla", error);
 	assert (!!p);
 
-	assert (!Packet::decode_l3("AAAA<BBBB:133,aaa,,ddd=eee,fff bla", error, false));
-	assert (!Packet::decode_l3("AAAA<BBBB:01 bla", error, false));
-	assert (!Packet::decode_l3("AAAA<BBBB:aa bla", error, false));
+	assert (!Packet::decode_l3_test("AAAA<BBBB:133,aaa,,ddd=eee,fff bla", error));
+	assert (!Packet::decode_l3_test("AAAA<BBBB:01 bla", error));
+	assert (!Packet::decode_l3_test("AAAA<BBBB:aa bla", error));
 
-	p = Packet::decode_l3("AAAA<BBBB:133,A,B=C bla", error, false);
+	p = Packet::decode_l3_test("AAAA<BBBB:133,A,B=C bla", error);
 	assert (!!p);
 	Ptr<Packet> q = p->change_msg("bla ble");
 	Params d = q->params();
@@ -429,89 +309,10 @@ int main()
 	d.put("y", "456");
 	d.set_ident(123);
 
-	// test short packet FEC
-	Packet p(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("bla ble"));
-	Buffer spl3 = p.encode_l3();
-	Buffer spl2 = p.encode_l2u();
-	assert(spl2.length() < 60);
-
-	printf("spl3 '%s'\n", spl3.c_str());
-	assert (strcmp(spl3.c_str(), "AAAA<BBBB:123,X,Y=456 bla ble") == 0);
-	printf("---\n");
-	int error;
-	Ptr<Packet> q = Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error);
-	assert (q);
-
-	/* Corrupt some chars */
-	*spl2.hot(1) = 66;
-	*spl2.hot(3) = 66;
-	*spl2.hot(33) = 66;
-	*spl2.hot(39) = 66;
-	q = Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error);
-	assert (q);
-
-	/* Corrupt too many chars */
-	*spl2.hot(2) = 66;
-	*spl2.hot(5) = 66;
-	*spl2.hot(6) = 66;
-	*spl2.hot(8) = 66;
-	*spl2.hot(10) = 66;
-	*spl2.hot(11) = 66;
-	*spl2.hot(13) = 66;
-	*spl2.hot(39) = 66;
-	assert(! Packet::decode_l2u(spl2.c_str(), spl2.length(), -50, error));
-
-	assert (p.is_dup(*q));
-	assert (q->is_dup(p));
-	assert (strcmp(Buffer(q->to()).c_str(), "AAAA") == 0);
-	assert (strcmp(Buffer(q->from()).c_str(), "BBBB") == 0);
-	assert (q->params().ident() == 123);
-	assert (q->params().has("X"));
-	assert (q->params().has("Y"));
-	assert (! q->params().has("Z"));
-	assert (strcmp(q->params().get("Y").c_str(), "456") == 0);
-	assert (q->params().is_key_naked("X"));
-
-	// test medium packet FEC
-	Packet pmedium(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("0123456789012345678901234567890123456789012345678901234567890123456789"));
-	Buffer pmedium2 = pmedium.encode_l2u();
-	assert(pmedium2.length() > 65);
-	assert(pmedium2.length() < 115);
-	assert(Packet::decode_l2u(pmedium2.c_str(), pmedium2.length(), -50, error));
-	// corrupt a little
-	*pmedium2.hot(12) = 66;
-	*pmedium2.hot(13) = 66;
-	*pmedium2.hot(10) = 66;
-	*pmedium2.hot(8) = 66;
-	*pmedium2.hot(4) = 66;
-	*pmedium2.hot(3) = 66;
-	assert(Packet::decode_l2u(pmedium2.c_str(), pmedium2.length(), -50, error));
-	// corrupt a lot
-	memset(pmedium2.hot(14), 66, 30);
-	assert(!Packet::decode_l2u(pmedium2.c_str(), pmedium2.length(), -50, error));
-
-	// test long packet FEC
-	Packet plong(Callsign(Buffer("aaAA")), Callsign(Buffer("BBbB")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
-	Buffer plong2 = plong.encode_l2u();
-	assert(plong2.length() > 120);
-	assert(Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
-	// corrupt a little
-	*plong2.hot(12) = 66;
-	*plong2.hot(13) = 66;
-	assert(Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
-	// corrupt a lot
-	memset(plong2.hot(14), 66, 30);
-	assert(!Packet::decode_l2u(plong2.c_str(), plong2.length(), -50, error));
-	
-	Buffer pshort("bla");
-	assert(!Packet::decode_l2u(pshort.c_str(), pshort.length(), -50, error));
-
 	test1();
 	test2();
 	test4();
 	test5();
-	test_crypto();
-	test_crypto2();
 
 	Packet plong3(Callsign(Buffer("AAAAAAA-11")), Callsign(Buffer("BBBBBB-22")), d, Buffer("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
 	Buffer b3 = plong3.encode_l3();

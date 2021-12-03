@@ -11,7 +11,7 @@
 #include <cstdint>
 
 uint32_t _arduino_millis();
-int32_t arduino_random(int32_t min, int32_t max);
+int32_t arduino_random2(int32_t min, int32_t max);
 void arduino_restart();
 
 #endif

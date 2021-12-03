@@ -207,8 +207,8 @@ L7HandlerResponse Proto_Switch::handle(const Packet& pkt)
 		return L7HandlerResponse();
 	}
 
-	if (!pkt.was_encrypted() && !pkt.params().has("H")) {
-		logs("SW demands HMAC or crypto to work securely", "");
+	if (!pkt.params().has("H")) {
+		logs("SW demands HMAC to work securely", "");
 		return L7HandlerResponse();
 	}
 
