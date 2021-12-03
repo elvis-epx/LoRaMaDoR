@@ -17,5 +17,9 @@ Wi-Fi) have 1/10 of the needed range.
 
 The Switch protocol has to implement protection against relay
 attacks. It uses a challenge-response scheme, and packets must
-be either encrypted or HMAC-signed to make sure the response can
-be trusted.
+be HMAC-signed to make sure the response can be trusted.
+
+This project does not use encryption, but LoRa-trans layer-2
+encapsulation does support encryption, so you can change the
+code. Specifically, pass the encryption key and its length
+to LoRaL2 constructor, called in Network.cpp.

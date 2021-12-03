@@ -61,7 +61,7 @@ hexadecimal digits.
 Together, the !pktx command and the pkrx: prefix establish an 8-bit clean
 method of exchanging packets over a potentially ASCII-only channel.
 
-Note that layer-2 (FEC and encryption) is still handled within the
+Note that layer-2 (FEC and encryption, if activated in LoRa-trans) is still handled within the
 microcontroller, even in TNC mode. The host only sees valid, layer-3
 packets. It does not get "raw" packets.
 
