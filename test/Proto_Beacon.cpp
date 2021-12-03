@@ -1,1 +1,1 @@
-../main/Proto_Beacon.cpp
+../src/Proto_Beacon.cpp

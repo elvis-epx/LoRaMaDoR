@@ -1,1 +1,1 @@
-../main/Proto_Ping.h
+../src/Proto_Ping.h

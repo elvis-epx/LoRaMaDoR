@@ -1,1 +1,1 @@
-../main/Dict.h
+../src/Dict.h

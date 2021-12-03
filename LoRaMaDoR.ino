@@ -6,12 +6,12 @@
 // Main LoRaMaDoR network class, plus some auxiliary types
 
 #include <Preferences.h>
-#include "Network.h"
-#include "Display.h"
-#include "ArduinoBridge.h"
-#include "Timestamp.h"
-#include "Console.h"
-#include "Telnet.h"
+#include "src/Network.h"
+#include "src/Display.h"
+#include "src/ArduinoBridge.h"
+#include "src/Timestamp.h"
+#include "src/Console.h"
+#include "src/Telnet.h"
 
 #include "driver/adc.h"
 #include <esp_wifi.h>

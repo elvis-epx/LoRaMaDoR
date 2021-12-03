@@ -1,1 +1,1 @@
-../main/sha256.h
+../src/sha256.h
