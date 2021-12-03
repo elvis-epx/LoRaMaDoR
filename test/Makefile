@@ -10,13 +10,13 @@ clean:
 	gcc $(CFLAGS) -c $<
 
 test: test.cpp $(OBJ) *.h
-	gcc $(CFLAGS) -o test test.cpp $(OBJ) LoRa-trans/test/*.o -lstdc++
+	gcc $(CFLAGS) -o test test.cpp $(OBJ) LoRa-trans-test/*.o -lstdc++
 
 testnet: testnet.cpp $(OBJ) *.h
-	gcc $(CFLAGS) -o testnet testnet.cpp $(OBJ)  LoRa-trans/test/*.o -lstdc++
+	gcc $(CFLAGS) -o testnet testnet.cpp $(OBJ)  LoRa-trans-test/*.o -lstdc++
 
 testnet2: testnet2.cpp $(OBJ) *.h
-	gcc $(CFLAGS) -o testnet2 testnet2.cpp $(OBJ) LoRa-trans/test/*.o -lstdc++
+	gcc $(CFLAGS) -o testnet2 testnet2.cpp $(OBJ) LoRa-trans-test/*.o -lstdc++
 
 recov:
 	rm -f *.gcda
