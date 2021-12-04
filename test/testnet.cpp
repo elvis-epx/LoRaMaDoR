@@ -244,6 +244,10 @@ int main(int argc, char* argv[])
 	Net->_peers()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
 	Net->_repeaters()["UNKNOWN"] = Peer(-50, -90 * 60 * 1000);
 
+	// simulate rx of invalid packet at l3 level
+	char* tmpbuf = strdup("boo");
+	Net->recv(new LoRaL2Packet((uint8_t*) tmpbuf, strlen(tmpbuf), -50, 0));
+
 	// Main loop simulation (in Arduino, would be a busy loop)
 	int s = lora_emu_socket();
 	int s2 = Serial.emu_listen_socket();
