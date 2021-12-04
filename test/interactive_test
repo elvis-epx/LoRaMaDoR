@@ -6,18 +6,19 @@ if [ "$1" = "-v" ]; then
 fi
 
 PIDS=""
-for eee in AAAA:0:1:somekey:6000 BBBB:0:1:somekey:6001; do
+for eee in AAAA:0:1:somekey:6000:None BBBB:0:1:somekey:6001:None; do
 	sta=$(echo $eee | cut -f 1 -d ':')
 	rep=$(echo $eee | cut -f 2 -d ':')
 	cov=$(echo $eee | cut -f 3 -d ':')
 	psk=$(echo $eee | cut -f 4 -d ':')
 	port=$(echo $eee | cut -f 5 -d ':')
+	cpsk=$(echo $eee | cut -f 6 -d ':')
 	if [ $VALGRIND = 1 ]; then
 		valgrind --leak-check=full --error-exitcode=1 --log-file=${sta}.val --gen-suppressions=all \
-			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+			--suppressions=valgrind.supp ./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}.log &
 		PIDS+=" $!"
 	else
-		./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} > ${sta}.log &
+		./testnet2 ${sta} ${rep} ${cov} ${psk} ${port} ${cpsk} > ${sta}.log &
 		PIDS+=" $!"
 	fi
 done
