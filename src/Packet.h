@@ -34,7 +34,6 @@ public:
 	Ptr<Packet> change_msg(const Buffer&) const;
 	Ptr<Packet> change_params(const Params&) const;
 	Buffer encode_l3(size_t max) const;
-	bool is_dup(const Packet& other) const;
 	Buffer signature() const;
 	Callsign to() const;
 	Callsign from() const;

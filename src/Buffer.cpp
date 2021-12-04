@@ -186,11 +186,6 @@ const char* Buffer::c_str() const
 	return this->buf;
 }
 
-char* Buffer::hot(size_t n)
-{
-	return this->buf + n;
-}
-
 size_t Buffer::length() const
 {
 	return this->len;

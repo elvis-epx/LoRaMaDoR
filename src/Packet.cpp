@@ -129,12 +129,6 @@ Buffer Packet::signature() const
 	return _signature;
 }
 
-// Compares signature with another packet
-bool Packet::is_dup(const Packet& other) const
-{
-	return _signature == other._signature;
-}
-
 // Returns destination callsign of this packet.
 Callsign Packet::to() const
 {
