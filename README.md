@@ -37,8 +37,8 @@ This project needs some Arduino libraries that are straightforward
 to obtain (LoRa, OLED display, etc.). FWIW they are included in 
 a ZIP file (tooling/loralibs.zip).
 
-We also depend on LoRa-trans project (https://github.com/elvis-epx/LoRa-trans).
-This library is included via symlinks, and it is expected that LoRa-trans
+We also depend on LoRaL2 project (https://github.com/elvis-epx/LoRaL2).
+This library is included via symlinks, and it is expected that LoRaL2
 project folder exists at the same level as LoRaMaDoR.
 
 # Console and command-line interface (CLI)

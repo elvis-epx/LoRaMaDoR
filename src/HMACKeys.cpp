@@ -5,7 +5,7 @@
 
 #include "HMACKeys.h"
 #include "NVRAM.h"
-#include "LoRa-trans/src/sha256.h"
+#include "LoRaL2/src/sha256.h"
 
 static bool valid = false;
 static Buffer psk;

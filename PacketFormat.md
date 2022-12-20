@@ -85,8 +85,8 @@ value is expressed in seconds.
 
 ## FEC code and LoRa mode
 
-This project uses LoRa-trans project for layer-2 packet encapsulation.
-Refer to https://github.com/elvis-epx/LoRa-trans to learn the reasoning and
+This project uses LoRaL2 project for layer-2 packet encapsulation.
+Refer to https://github.com/elvis-epx/LoRaL2 to learn the reasoning and
 technical details about FEC code and chosen LoRa mode.
 
 In our experiments, we found that LoRa packets arrive with errors even under
@@ -96,7 +96,7 @@ can employ stronger algorithms.
 
 ## Encryption
 
-Currently, LoRaMaDoR does not support criptography, but the LoRa-trans library
+Currently, LoRaMaDoR does not support criptography, but the LoRaL2 library
 (that handles layer-2 encapsulation) does support encryption. It is trivial to
 change the source code to pass the encryption key to LoRaL2 constructor. This
 could be useful for non-amateur uses.

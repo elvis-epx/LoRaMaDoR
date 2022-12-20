@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <cstdlib>
 #include "Packet.h"
-#include "LoRa-trans/src/sha256.h"
+#include "LoRaL2/src/sha256.h"
 #include "Proto_HMAC.h"
 #include "Network.h"
 #include "CLI.h"

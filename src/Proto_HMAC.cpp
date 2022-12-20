@@ -9,7 +9,7 @@
 #include "HMACKeys.h"
 #include "Network.h"
 #include "Packet.h"
-#include "LoRa-trans/src/sha256.h"
+#include "LoRaL2/src/sha256.h"
 
 Proto_HMAC::Proto_HMAC(Network *net): L4Protocol(net)
 {

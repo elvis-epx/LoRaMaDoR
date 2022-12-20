@@ -19,7 +19,7 @@ The Switch protocol has to implement protection against relay
 attacks. It uses a challenge-response scheme, and packets must
 be HMAC-signed to make sure the response can be trusted.
 
-This project does not use encryption, but LoRa-trans layer-2
+This project does not use encryption, but LoRaL2
 encapsulation does support encryption, so you can change the
 code. Specifically, pass the encryption key and its length
 to LoRaL2 constructor, called in Network.cpp.

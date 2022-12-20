@@ -15,7 +15,7 @@
 #include "Task.h"
 #include "Params.h"
 #include "Callsign.h"
-#include "LoRa-trans/LoRaL2.h"
+#include "LoRaL2/LoRaL2.h"
 
 #define MAX_PACKET_ID 9999
 
